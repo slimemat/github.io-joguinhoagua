@@ -1,0 +1,98 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.background {
+    background-image: url('imagem-de-fundo.jpg');
+    background-size: cover;
+    background-position: center;
+    width: 100vw;
+    height: 100vh;
+    position: relative;
+}
+
+/* Tela de Início */
+#start-screen {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
+
+#play-button {
+    padding: 15px 30px;
+    font-size: 24px;
+    color: #ffffff;
+    background-color: #004d40;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#play-button:hover {
+    background-color: #00796b;
+}
+
+/* Container do Jogo */
+#game-container {
+    position: absolute;
+    top: 10%;
+    left: 50%;
+    transform: translate(-50%, 0);
+    background-color: rgba(255, 255, 255, 0.8);
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    width: 80%;
+    max-width: 900px;
+    display: none; /* Começa oculto */
+}
+
+/* Área do Jogo */
+.gameCanvas {
+    padding: 20px;
+    height: 400px;
+    border: 2px solid #004d40;
+    border-radius: 10px;
+    background-color: #e0f7fa;
+    background-image: url('assets/backCanvasOne.gif');
+    position: relative;
+    overflow: hidden;
+}
+
+.small-img {
+    max-width: 400px; /* Ajuste o tamanho da imagem conforme necessário */
+    animation: pulse 1s infinite; /* Chama a animação chamada 'pulse' a cada 1 segundo, infinitamente */
+    display: block; /* Para garantir que a imagem ocupe uma linha inteira */
+    margin: 0 auto; /* Centraliza a imagem se o contêiner for mais largo */
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1); /* Escala normal */
+        opacity: 1; /* Totalmente opaco */
+    }
+    50% {
+        transform: scale(1.1); /* Aumenta a escala em 10% */
+        opacity: 0.8; /* Diminui a opacidade */
+    }
+    100% {
+        transform: scale(1); /* Volta ao tamanho normal */
+        opacity: 1; /* Totalmente opaco novamente */
+    }
+}
+
+.item{
+    position: absolute; 
+    width: 30px; 
+    height: 30px; 
+    left: 300px; 
+    top: 150px;
+}

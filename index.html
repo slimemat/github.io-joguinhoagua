@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CICLO DA ÁGUA</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Fundo do Jogo -->
+    <div class="background">
+        <!-- Tela de Início -->
+        <div id="start-screen">
+            <button id="play-button" onclick="startGame()">JOGAR</button>
+        </div>
+
+        <!-- Container do Jogo -->
+        <div id="game-container" class="hidden">
+            <h1>CICLO DA ÁGUA</h1>
+
+            <div id="score-container">
+                <span id="score-label">Pontuação: </span><span id="score">0</span>
+            </div>
+
+            <div class="gameCanvas" id="gameCanvas">
+                <!-- Aqui você pode adicionar elementos do jogo -->
+                <img id="arrowKeysImage" src="assets/arrowkeys.png" class='small-img' alt="pressione as setas para se mover">
+                <img id="item" class="item" src="assets/xp1.gif">
+            </div>
+        </div>
+
+        <!-- Música de fundo -->
+        <audio id="background-music" loop>
+            <source src="musica-de-fundo.mp3" type="audio/mpeg">
+            <source src="musica-de-fundo.ogg" type="audio/ogg">
+            Seu navegador não suporta o elemento de áudio.
+        </audio>
+
+        <audio id="collect-sound" src="assets/xp.mp3" preload="auto"></audio>
+        <button id="toggle-music" onclick="toggleMusic()">Pausar Música</button>
+
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
