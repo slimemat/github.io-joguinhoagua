@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CICLO DA ÁGUA - Fase 1</title>
+    <!-- O caminho para o CSS agora é relativo à pasta 'games' -->
+    <link rel="stylesheet" href="../css/fase1.css">
+</head>
+<body>
+    <!-- Fundo do Jogo -->
+    <div class="background">
+
+        <!-- A CAMADA DE NUVENS VAI AQUI, NO FUNDO -->
+        <div class="clouds-layer"></div>
+
+        <!-- Tela de Início -->
+        <div id="start-screen">
+            <!-- O 'onclick' foi removido. O ID foi padronizado para 'start-button'. -->
+            <button id="start-button">JOGAR</button>
+        </div>
+
+        <!-- Container do Jogo -->
+        <div id="game-container" class="hidden">
+            <h1>CICLO DA ÁGUA</h1>
+
+            <div id="score-container">
+                <span id="score-label">Pontuação: </span><span id="score">0</span>
+            </div>
+
+            <div class="gameCanvas" id="gameCanvas">
+                <!-- O item do jogo e a imagem de ajuda continuam aqui -->
+                <img id="arrowKeysImage" src="../assets/arrowkeys.png" class='small-img' alt="pressione as setas para se mover">
+                <img id="item" class="item" src="../assets/xp1.gif">
+            </div>
+        </div>
+
+        <!-- Áudio -->
+        <audio id="background-music" loop>
+            <source src="../assets/musica-de-fundo.mp3" type="audio/mpeg">
+            Seu navegador não suporta o elemento de áudio.
+        </audio>
+        <audio id="collect-sound" src="../assets/xp.mp3" preload="auto"></audio>
+
+        <!-- O 'onclick' foi removido. A lógica agora está no 'ui.js' -->
+        <button id="toggle-music">Pausar Música</button>
+    </div>
+
+    <!--
+      IMPORTANTE:
+      O script agora é carregado como 'module'.
+      O caminho '../js/main.js' sobe um nível (sai da pasta 'games') para encontrar a pasta 'js'.
+    -->
+    <script type="module" src="../javascript/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,114 @@
+/* Estilos Gerais */
+body, html {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    font-family: sans-serif;
+}
+
+.hidden {
+    display: none;
+}
+
+/* Container de fundo principal com SUA IMAGEM */
+.background {
+    width: 100vw;
+    height: 100vh;
+    background: url('../assets/fase1-bg.jpg') no-repeat center center;
+    background-size: cover;
+    position: relative;
+    overflow: hidden; /* Garante que as nuvens não saiam do container */
+}
+
+/* CAMADA DE NUVENS ANIMADAS */
+.clouds-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 200%;
+    height: 100%;
+    background-image: url('../assets/3clouds.png'); 
+    background-repeat: repeat-x;
+    z-index: 1; /* Fica em cima do .background, mas atrás do resto */
+    animation: scroll 60s linear infinite;
+}
+
+/* ANIMAÇÃO PARA AS NUVENS */
+@keyframes scroll {
+    from {
+        transform: translateX(0);
+    }
+    to {
+        transform: translateX(-50%);
+    }
+}
+
+/* Tela de Início */
+#start-screen {
+    position: relative; 
+    z-index: 10; /* Fica na frente de todo o cenário */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+}
+
+#start-button, #toggle-music {
+    padding: 15px 30px;
+    font-size: 24px;
+    cursor: pointer;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+#toggle-music {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    z-index: 11; /* Fica na frente da tela do jogo */
+}
+
+/* Container do Jogo */
+#game-container {
+    position: relative;
+    z-index: 5; /* Fica na frente das nuvens e do fundo */
+    text-align: center;
+    color: white;
+}
+
+#score-container {
+    font-size: 2em;
+    text-shadow: 2px 2px 4px #000;
+    position: absolute;
+    top: 20px;
+    left: 20px;
+}
+
+.gameCanvas {
+    position: relative;
+    width: 80vw;
+    height: 70vh;
+    border: 3px solid white;
+    background-color: rgba(0, 0, 0, 0.2);
+    margin: 20px auto 0;
+}
+
+.item {
+    position: absolute;
+    width: 50px;
+    height: 50px;
+}
+
+.small-img {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 150px;
+    opacity: 0.7;
+}
+
