@@ -131,11 +131,11 @@
          * exactly where you want them on your background image.
          * The path will automatically follow them!
         */
-        #fase1 { top: 75%; left: 15%; }
-        #fase2 { top: 55%; left: 35%; }
-        #fase3 { top: 25%; left: 50%; }
-        #fase4 { top: 45%; left: 75%; }
-        #fase5 { top: 75%; left: 85%; }
+        #game1 { top: 75%; left: 15%; }
+        #game2 { top: 55%; left: 35%; }
+        #game3 { top: 25%; left: 50%; }
+        #game4 { top: 45%; left: 75%; }
+        #game5 { top: 75%; left: 85%; }
 
         /* Initial character position (on level 1) */
         #personagem { top: 74%; left: 14%; }
@@ -159,19 +159,19 @@
         </div>
 
         <!-- Game Levels -->
-        <div class="level" id="fase1">
+        <div class="level" id="game1">
             1 <span class="level-label">Evaporação</span>
         </div>
-        <div class="level" id="fase2">
+        <div class="level" id="game2">
             2 <span class="level-label">Condensação</span>
         </div>
-        <div class="level" id="fase3">
+        <div class="level" id="game3">
             3 <span class="level-label">Precipitação</span>
         </div>
-        <div class="level" id="fase4">
+        <div class="level" id="game4">
             4 <span class="level-label">Infiltração</span>
         </div>
-        <div class="level" id="fase5">
+        <div class="level" id="game5">
             5 <span class="level-label">Ciclo Completo</span>
         </div>
     </div>
@@ -197,7 +197,7 @@
                         y: level.offsetTop + level.offsetHeight / 2
                     };
                 })
-                // Sort the array based on the level number (fase1, fase2, etc.)
+                // Sort the array based on the level number (game1, game2, etc.)
                 .sort((a, b) => a.id - b.id)
                 // Finally, create the array of [x, y] coordinates for D3
                 .map(p => [p.x, p.y]);

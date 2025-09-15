@@ -1,7 +1,7 @@
 // javascript/main.js
 // Este é o ponto de entrada. Ele inicializa o jogo e a interface.
 
-import Game from './game.js';
+import Game from '../game1/Game.js';
 import { setupUIEventListeners } from './ui.js';
 
 // Espera a página carregar completamente antes de iniciar qualquer coisa.

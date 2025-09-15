@@ -2,13 +2,16 @@
 // Gerencia todos os inputs do teclado.
 
 export default class InputHandler {
-    constructor() {
+    /**
+     * @param {function} onKeyPress - Callback chamado sempre que qualquer tecla é pressionada
+     */
+    constructor(onKeyPress = null) {
         this.keys = {};
+        this.onKeyPress = onKeyPress;
         
         window.addEventListener("keydown", (e) => {
             this.keys[e.key] = true;
-            // A lógica de changeState foi movida para o Player,
-            // mas o evento pode ser capturado aqui se necessário.
+            if (this.onKeyPress) this.onKeyPress(e.key);
         });
 
         window.addEventListener("keyup", (e) => {

@@ -14,7 +14,7 @@ body, html {
 .background {
     width: 100vw;
     height: 100vh;
-    background: url('../assets/fase1-bg.jpg') no-repeat center center;
+    background: url('../assets/game1-bg.jpg') no-repeat center center;
     background-size: cover;
     position: relative;
     overflow: hidden; /* Garante que as nuvens não saiam do container */
@@ -104,11 +104,21 @@ body, html {
 }
 
 .small-img {
-    position: absolute;
-    bottom: 10px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 150px;
-    opacity: 0.7;
+  position: absolute;
+  top: 50%; /* vertical center */
+  left: 50%; /* horizontal center */
+  transform: translate(-50%, -50%) scale(1); /* center and scale */
+  width: 250px;
+  opacity: 0.7;
+  animation: bounceZoom 1s infinite;
+  transform-origin: center;
 }
 
+@keyframes bounceZoom {
+  0%, 100% {
+    transform: translate(-50%, -50%) scale(1); /* keep centering + normal size */
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.2); /* zoom in */
+  }
+}

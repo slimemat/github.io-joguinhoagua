@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CICLO DA ÁGUA - Fase 1</title>
     <!-- O caminho para o CSS agora é relativo à pasta 'games' -->
-    <link rel="stylesheet" href="../css/fase1.css">
+    <link rel="stylesheet" href="../../css/game1.css">
 </head>
 <body>
     <!-- Fundo do Jogo -->
@@ -30,17 +30,17 @@
 
             <div class="gameCanvas" id="gameCanvas">
                 <!-- O item do jogo e a imagem de ajuda continuam aqui -->
-                <img id="arrowKeysImage" src="../assets/arrowkeys.png" class='small-img' alt="pressione as setas para se mover">
-                <img id="item" class="item" src="../assets/xp1.gif">
+                <img id="arrowKeysImage" src="../../assets/arrowkeys.png" class='small-img' alt="pressione as setas para se mover">
+                <img id="item" class="item" src="../../assets/xp1.gif">
             </div>
         </div>
 
         <!-- Áudio -->
         <audio id="background-music" loop>
-            <source src="../assets/musica-de-fundo.mp3" type="audio/mpeg">
+            <source src="../../assets/musica-de-fundo.mp3" type="audio/mpeg">
             Seu navegador não suporta o elemento de áudio.
         </audio>
-        <audio id="collect-sound" src="../assets/xp.mp3" preload="auto"></audio>
+        <audio id="collect-sound" src="../../assets/xp.mp3" preload="auto"></audio>
 
         <!-- O 'onclick' foi removido. A lógica agora está no 'ui.js' -->
         <button id="toggle-music">Pausar Música</button>
@@ -49,8 +49,8 @@
     <!--
       IMPORTANTE:
       O script agora é carregado como 'module'.
-      O caminho '../js/main.js' sobe um nível (sai da pasta 'games') para encontrar a pasta 'js'.
+      O caminho '../js/common/main.js' sobe um nível (sai da pasta 'game1') para encontrar a pasta 'common'.
     -->
-    <script type="module" src="../javascript/main.js"></script>
+    <script type="module" src="../../javascript/common/main.js"></script>
 </body>
 </html>

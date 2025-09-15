@@ -1,3 +1,8 @@
+/**
+ * 
+ * THIS SCRIPT IS DEPRECATED AND WILL BE REMOVE, I HAVE CHANGED EVERYTHING TO MODULAR CODE BLOCKS - MATHEUS B
+
+
 let isMusicPlaying = true;
 
 function toggleMusic() {
@@ -178,3 +183,5 @@ window.addEventListener("keyup", function(event) {
 });
 
 setInterval(movePlayer, 1000 / 60); // Atualiza a cada 60 fps
+
+*/
