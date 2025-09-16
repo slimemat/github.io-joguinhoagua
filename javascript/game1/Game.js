@@ -131,7 +131,6 @@ export default class Game {
             this.score++;
             updateScore(this.score);
 
-            //console.log("score: " + this.score);
 
             //after score is updated, check if we should show a info/question
             if (this.questions && this.questions.length > 0) {
@@ -183,7 +182,6 @@ export default class Game {
      * Mostra informação relevante ao fazer x pontos, depois a questão ao fazer mais y pontos 
      */
     handleInfoAndQuestions() {
-        //console.log('handle question called');
 
         const q = this.questions[this.currentQuestionIndex];
         if (!q) return;
@@ -191,8 +189,6 @@ export default class Game {
         const infoScore = Game.INFO_INTERVAL + this.currentQuestionIndex * Game.INFO_INTERVAL;
         const questionScore = infoScore + Game.QUESTION_OFFSET;
 
-        //console.log("score aqui: " + this.score);
-        //console.log("info score: "+ infoScore);
 
         if (this.score === infoScore) {
             this.paused = true; // pausa o jogo para responder 
@@ -205,12 +201,34 @@ export default class Game {
         if (this.score === questionScore) {
             this.paused = true; // pausa o jogo para responder 
             showQuestionPanel(q.question.text, (userAnswer) => {
-                // Feedback opcional
-                // Comparar userAnswer com q.question.answer
+                // Resposta se acertou ou não
+
+                const isCorrect = this.evaluateAnswer(userAnswer);
+                console.log(isCorrect ? "Correto!" : "Incorreto!");
+
                 this.currentQuestionIndex++;
                 this.paused = false
                 this.resetHintTimer()
-            }, q.image, q.imageClass);
+            }, q.image, q.imageClass, q.question.options);
+        }
+    }
+
+    /**
+     * Avalia a resposta do usuário para a pergunta atual.
+     * @param {string} userAnswer - A resposta fornecida pelo usuário.
+     * @returns {boolean} Retorna true se a resposta estiver correta, false caso contrário.
+     */
+    evaluateAnswer(userAnswer) {
+        const q = this.questions[this.currentQuestionIndex];
+        if (!q) return false;
+
+        // Se for verdadeiro/falso
+        if (!q.question.options) {
+            return userAnswer.toLowerCase() === q.question.answer.toLowerCase(); //true ou false
+        }
+        // Se for múltipla escolha
+        else {
+            return userAnswer === q.question.answer; // true ou false
         }
     }
 

@@ -128,7 +128,6 @@ export default class Player {
                     this.currentStateIndex = topIndex;
                     this.element.src = this.states[this.currentStateIndex].src;
                     this.touchedTop = true;
-                    //console.log("%c[DEBUG] Forced state to Nuvem (top) once", "color: green; font-weight:bold;");
                 }
             }
         } else {
@@ -143,7 +142,6 @@ export default class Player {
                     this.currentStateIndex = bottomIndex;
                     this.element.src = this.states[this.currentStateIndex].src;
                     this.touchedBottom = true;
-                    //console.log("%c[DEBUG] Forced state to Liquido (bottom) once", "color: blue; font-weight:bold;");
                 }
             }
         } else {

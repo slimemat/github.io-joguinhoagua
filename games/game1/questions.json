@@ -2,9 +2,9 @@
   "pt-br": [
     {
       "id": 1,
-      "info": "A água pode existir em três estados físicos: sólido, líquido e gasoso.",
+      "info": "A água pode existir em três estados físicos: <span class='bg-solid'><b>sólido</b></span>, <span class='bg-liquid'><b>líquido</b></span> e <span class='bg-gas'><b>gasoso</b></span>.",
       "question": {
-        "text": "O estado sólido da água é chamado de gelo. Verdadeiro ou falso?",
+        "text": "O estado <span class='bg-solid'><b>sólido</b></span> da água é chamado de <b>gelo</b>. Verdadeiro ou falso?",
         "answer": "verdadeiro"
       },
       "image": "../../assets/icecubeguy.png",
@@ -12,12 +12,24 @@
     },
     {
       "id": 2,
-      "info": "A evaporação é o processo pelo qual a água passa do estado líquido para o gasoso.",
+      "info": "A <span class='bg-evaporation'><b>evaporação</b></span> é o processo pelo qual a água passa do estado <span class='bg-liquid'><b>líquido</b></span> para o <span class='bg-gas'><b>gasoso</b></span>.",
       "question": {
-        "text": "A evaporação transforma a água líquida em gelo. Verdadeiro ou falso?",
-        "answer": "falso"
+        "text": "A <span class='bg-evaporation'><b>evaporação</b></span> transforma a água <span class='bg-liquid'><b>líquida</b></span> em quê? Gelo ou Vapor?",
+        "type": "multichoice",
+        "options": ["Gelo (sólido)", "Vapor (gasoso)"],
+        "answer": "Vapor (gasoso)"
       },
       "image": "../../assets/evaporation_glass.gif",
+      "imageClass": "img-panel"
+    },
+    {
+      "id": 3,
+      "info": "Quando a água <span class='bg-liquid'><b>líquida</b></span> esquenta, ela se transforma em <span class='bg-gas'><b>vapor</b></span>. Esse vapor sobe para a atmosfera e, quanto mais alto, mais frio fica o ar. Esse resfriamento faz com que aconteça a <span class='bg-condensation'><b>condensação</b></span>, formando as nuvens, que são feitas de minúsculas gotinhas de água quase <span class='bg-liquid'><b>líquida</b></span>.",
+      "question": {
+        "text": "O ar é naturalmente mais frio quanto maior a altitude, por isso o vapor de água começa a se <span class='bg-condensation'><b>condensar</b></span> formando as nuvens. Verdadeiro ou Falso?",
+        "answer": "verdadeiro"
+      },
+      "image": "../../assets/cloud_sprite.gif",
       "imageClass": "img-panel"
     }
   ]
