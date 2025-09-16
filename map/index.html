@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapa do Jogo - O Ciclo da Água</title>
+
+    <link rel="stylesheet" href="../css/map.css">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Press+Start+2P&display=swap" rel="stylesheet">
+
+    <!-- D3.js Library - We use this to dynamically draw the SVG path -->
+    <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+
+    
+</head>
+<body>
+
+    <div class="map-container">
+
+        <div class="map-header">
+            <h1>fases do ciclo da água</h1>
+        </div>
+
+        <!-- This SVG element will contain the path drawn by our script -->
+        <svg class="map-path-svg"></svg>
+
+        <!-- Character Placeholder -->
+        <div id="personagem">
+            <img src="../assets/player1.gif" alt="water drop boy">
+        </div>
+
+        <!-- Game Levels -->
+        <div class="level" id="game1">
+            1 <span class="level-label">Evaporação</span>
+        </div>
+        <div class="level" id="game2">
+            2 <span class="level-label">Condensação</span>
+        </div>
+        <div class="level" id="game3">
+            3 <span class="level-label">Precipitação</span>
+        </div>
+        <div class="level" id="game4">
+            4 <span class="level-label">Infiltração</span>
+        </div>
+        <div class="level" id="game5">
+            5 <span class="level-label">Ciclo Completo</span>
+        </div>
+    </div>
+
+    <script>
+        /**
+         * This script uses the D3.js library to find all level nodes on the map
+         * and draw a smooth, dashed line connecting their centers.
+         * It automatically runs on page load and redraws the path if the window is resized.
+         */
+        function drawPath() {
+            // Select all elements with the class 'level'
+            const levels = document.querySelectorAll('.level');
+            
+            // Create an array of coordinate points from the center of each level
+            const points = Array.from(levels)
+                // First, convert NodeList to Array and attach the level number for sorting
+                .map(level => {
+                    const idNum = parseInt(level.id.replace('fase', ''), 10);
+                    return {
+                        id: idNum,
+                        x: level.offsetLeft + level.offsetWidth / 2,
+                        y: level.offsetTop + level.offsetHeight / 2
+                    };
+                })
+                // Sort the array based on the level number (game1, game2, etc.)
+                .sort((a, b) => a.id - b.id)
+                // Finally, create the array of [x, y] coordinates for D3
+                .map(p => [p.x, p.y]);
+
+            // Use D3 to generate the SVG path data
+            // d3.curveCatmullRom creates a nice smooth curve through all points
+            const lineGenerator = d3.line().curve(d3.curveCatmullRom);
+            const pathData = lineGenerator(points);
+
+            // Select the SVG container and clear any old path
+            const svg = d3.select('.map-path-svg');
+            svg.selectAll('path').remove();
+
+            // Append the new path to the SVG
+            svg.append('path')
+                .attr('d', pathData)
+                .attr('stroke', 'white')
+                .attr('stroke-width', 8)
+                .attr('stroke-dasharray', '20, 15')
+                .attr('stroke-linecap', 'round')
+                .attr('fill', 'none');
+        }
+
+        // Draw the path when the page first loads
+        window.addEventListener('load', drawPath);
+
+        // Redraw the path whenever the window is resized to keep it responsive
+        window.addEventListener('resize', drawPath);
+    </script>
+
+</body>
+</html>
+

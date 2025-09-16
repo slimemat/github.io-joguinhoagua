@@ -1,0 +1,128 @@
+
+/* CSS to ensure the map occupies the entire screen */
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden; /* Hides scrollbars */
+    font-family: 'Poppins', sans-serif;
+    background-color: #1a202c; /* A dark background for the map to stand out */
+}
+
+/* The main map container, covering the full screen */
+.map-container {
+    position: relative;
+    width: 100vw; /* 100% of viewport width */
+    height: 100vh; /* 100% of viewport height */
+    
+    /* === INSTRUCTION: PLACE YOUR BACKGROUND IMAGE URL HERE === */
+    background-image: url(../assets/bg-earth-build.png);
+    
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+/* Header for the game title, overlaid on the map */
+.map-header {
+    position: absolute;
+    top: 3vh; /* Ajustado para ficar mais perto do topo */
+    left: 3vw; /* Movido para a esquerda */
+    transform: none; /* Removido o transform que centralizava */
+    z-index: 10;
+    text-align: left; /* Alinhado o texto à esquerda */
+    color: white;
+    
+}
+.map-header h1 {
+    font-weight: 400;
+    font-size: clamp(1.5rem, 3vw, 2.2rem); /* Diminuído o tamanho da fonte */
+    text-shadow: 3px 3px 0px rgba(0,0,0,0.7); /* Sombra ajustada para o estilo pixel */
+    opacity: 0.5; 
+    font-family: 'Press Start 2P', cursive;
+}
+
+/* The SVG container for our dynamically generated path */
+.map-path-svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1; /* Sits below the levels but above the background */
+    pointer-events: none; /* Allows clicks to go through to levels */
+}
+
+/* Base style for each level node */
+.level {
+    position: absolute;
+    width: 70px;
+    height: 70px;
+    background-color: #FFD700;
+    color: #8B4513;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 1.8rem;
+    font-weight: 400;
+    border: 5px solid #fff;
+    box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    z-index: 2; /* Sits above the path */
+}
+
+.level:hover {
+    transform: scale(1.15);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.35);
+}
+
+.level-label {
+    position: absolute;
+    bottom: -35px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 5px 15px;
+    border-radius: 15px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+/* Placeholder for your character */
+#personagem {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    z-index: 3;
+    transition: all 0.5s ease-in-out;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    
+}
+
+#personagem img{
+    width: 100px;
+}
+
+/* * === INSTRUCTION: POSITION YOUR LEVELS HERE ===
+    * Adjust the top and left percentages to place the levels
+    * exactly where you want them on your background image.
+    * The path will automatically follow them!
+*/
+#game1 { top: 75%; left: 15%; }
+#game2 { top: 55%; left: 35%; }
+#game3 { top: 25%; left: 50%; }
+#game4 { top: 45%; left: 75%; }
+#game5 { top: 75%; left: 85%; }
+
+/* Initial character position (on level 1) */
+#personagem { top: 74%; left: 14%; }
+
+    

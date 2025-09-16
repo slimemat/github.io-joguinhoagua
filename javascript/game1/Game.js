@@ -6,8 +6,14 @@ import InputHandler from './InputHandler.js';
 import Item from './item.js';
 import Audio from '../common/AudioManager.js';
 import { updateScore, hideStartScreen, showGameContainer } from '../common/ui.js';
+import { showQuestionPanel } from '../../javascript/common/questionPanel.js';
+import { showInfoPanel } from '../../javascript/common/infoPanel.js';
 
 export default class Game {
+
+    static INFO_INTERVAL = 10;      // Pontos para mostrar info
+    static QUESTION_OFFSET = 5;    // Pontos após info para mostrar questão
+
     /**
      * Cria uma nova instância do jogo.
      * @param {HTMLCanvasElement} canvas - O canvas onde o jogo será renderizado.
@@ -16,6 +22,8 @@ export default class Game {
         this.canvas = canvas;
         this.width = 0;
         this.height = 0;
+
+        this.paused = false;
 
         this.audio = new Audio();
 
@@ -34,6 +42,10 @@ export default class Game {
 
         this.gameLoop = this.gameLoop.bind(this);
 
+        this.questions = [];
+        this.currentQuestionIndex = 0;
+        this.lastMilestone = 0;
+
         // Listener para redimensionamento da janela
         window.addEventListener('resize', this.resize.bind(this));
     }
@@ -41,7 +53,7 @@ export default class Game {
     /**
      * Inicia o jogo, exibindo a tela principal e criando objetos do jogo.
      */
-    start() {
+    async start() {
         hideStartScreen();
         showGameContainer();
 
@@ -53,6 +65,13 @@ export default class Game {
         this.audio.playMusic();
 
         this.resetHintTimer(); // inicia o temporizador do hint
+
+        // Load questions.json (only once)
+        if (this.questions.length === 0) {
+            const res = await fetch('./questions.json');
+            const data = await res.json();
+            this.questions = data["pt-br"];
+        }
 
         this.gameLoop();
     }
@@ -73,7 +92,9 @@ export default class Game {
     gameLoop() {
         if (!this.player) return;
 
-        this.update();
+        if (!this.paused) {
+            this.update();
+        }
         requestAnimationFrame(this.gameLoop);
     }
 
@@ -110,6 +131,13 @@ export default class Game {
             this.score++;
             updateScore(this.score);
 
+            //console.log("score: " + this.score);
+
+            //after score is updated, check if we should show a info/question
+            if (this.questions && this.questions.length > 0) {
+                this.handleInfoAndQuestions();
+            }
+
             if ([0, 2].includes(this.player.currentStateIndex)) {
                 this.player.changeState();
             }
@@ -135,6 +163,7 @@ export default class Game {
      * Mostra a dica dos arrow keys.
      */
     showArrowKeysHint() {
+        if (this.paused) return;
         if (this.arrowKeysImage) {
             this.arrowKeysImage.style.display = 'block';
             this.hasMoved = false;
@@ -142,10 +171,48 @@ export default class Game {
     }
 
     /**
-     * Reseta o temporizador da dica, exibindo-a se o jogador demorar.
+     * Reseta o temporizador da dica, exibindo-a se o jogador demorar (dica de movimentação).
      */
     resetHintTimer() {
         clearTimeout(this.hintTimeout);
+        if (this.paused) return
         this.hintTimeout = setTimeout(() => this.showArrowKeysHint(), this.hintDelay);
     }
+
+    /**
+     * Mostra informação relevante ao fazer x pontos, depois a questão ao fazer mais y pontos 
+     */
+    handleInfoAndQuestions() {
+        //console.log('handle question called');
+
+        const q = this.questions[this.currentQuestionIndex];
+        if (!q) return;
+
+        const infoScore = Game.INFO_INTERVAL + this.currentQuestionIndex * Game.INFO_INTERVAL;
+        const questionScore = infoScore + Game.QUESTION_OFFSET;
+
+        //console.log("score aqui: " + this.score);
+        //console.log("info score: "+ infoScore);
+
+        if (this.score === infoScore) {
+            this.paused = true; // pausa o jogo para responder 
+            showInfoPanel(q.info, () => {
+                // Após fechar info
+                this.paused = false;
+                this.resetHintTimer()
+            }, q.image, q.imageClass);
+        }
+        if (this.score === questionScore) {
+            this.paused = true; // pausa o jogo para responder 
+            showQuestionPanel(q.question.text, (userAnswer) => {
+                // Feedback opcional
+                // Comparar userAnswer com q.question.answer
+                this.currentQuestionIndex++;
+                this.paused = false
+                this.resetHintTimer()
+            }, q.image, q.imageClass);
+        }
+    }
+
+    
 }

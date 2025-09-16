@@ -1,0 +1,24 @@
+{
+  "pt-br": [
+    {
+      "id": 1,
+      "info": "A água pode existir em três estados físicos: sólido, líquido e gasoso.",
+      "question": {
+        "text": "O estado sólido da água é chamado de gelo. Verdadeiro ou falso?",
+        "answer": "verdadeiro"
+      },
+      "image": "../../assets/icecubeguy.png",
+      "imageClass": "img-panel"
+    },
+    {
+      "id": 2,
+      "info": "A evaporação é o processo pelo qual a água passa do estado líquido para o gasoso.",
+      "question": {
+        "text": "A evaporação transforma a água líquida em gelo. Verdadeiro ou falso?",
+        "answer": "falso"
+      },
+      "image": "../../assets/evaporation_glass.gif",
+      "imageClass": "img-panel"
+    }
+  ]
+}
