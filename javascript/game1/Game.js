@@ -8,6 +8,9 @@ import Audio from '../common/AudioManager.js';
 import { updateScore, hideStartScreen, showGameContainer } from '../common/ui.js';
 import { showQuestionPanel } from '../../javascript/common/questionPanel.js';
 import { showInfoPanel } from '../../javascript/common/infoPanel.js';
+import { showFeedbackPanel } from '../../javascript/common/feedbackPanel.js';
+import RewardsManager from './RewardsManager.js'; 
+
 
 export default class Game {
 
@@ -26,6 +29,7 @@ export default class Game {
         this.paused = false;
 
         this.audio = new Audio();
+        this.rewardsManager = new RewardsManager();
 
         //from the other class input.js
         this.input = new InputHandler(() => this.resetHintTimer());
@@ -45,6 +49,7 @@ export default class Game {
         this.questions = [];
         this.currentQuestionIndex = 0;
         this.lastMilestone = 0;
+        
 
         // Listener para redimensionamento da janela
         window.addEventListener('resize', this.resize.bind(this));
@@ -66,14 +71,24 @@ export default class Game {
 
         this.resetHintTimer(); // inicia o temporizador do hint
 
-        // Load questions.json (only once)
+        // Load questions.json and rewards.json (only once)
+        await Promise.all([
+            this.loadQuestions(),
+            this.rewardsManager.loadRewards()
+        ]);
+
+        this.gameLoop();
+    }
+
+    /**
+     * Loads questions.json.
+     */
+    async loadQuestions() {
         if (this.questions.length === 0) {
             const res = await fetch('./questions.json');
             const data = await res.json();
             this.questions = data["pt-br"];
         }
-
-        this.gameLoop();
     }
 
     /**
@@ -134,7 +149,7 @@ export default class Game {
 
             //after score is updated, check if we should show a info/question
             if (this.questions && this.questions.length > 0) {
-                this.handleInfoAndQuestions();
+                this.checkMilestones();
             }
 
             if ([0, 2].includes(this.player.currentStateIndex)) {
@@ -178,40 +193,120 @@ export default class Game {
         this.hintTimeout = setTimeout(() => this.showArrowKeysHint(), this.hintDelay);
     }
 
-    /**
-     * Mostra informação relevante ao fazer x pontos, depois a questão ao fazer mais y pontos 
-     */
-    handleInfoAndQuestions() {
 
+    /**
+     * Checks if the current score has reached a milestone for an info or question panel.
+     */
+    checkMilestones() {
         const q = this.questions[this.currentQuestionIndex];
         if (!q) return;
 
         const infoScore = Game.INFO_INTERVAL + this.currentQuestionIndex * Game.INFO_INTERVAL;
         const questionScore = infoScore + Game.QUESTION_OFFSET;
 
-
         if (this.score === infoScore) {
-            this.paused = true; // pausa o jogo para responder 
-            showInfoPanel(q.info, () => {
-                // Após fechar info
-                this.paused = false;
-                this.resetHintTimer()
-            }, q.image, q.imageClass);
+            this.triggerInfoSequence(q);
         }
         if (this.score === questionScore) {
-            this.paused = true; // pausa o jogo para responder 
-            showQuestionPanel(q.question.text, (userAnswer) => {
-                // Resposta se acertou ou não
-
-                const isCorrect = this.evaluateAnswer(userAnswer);
-                console.log(isCorrect ? "Correto!" : "Incorreto!");
-
-                this.currentQuestionIndex++;
-                this.paused = false
-                this.resetHintTimer()
-            }, q.image, q.imageClass, q.question.options);
+            this.triggerQuestionSequence(q);
         }
     }
+
+    /**
+     * Pauses the game and shows the informational panel.
+     * @param {object} q - The current question/info data object.
+     */
+    triggerInfoSequence(q) {
+        this.paused = true;
+        showInfoPanel(q.info, () => {
+            // After closing info panel
+            this.paused = false;
+            this.resetHintTimer();
+        }, q.image, q.imageClass);
+    }
+
+    /**
+     * (Formerly _showAnswerFeedback) Orchestrates the entire feedback sequence.
+     * @param {boolean} isCorrect - Whether the user's answer was correct.
+     * @param {object} q - The full question object.
+     */
+    showAnswerFeedback(isCorrect, q) {
+        this._playFeedbackSound(isCorrect);
+
+        const feedbackData = isCorrect ? q.feedback.correct : q.feedback.incorrect;
+        
+        const panelOptions = {
+            isCorrect: isCorrect,
+            title: feedbackData.title,
+            text: feedbackData.text,
+            image: q.image,
+            choicePrompt: isCorrect ? feedbackData.choice_prompt : null,
+            onClose: () => this._handleGameContinuation()
+        };
+
+        if (isCorrect && feedbackData.offers_reward) {
+            const rewards = this.rewardsManager.getRandomRewards(3);
+            panelOptions.actionButtons = this._createRewardButtons(rewards);
+        }
+
+        showFeedbackPanel(panelOptions);
+    }
+
+    /**
+     * Plays the correct or wrong sound effect.
+     */
+    _playFeedbackSound(isCorrect) {
+        if (isCorrect) {
+            this.audio.playCorrectSound();
+        } else {
+            this.audio.playWrongSound();
+        }
+    }
+
+    /**
+     * Creates the button objects for the feedback panel.
+     * This keeps the reward *logic* (what happens on click) inside Game.js.
+     */
+    _createRewardButtons(rewards) {
+        return rewards.map(reward => ({
+            title: reward.title,
+            subtitle: reward.subtitle,
+            callback: () => this.applyReward(reward.id)
+        }));
+    }
+
+        /**
+     * (NEW HELPER) This is where the actual effect of a chosen reward is handled.
+     */
+    applyReward(rewardId) {
+        console.log(`Applying reward: ${rewardId}`);
+        // TODO: make the logic here to apply game effect such as bigger clouds, faster movement...
+        //
+        //
+        //
+    }
+
+    /**
+     * Resumes the game state after a panel is closed.
+     */
+    _handleGameContinuation() {
+        this.currentQuestionIndex++;
+        this.paused = false;
+        this.resetHintTimer();
+    }
+
+    /**
+     * (UPDATED) The trigger method now calls the main orchestrator method.
+     */
+    triggerQuestionSequence(q) {
+        this.paused = true;
+        showQuestionPanel(q.question.text, (userAnswer) => {
+            const isCorrect = this.evaluateAnswer(userAnswer);
+            this.showAnswerFeedback(isCorrect, q);
+        }, q.image, q.imageClass, q.question.options);
+    }
+
+
 
     /**
      * Avalia a resposta do usuário para a pergunta atual.

@@ -113,13 +113,6 @@ export default class Player {
         const transitionStates = ["vapor", "chuva"];
         const currentStateName = this.states[this.currentStateIndex].name;
 
-        /*
-        console.log(
-            `%c[DEBUG] Player Y: ${this.y}, Canvas Height: ${canvasHeight}, Current State: ${currentStateName}`,
-            'color: orange; font-weight: bold;'
-        );
-        */
-
         // Topo do canvas → "nuvem"
         if (this.y <= 0) {
             if (!this.touchedTop && transitionStates.includes(currentStateName)) {

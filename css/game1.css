@@ -288,6 +288,164 @@ body, html {
   transform: scale(1.07);
 }
 
+/* FEEDBACK PANEL */
+.feedback-panel {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 9999;
+  background: rgba(26, 32, 44, 0.98);
+  border-radius: 1.5rem;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.45);
+  padding: 2rem 1.5rem 1.5rem 1.5rem;
+  min-width: 280px;
+  max-width: 480px;
+  width: 90vw;
+  text-align: center;
+  font-family: 'Poppins', Arial, sans-serif;
+  color: #fff;
+  border: 4px solid; /* Border color will be set by modifier */
+}
+
+.feedback-panel h1 {
+  font-family: 'Press Start 2P', 'Poppins', Arial, sans-serif;
+  font-size: 1.8rem;
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+
+.feedback-panel p {
+  font-size: 1.1rem;
+  margin-bottom: 2rem;
+  line-height: 1.5;
+}
+
+.feedback-panel .img-panel {
+  width: 30%;
+  max-width: 100px;
+  height: auto;
+  image-rendering: pixelated;
+  margin-bottom: 1rem;
+}
+
+/* Modifier for correct answers */
+.feedback-panel.correct {
+  border-color: #00c853; /* Green */
+}
+
+/* Modifier for incorrect answers */
+.feedback-panel.incorrect {
+  border-color: #d32f2f; /* Red */
+  animation: shake 0.5s;
+}
+
+.feedback-panel.incorrect .action-btn {
+  background: #d32f2f; /* Red */
+}
+.feedback-panel.incorrect .action-btn:hover {
+  background: #b71c1c;
+  transform: scale(1.07);
+}
+
+.feedback-panel .button-group {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap; /* Allows buttons to wrap on smaller screens */
+  margin-top: 1.5rem; /* Add some space above the buttons */
+}
+
+/* The individual action button */
+.feedback-panel .action-btn {
+  /* Flexbox for internal layout (title + subtitle) */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  
+  /* Sizing and Shape */
+  flex: 1 1 120px; /* Flex properties for responsiveness */
+  max-width: 150px;
+  aspect-ratio: 1 / 1; /* This makes the button a perfect square! */
+
+  /* Visuals (mostly from your existing styles) */
+  padding: 0.5rem;
+  border-radius: 1rem;
+  border: 3px solid transparent; /* Add a border for a nice hover effect */
+  color: #fff;
+  font-family: 'Poppins', Arial, sans-serif; /* Use a more readable font for the button */
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+  transition: all 0.2s ease-in-out; /* Transition all properties */
+}
+
+/* Specific styling for correct panel buttons */
+.feedback-panel.correct .action-btn {
+  background: #4a5568; /* A neutral dark gray for the buttons */
+  border-color: #718096;
+}
+
+.feedback-panel.correct .action-btn:hover {
+  transform: scale(1.07);
+  border-color: #00c853; /* Highlight with green on hover */
+  background: #2d3748;
+}
+
+/* The main text inside the button */
+.feedback-panel .btn-title {
+  font-family: 'Press Start 2P', sans-serif; /* Pixel font for title */
+  font-size: 1.1rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+/* The subtitle text inside the button */
+.feedback-panel .btn-subtitle {
+  font-size: 0.8rem;
+  opacity: 0.8;
+  line-height: 1.2;
+}
+
+/* This rule targets ONLY the button with id="continue-btn" inside the feedback panel */
+.feedback-panel #continue-btn {
+  /* Undoing the square perk style */
+  aspect-ratio: auto; /* This removes the square shape */
+  flex: none; /* Removes the flex-grow properties */
+  max-width: none;
+  
+  /* Applying the desired info-panel button style */
+  margin-top: 1rem;
+  padding: 0.7rem 2.5rem;
+  font-size: 1.1rem;
+  border-radius: 1rem;
+  border: none;
+  background: #00c853; /* Verde vivo */
+  color: #fff;
+  font-family: 'Press Start 2P', 'Poppins', Arial, sans-serif;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+  transition: background 0.2s, transform 0.2s;
+  letter-spacing: 1px;
+}
+
+.feedback-panel .choice-prompt {
+  font-family: 'Press Start 2P', sans-serif;
+  font-size: 1.2rem;
+  color: #f7fafc; /* A slightly off-white */
+  margin-top: 2rem;
+  margin-bottom: -0.5rem; /* Reduce space before buttons */
+  text-shadow: 1px 1px 5px rgba(0,0,0,0.5);
+}
+
+/* Adding the matching hover effect */
+.feedback-panel #continue-btn:hover {
+  background: #009624; /* Verde mais escuro no hover */
+  transform: scale(1.07);
+}
+
+
 
 /* === Water Cycle Color Identity (ajustada) === */
 

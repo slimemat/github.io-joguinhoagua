@@ -1,0 +1,29 @@
+{
+  "rewards": [
+    {
+      "id": "SPEED_UP_1",
+      "title": "Velocidade",
+      "subtitle": "+10% Rapidez"
+    },
+    {
+      "id": "LUCK_UP_1",
+      "title": "Sorte",
+      "subtitle": "+5% Itens Raros"
+    },
+    {
+      "id": "DEFENSE_UP_1",
+      "title": "Defesa",
+      "subtitle": "-10% Dano"
+    },
+    {
+      "id": "SCORE_BONUS_1",
+      "title": "Bônus",
+      "subtitle": "+50 Pontos"
+    },
+    {
+      "id": "TIME_SLOW_1",
+      "title": "Foco",
+      "subtitle": "Tempo Lento 5s"
+    }
+  ]
+}

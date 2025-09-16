@@ -8,7 +8,18 @@
         "answer": "verdadeiro"
       },
       "image": "../../assets/icecubeguy.png",
-      "imageClass": "img-panel"
+      "imageClass": "img-panel",
+      "feedback": {
+        "correct": {
+          "title": "Parabéns!",
+          "text": "Exato! Quando a água congela e atinge seu estado sólido, nós a chamamos de gelo.",
+          "offers_reward": false
+        },
+        "incorrect": {
+          "title": "Ops!",
+          "text": "Na verdade, é verdadeiro. O estado sólido da água é o que conhecemos como gelo. Continue tentando!"
+        }
+      }
     },
     {
       "id": 2,
@@ -20,7 +31,18 @@
         "answer": "Vapor (gasoso)"
       },
       "image": "../../assets/evaporation_glass.gif",
-      "imageClass": "img-panel"
+      "imageClass": "img-panel",
+      "feedback": {
+        "correct": {
+          "title": "Corretíssimo!",
+          "text": "Perfeito! O calor faz a água líquida evaporar, transformando-a em vapor, que é o estado gasoso.",
+          "offers_reward": false
+        },
+        "incorrect": {
+          "title": "Quase lá!",
+          "text": "Lembre-se: a evaporação acontece com o calor, que transforma a água em vapor (gasoso), não em gelo (sólido)."
+        }
+      }
     },
     {
       "id": 3,
@@ -30,7 +52,19 @@
         "answer": "verdadeiro"
       },
       "image": "../../assets/cloud_sprite.gif",
-      "imageClass": "img-panel"
+      "imageClass": "img-panel",
+      "feedback": {
+        "correct": {
+          "title": "Isso mesmo!",
+          "text": "Correto! A diminuição da temperatura com a altitude é o que causa a condensação do vapor de água, formando as gotículas que compõem as nuvens.",
+          "choice_prompt": "Escolha sua recompensa!",
+          "offers_reward": true 
+        },
+        "incorrect": {
+          "title": "Não foi dessa vez!",
+          "text": "Na verdade, a afirmação é verdadeira. O ar fica mais frio em altitudes maiores, e é esse resfriamento que permite a formação das nuvens a partir do vapor."
+        }
+      }
     }
   ]
 }
