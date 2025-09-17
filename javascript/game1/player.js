@@ -29,10 +29,21 @@ export default class Player {
         // Posição inicial e velocidade
         this.x = 10;
         this.y = this.game.height - 130;
-        this.speedX = 8;
-        this.speedY = 8;
+        this.speedX = 4;
+        this.speedY = 4;
         
         this.updatePosition();
+    }
+
+    /**
+     * Aumenta a velocidade do jogador em uma certa porcentagem.
+     * @param {number} percentage - A porcentagem de aumento (ex: 10 para 10%).
+     */
+    increaseSpeed(percentage) {
+        const multiplier = 1 + (percentage / 100);
+        this.speedX *= multiplier;
+        this.speedY *= multiplier;
+        console.log(`Velocidade do jogador aumentada para X: ${this.speedX.toFixed(2)}, Y: ${this.speedY.toFixed(2)}`);
     }
     
     /**

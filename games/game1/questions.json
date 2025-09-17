@@ -4,7 +4,7 @@
       "id": 1,
       "info": "A água pode existir em três estados físicos: <span class='bg-solid'><b>sólido</b></span>, <span class='bg-liquid'><b>líquido</b></span> e <span class='bg-gas'><b>gasoso</b></span>.",
       "question": {
-        "text": "O estado <span class='bg-solid'><b>sólido</b></span> da água é chamado de <b>gelo</b>. Verdadeiro ou falso?",
+        "text": "O estado <b>sólido</b> da água é chamado de <b>gelo</b>. Verdadeiro ou falso?",
         "answer": "verdadeiro"
       },
       "image": "../../assets/icecubeguy.png",
@@ -12,12 +12,12 @@
       "feedback": {
         "correct": {
           "title": "Parabéns!",
-          "text": "Exato! Quando a água congela e atinge seu estado sólido, nós a chamamos de gelo.",
+          "text": "Exato! Quando a água congela e atinge seu estado <span class='bg-solid'><b>sólido</b></span>, nós a chamamos de <span class='bg-solid'><b>gelo</b></span>.",
           "offers_reward": false
         },
         "incorrect": {
           "title": "Ops!",
-          "text": "Na verdade, é verdadeiro. O estado sólido da água é o que conhecemos como gelo. Continue tentando!"
+          "text": "Na verdade, é verdadeiro. O estado <span class='bg-solid'><b>sólido</b></span> da água é o que conhecemos como <span class='bg-solid'><b>gelo</b></span>. Continue tentando!"
         }
       }
     },
@@ -25,7 +25,7 @@
       "id": 2,
       "info": "A <span class='bg-evaporation'><b>evaporação</b></span> é o processo pelo qual a água passa do estado <span class='bg-liquid'><b>líquido</b></span> para o <span class='bg-gas'><b>gasoso</b></span>.",
       "question": {
-        "text": "A <span class='bg-evaporation'><b>evaporação</b></span> transforma a água <span class='bg-liquid'><b>líquida</b></span> em quê? Gelo ou Vapor?",
+        "text": "A <b>evaporação</b> transforma a água <b>líquida</b> em quê? Gelo ou Vapor?",
         "type": "multichoice",
         "options": ["Gelo (sólido)", "Vapor (gasoso)"],
         "answer": "Vapor (gasoso)"
@@ -35,12 +35,12 @@
       "feedback": {
         "correct": {
           "title": "Corretíssimo!",
-          "text": "Perfeito! O calor faz a água líquida evaporar, transformando-a em vapor, que é o estado gasoso.",
+          "text": "Perfeito! O <span class='bg-evaporation'><b>calor</b></span> faz a água <span class='bg-liquid'><b>líquida</b></span> <span class='bg-evaporation'><b>evaporar</b></span>, transformando-a em <span class='bg-gas'><b>vapor</b></span>, que é o estado <span class='bg-gas'><b>gasoso</b></span>.",
           "offers_reward": false
         },
         "incorrect": {
           "title": "Quase lá!",
-          "text": "Lembre-se: a evaporação acontece com o calor, que transforma a água em vapor (gasoso), não em gelo (sólido)."
+          "text": "Lembre-se: a <span class='bg-evaporation'><b>evaporação</b></span> acontece com o <span class='bg-evaporation'><b>calor</b></span>, que transforma a água em <span class='bg-gas'><b>vapor</b></span> (<span class='bg-gas'><b>gasoso</b></span>), não em <span class='bg-solid'><b>gelo</b></span> (<span class='bg-solid'><b>sólido</b></span>)."
         }
       }
     },
@@ -48,7 +48,7 @@
       "id": 3,
       "info": "Quando a água <span class='bg-liquid'><b>líquida</b></span> esquenta, ela se transforma em <span class='bg-gas'><b>vapor</b></span>. Esse vapor sobe para a atmosfera e, quanto mais alto, mais frio fica o ar. Esse resfriamento faz com que aconteça a <span class='bg-condensation'><b>condensação</b></span>, formando as nuvens, que são feitas de minúsculas gotinhas de água quase <span class='bg-liquid'><b>líquida</b></span>.",
       "question": {
-        "text": "O ar é naturalmente mais frio quanto maior a altitude, por isso o vapor de água começa a se <span class='bg-condensation'><b>condensar</b></span> formando as nuvens. Verdadeiro ou Falso?",
+        "text": "O ar é naturalmente mais frio quanto maior a altitude, por isso o vapor de água começa a se <b>condensar</b> formando as nuvens. Verdadeiro ou Falso?",
         "answer": "verdadeiro"
       },
       "image": "../../assets/cloud_sprite.gif",
@@ -56,13 +56,34 @@
       "feedback": {
         "correct": {
           "title": "Isso mesmo!",
-          "text": "Correto! A diminuição da temperatura com a altitude é o que causa a condensação do vapor de água, formando as gotículas que compõem as nuvens.",
+          "text": "Correto! A diminuição da temperatura com a <span class='bg-condensation'><b>altitude</b></span> é o que causa a <span class='bg-condensation'><b>condensação</b></span> do <span class='bg-gas'><b>vapor</b></span> de água, formando as gotículas que compõem as <span class='bg-condensation'><b>nuvens</b></span>.",
           "choice_prompt": "Escolha sua recompensa!",
-          "offers_reward": true 
+          "offers_reward": true
         },
         "incorrect": {
           "title": "Não foi dessa vez!",
-          "text": "Na verdade, a afirmação é verdadeira. O ar fica mais frio em altitudes maiores, e é esse resfriamento que permite a formação das nuvens a partir do vapor."
+          "text": "Na verdade, a afirmação é verdadeira. O ar fica mais frio em <span class='bg-condensation'><b>altitudes</b></span> maiores, e é esse <span class='bg-condensation'><b>resfriamento</b></span> que permite a formação das <span class='bg-condensation'><b>nuvens</b></span> a partir do <span class='bg-gas'><b>vapor</b></span>."
+        }
+      }
+    },
+    {
+      "id": 4,
+      "info": "A <span class='bg-condensation'><b>Floresta Amazônica</b></span> funciona como um coração que bombeia umidade para o céu. Essa enorme quantidade de <span class='bg-gas'><b>vapor</b></span> de água viaja pelo ar em corredores invisíveis chamados <span class='bg-liquid'><b>Rios Voadores</b></span>, levando <span class='bg-precipitation'><b>chuva</b></span> para outras partes distantes do Brasil.",
+      "question": {
+        "text": "O desmatamento na Amazônia não afeta a quantidade de chuva em outras regiões do Brasil como o Sudeste. Verdadeiro ou Falso?",
+        "answer": "falso"
+      },
+      "image": "../../assets/amazontrees.gif",
+      "imageClass": "img-panel",
+      "feedback": {
+        "correct": {
+          "title": "Incrível!",
+          "text": "Exato! A <span class='bg-condensation'><b>Floresta Amazônica</b></span> é vital para todos nós. Os <span class='bg-liquid'><b>Rios Voadores</b></span> que ela gera são essenciais para a <span class='bg-precipitation'><b>chuva</b></span> que enche os reservatórios de muitas cidades brasileiras.",
+          "offers_reward": false
+        },
+        "incorrect": {
+          "title": "Pense de novo!",
+          "text": "Na verdade, é falso. A umidade gerada pela <span class='bg-condensation'><b>Floresta Amazônica</b></span> viaja milhares de quilômetros como <span class='bg-liquid'><b>Rios Voadores</b></span>, sendo crucial para a <span class='bg-precipitation'><b>chuva</b></span> em lugares distantes, incluindo a região Sudeste."
         }
       }
     }

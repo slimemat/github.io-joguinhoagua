@@ -280,10 +280,16 @@ export default class Game {
      */
     applyReward(rewardId) {
         console.log(`Applying reward: ${rewardId}`);
-        // TODO: make the logic here to apply game effect such as bigger clouds, faster movement...
-        //
-        //
-        //
+        
+        switch (rewardId) {
+        case 'SPEED_UP_1':
+            this.player.increaseSpeed(10); // Aumenta a velocidade em 10%
+            break;
+
+        default:
+            console.warn(`Recompensa desconhecida: ${rewardId}`);
+    }
+
     }
 
     /**
