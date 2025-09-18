@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Where's My Water?</title>
+    <link rel="stylesheet" href="../../css/game2.css">
+</head>
+<body>
+    <h1>Where's My Water?</h1>
+    <canvas id="gameCanvas"></canvas>
+    
+    <div class="instructions">
+        <p><strong>Objetivo:</strong>S Guie a água da fonte (azul claro) até o destino (verde), evitando obstáculos térmicos!</p>
+        <p><strong>Controles:</strong> Clique e arraste para escavar • Pressione R para reiniciar</p>
+    </div>
+    
+    <div class="legend">
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: #00BFFF;"></div>
+            <span>Fonte</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: #00FF00;"></div>
+            <span>Destino</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: #FF4500;"></div>
+            <span>Calor (Evapora)</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: #00CED1;"></div>
+            <span>Frio (Congela)</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: #8B4513;"></div>
+            <span>Terra</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: #2F2F2F;"></div>
+            <span>Rocha</span>
+        </div>
+    </div>
+    
+    <script src="../../javascript/game2/script.js"></script>
+</body>
+</html>
+

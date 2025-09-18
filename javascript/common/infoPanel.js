@@ -6,7 +6,7 @@ export function showInfoPanel(text, onClose, image = null, imageClass = '') {
   panel.innerHTML = `
     ${imageHTML}
     <p>${text}</p>
-    <button id="close-info">OK</button>
+    <button id="close-info">OK<span class="key-hint">F</span></button>
   `;
   document.body.appendChild(panel);
   document.getElementById('close-info').onclick = () => {

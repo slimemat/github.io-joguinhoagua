@@ -28,7 +28,7 @@ export function showFeedbackPanel({ isCorrect, title, text, image, onClose, acti
     ).join('');
   } else {
     // incorrect answers
-    buttonsHTML = '<button class="action-btn" id="continue-btn">Continuar</button>';
+    buttonsHTML = '<button class="action-btn" id="continue-btn">Continuar<span class="key-hint">F</span></button>';
   }
 
   panel.innerHTML = `

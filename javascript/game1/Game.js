@@ -50,9 +50,11 @@ export default class Game {
         this.currentQuestionIndex = 0;
         this.lastMilestone = 0;
         
-
         // Listener para redimensionamento da janela
         window.addEventListener('resize', this.resize.bind(this));
+
+        // Listener para teclas de atalho
+        window.addEventListener('keydown', this.handlePanelKeys.bind(this));
     }
 
     /**
@@ -330,6 +332,40 @@ export default class Game {
         // Se for múltipla escolha
         else {
             return userAnswer === q.question.answer; // true ou false
+        }
+    }
+
+    /**
+     * Handles keyboard input specifically for active UI panels.
+     * This only runs when the game is paused.
+     * @param {KeyboardEvent} event The keyboard event.
+     */
+    handlePanelKeys(event) {
+        if (!this.paused) return; // Only work when the game is paused
+
+        // Helper to find and click an element if it exists
+        const click = (selector) => {
+            const element = document.querySelector(selector);
+            if (element) {
+                event.preventDefault();
+                element.click();
+            }
+        };
+
+        switch (event.key) {
+            case 'f':
+            case 'F':
+                click('#close-info'); // For the Info Panel
+                click('#continue-btn'); // For the Feedback Panel (incorrect answer)
+                break;
+            case '1':
+                click('#option1-btn'); // For Multiple Choice (Option 1)
+                click('#false-btn');   // For True/False (False)
+                break;
+            case '2':
+                click('#option2-btn'); // For Multiple Choice (Option 2)
+                click('#true-btn');    // For True/False (True)
+                break;
         }
     }
 

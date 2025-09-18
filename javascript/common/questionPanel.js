@@ -10,14 +10,14 @@ export function showQuestionPanel(text, onAnswer, image = null, imageClass = '',
   if (options && options.length === 2) {
     buttonsHTML = `
       <div class="option-btn-group">
-        <button class="option-btn" id="option1-btn">${options[0]}</button>
-        <button class="option-btn" id="option2-btn">${options[1]}</button>
+        <button class="option-btn" id="option1-btn">${options[0]}<span class="key-hint">1</span></button>
+        <button class="option-btn" id="option2-btn">${options[1]}<span class="key-hint">2</span></button>
       </div>
     `;
   } else {
     buttonsHTML = `
-      <button id="false-btn">Falso</button>
-      <button id="true-btn">Verdadeiro</button>
+      <button id="false-btn">Falso<span class="key-hint">1</span></button>
+      <button id="true-btn">Verdadeiro<span class="key-hint">2</span></button>
     `;
   }
 

@@ -445,6 +445,29 @@ body, html {
   transform: scale(1.07);
 }
 
+/* ----------- key shortcut hint ----------- */
+/* parent buttons can contain a positioned element (shortcut hint) */
+.info-panel button,
+.question-panel button,
+.feedback-panel button {
+    position: relative; 
+    overflow: hidden;   
+}
+
+.key-hint {
+    /* Positioning in the top-right corner of the button */
+    position: absolute;
+    top: 5px;
+    right: 8px;
+    background-color: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 3px;
+    padding: 2px 5px;
+    font-family: 'Press Start 2P', sans-serif;
+    font-size: 11px;
+    color: #fff;
+    opacity: 0.6;
+}
 
 
 /* === Water Cycle Color Identity (ajustada) === */
