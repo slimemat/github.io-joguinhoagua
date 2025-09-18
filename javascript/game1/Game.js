@@ -277,15 +277,15 @@ export default class Game {
         }));
     }
 
-        /**
-     * (NEW HELPER) This is where the actual effect of a chosen reward is handled.
+    /**
+     *  This is where the actual effect of a chosen reward is handled.
      */
     applyReward(rewardId) {
         console.log(`Applying reward: ${rewardId}`);
         
         switch (rewardId) {
         case 'SPEED_UP_1':
-            this.player.increaseSpeed(10); // Aumenta a velocidade em 10%
+            this.player.increaseSpeed(20); // Aumenta a velocidade em %
             break;
 
         default:

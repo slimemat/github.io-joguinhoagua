@@ -29,8 +29,8 @@ export default class Player {
         // Posição inicial e velocidade
         this.x = 10;
         this.y = this.game.height - 130;
-        this.speedX = 4;
-        this.speedY = 4;
+        this.speedX = 3;
+        this.speedY = 3;
         
         this.updatePosition();
     }

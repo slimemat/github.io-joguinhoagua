@@ -52,7 +52,7 @@ export function showFeedbackPanel({ isCorrect, title, text, image, onClose, acti
   if (actionButtons && actionButtons.length > 0) {
     actionButtons.forEach((btn, index) => {
       document.getElementById(`action-btn-${index}`).onclick = () => {
-        // Here you would later call btn.callback() before closing
+        if (btn.callback) {btn.callback(); }
         console.log(`Choice button '${btn.title}' clicked.`); 
         closePanel();
       };

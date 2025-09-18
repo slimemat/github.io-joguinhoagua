@@ -10,7 +10,7 @@ body, html {
     display: none;
 }
 
-/* Container de fundo principal com SUA IMAGEM */
+/* Container de fundo principal imagem */
 .background {
     width: 100vw;
     height: 100vh;
@@ -29,7 +29,6 @@ body, html {
     height: 100%;
     background-image: url('../assets/3clouds.png'); 
     background-repeat: repeat-x;
-    z-index: 1; /* Fica em cima do .background, mas atrás do resto */
     animation: scroll 60s linear infinite;
 }
 
@@ -81,11 +80,20 @@ body, html {
 }
 
 #score-container {
-    font-size: 2em;
+    font-size: 1em;
     text-shadow: 2px 2px 4px #000;
+    color: gold;
     position: absolute;
     top: 20px;
     left: 20px;
+    z-index: 2;
+    font-family: 'Press Start 2P', 'Poppins', Arial, sans-serif;
+}
+
+.pixel-title{
+  position: relative;
+  z-index: 2;
+  font-family: 'Press Start 2P', 'Poppins', Arial, sans-serif;
 }
 
 .gameCanvas {
@@ -93,8 +101,10 @@ body, html {
     width: 80vw;
     height: 70vh;
     border: 3px solid white;
-    background-color: rgba(0, 0, 0, 0.2);
+    background-color: rgba(225, 0, 255, 0.0);
     margin: 20px auto 0;
+
+    box-shadow: 0 0 0 100vw rgba(0, 0, 0, 0.2);
 }
 
 .item {
