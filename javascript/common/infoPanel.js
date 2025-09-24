@@ -1,5 +1,11 @@
 // infoPanel.js
+
+import { showOverlay, hideOverlay } from "./ui.js";
+
 export function showInfoPanel(text, onClose, image = null, imageClass = '') {
+
+  showOverlay();
+
   const panel = document.createElement('div');
   panel.className = 'info-panel';
   let imageHTML = image ? `<img src="${image}" class="info-panel-img ${imageClass}" alt="">` : '';
@@ -11,6 +17,7 @@ export function showInfoPanel(text, onClose, image = null, imageClass = '') {
   document.body.appendChild(panel);
   document.getElementById('close-info').onclick = () => {
     panel.remove();
+    hideOverlay();
     if (onClose) onClose();
   };
 }

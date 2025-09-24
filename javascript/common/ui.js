@@ -70,4 +70,18 @@ export function updateProgress(score) {
     });
 }
 
+export function showOverlay() {
+    let overlay = document.getElementById('overlay');
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.id = 'overlay';
+        document.body.appendChild(overlay);
+    }
+    overlay.style.display = 'block';
+}
+
+export function hideOverlay() {
+    const overlay = document.getElementById('overlay');
+    if (overlay) overlay.style.display = 'none';
+}
 

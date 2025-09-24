@@ -1,5 +1,8 @@
+import { showOverlay, hideOverlay } from "./ui.js";
+
 // questionPanel.js
 export function showQuestionPanel(text, onAnswer, image = null, imageClass = '', options = null) {
+  showOverlay();
   const panel = document.createElement('div');
   panel.className = 'question-panel';
   let imageHTML = image ? `<img src="${image}" class="question-panel-img ${imageClass}" alt="">` : '';
@@ -30,19 +33,23 @@ export function showQuestionPanel(text, onAnswer, image = null, imageClass = '',
 
   if (options && options.length === 2) {
     document.getElementById('option1-btn').onclick = () => {
+      hideOverlay();
       panel.remove();
       if (onAnswer) onAnswer(options[0]);
     };
     document.getElementById('option2-btn').onclick = () => {
+      hideOverlay();
       panel.remove();
       if (onAnswer) onAnswer(options[1]);
     };
   } else {
     document.getElementById('true-btn').onclick = () => {
+      hideOverlay();
       panel.remove();
       if (onAnswer) onAnswer('verdadeiro');
     };
     document.getElementById('false-btn').onclick = () => {
+      hideOverlay();
       panel.remove();
       if (onAnswer) onAnswer('falso');
     };

@@ -1,5 +1,7 @@
 // javascript/common/feedbackPanel.js
 
+import { showOverlay, hideOverlay } from "./ui.js";
+
 /**
  * Displays a rich feedback panel after an answer.
  * @param {object} options - The configuration for the panel.
@@ -11,6 +13,7 @@
  * @param {Array<{text: string, callback: function}>|null} options.actionButtons - Optional buttons for choices.
  */
 export function showFeedbackPanel({ isCorrect, title, text, image, onClose, actionButtons = null, choicePrompt = null }) {
+  showOverlay();
   const panel = document.createElement('div');
   panel.className = `feedback-panel ${isCorrect ? 'correct' : 'incorrect'}`;
   const imageHTML = image ? `<img src="${image}" class="img-panel" alt="Feedback Image">` : '';
@@ -46,6 +49,7 @@ export function showFeedbackPanel({ isCorrect, title, text, image, onClose, acti
   // --- Event Handlers ---
   const closePanel = () => {
     panel.remove();
+    hideOverlay();
     if (onClose) onClose();
   };
 
