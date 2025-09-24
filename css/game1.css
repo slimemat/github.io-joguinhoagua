@@ -500,3 +500,72 @@ body, html {
 .bg-evaporation { background-color: #fb8c00; color: #fff; padding: 0.2em 0.4em; border-radius: 0.3em; }
 .bg-condensation { background-color: #7e57c2; color: #fff; padding: 0.2em 0.4em; border-radius: 0.3em; }
 .bg-precipitation { background-color: #1565c0; color: #fff; padding: 0.2em 0.4em; border-radius: 0.3em; }
+
+
+/* === Progress Bar === */
+#progress-bar-container {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80%;
+  max-width: 600px;
+  height: 20px;
+  background-color: #ffffff77;
+  border: 2px solid #333;
+  border-radius: 10px;
+  overflow: hidden;
+  z-index: 9999;
+}
+
+#progress-bar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #4facfe, #00f2fe);
+  transition: width 0.3s ease;
+}
+
+/* Container invisível para as marquinhas */
+#milestones {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  pointer-events: none;
+}
+
+/* Quadradinhos "de vidro" (info) */
+.milestone-info {
+  position: absolute;
+  bottom: 50%;
+  transform: translateY(50%);
+  width: 8px;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.3); /* vidro translúcido */
+  border-radius: 2px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: inset 0 0 4px rgba(255, 255, 255, 0.4);
+  transition: border 0.3s ease, box-shadow 0.3s ease;
+}
+
+.milestone-reward {
+  position: absolute;
+  bottom: 50%;
+  transform: translateY(50%) rotate(45deg); /* rotacionado tipo losango */
+  width: 12px;
+  height: 12px;
+  background: gold;        /* cor de destaque */
+  border: 2px solid orange;
+  box-shadow: 0 0 6px orange, inset 0 0 4px rgba(255, 165, 0, 0.4);
+  transition: border 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Quando a água (progresso) passar pelo milestone */
+.milestone-active {
+  border: 2px solid #00aaff; /* contorno azul */
+  box-shadow: 0 0 6px #00aaff, inset 0 0 6px rgba(0, 170, 255, 0.5);
+}
+
+
+

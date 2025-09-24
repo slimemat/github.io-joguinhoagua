@@ -9,13 +9,16 @@ import { updateScore, hideStartScreen, showGameContainer } from '../common/ui.js
 import { showQuestionPanel } from '../../javascript/common/questionPanel.js';
 import { showInfoPanel } from '../../javascript/common/infoPanel.js';
 import { showFeedbackPanel } from '../../javascript/common/feedbackPanel.js';
+import { updateProgress, initMilestones } from '../common/ui.js';
 import RewardsManager from './RewardsManager.js'; 
 
 
 export default class Game {
 
-    static INFO_INTERVAL = 10;      // Pontos para mostrar info
-    static QUESTION_OFFSET = 5;    // Pontos após info para mostrar questão
+    //static INFO_INTERVAL = 10;      // Pontos para mostrar info
+    //static QUESTION_OFFSET = 5;    // Pontos após info para mostrar questão
+
+    
 
     /**
      * Cria uma nova instância do jogo.
@@ -49,6 +52,13 @@ export default class Game {
         this.questions = [];
         this.currentQuestionIndex = 0;
         this.lastMilestone = 0;
+
+        // ========== onde as infos e perguntas aparecem ==========
+        this.milestones = [10, 15, 20, 25, 30, 35, 60, 70, 80, 90, 100];
+
+        this.firstQuestions = this.questions.slice(0,4); // primeiras 4 sempre na ordem
+        this.remainingQuestions = this.questions.slice(4); // restantes para sorteio
+        this.pendingQuestions = []; // perguntas que a criança errou
         
         // Listener para redimensionamento da janela
         window.addEventListener('resize', this.resize.bind(this));
@@ -79,6 +89,8 @@ export default class Game {
             this.rewardsManager.loadRewards()
         ]);
 
+        initMilestones(this.milestones, 100, this.questions); // max score 100
+
         this.gameLoop();
     }
 
@@ -90,8 +102,60 @@ export default class Game {
             const res = await fetch('./questions.json');
             const data = await res.json();
             this.questions = data["pt-br"];
+
+            this.questions.forEach(q => {
+                q.infoShown = false;           
+                q.answeredCorrectly = false;
+            });
+
+            this.firstQuestions = this.questions.slice(0, 4);
+            this.remainingQuestions = this.questions.slice(4);
+
+            this.firstQuestions.forEach(q => q.infoShown = false);
+            this.remainingQuestions.forEach(q => q.infoShown = false);
+
         }
     }
+
+    /**
+     * Gets the next question in the sequence.
+     */
+    getNextQuestion() {
+        // Perguntas erradas têm prioridade
+        if (this.pendingQuestions.length > 0) {
+            return this.pendingQuestions.shift();
+        }
+
+        // Primeiras 4 perguntas na ordem
+        if (this.firstQuestions.length > 0) {
+            return this.firstQuestions.shift();
+        }
+
+        // Perguntas restantes na ordem definida (sem aleatoriedade)
+        if (this.remainingQuestions.length > 0) {
+            return this.remainingQuestions.shift();
+        }
+
+        return null;
+    }
+
+
+    showNextQuestionWithInfo() {
+        const q = this.getNextQuestion();
+        if (!q) return;
+
+        if (!q.infoShown) {
+            q.infoShown = true;
+            this.triggerInfoSequence(q, () => {
+                this.triggerQuestionSequence(q);
+            });
+        } else {
+            this.triggerQuestionSequence(q);
+        }
+    }
+
+
+
 
     /**
      * Atualiza as dimensões do jogo e mantém o jogador dentro da tela.
@@ -147,6 +211,7 @@ export default class Game {
             this.audio.playCollectSound();
             this.score++;
             updateScore(this.score);
+            updateProgress(this.score)
 
 
             //after score is updated, check if we should show a info/question
@@ -200,32 +265,26 @@ export default class Game {
      * Checks if the current score has reached a milestone for an info or question panel.
      */
     checkMilestones() {
-        const q = this.questions[this.currentQuestionIndex];
-        if (!q) return;
+        if (!this.milestones.includes(this.score)) return;
 
-        const infoScore = Game.INFO_INTERVAL + this.currentQuestionIndex * Game.INFO_INTERVAL;
-        const questionScore = infoScore + Game.QUESTION_OFFSET;
-
-        if (this.score === infoScore) {
-            this.triggerInfoSequence(q);
-        }
-        if (this.score === questionScore) {
-            this.triggerQuestionSequence(q);
-        }
+        this.showNextQuestionWithInfo();
     }
+
+
 
     /**
      * Pauses the game and shows the informational panel.
      * @param {object} q - The current question/info data object.
      */
-    triggerInfoSequence(q) {
+    triggerInfoSequence(q, callback) {
         this.paused = true;
         showInfoPanel(q.info, () => {
-            // After closing info panel
             this.paused = false;
             this.resetHintTimer();
+            if (callback) callback(); // dispara a pergunta após fechar info
         }, q.image, q.imageClass);
     }
+
 
     /**
      * (Formerly _showAnswerFeedback) Orchestrates the entire feedback sequence.
@@ -235,10 +294,16 @@ export default class Game {
     showAnswerFeedback(isCorrect, q) {
         this._playFeedbackSound(isCorrect);
 
+        if (isCorrect) {
+            q.answeredCorrectly = true; 
+        } else {
+            this.onWrongAnswer(q);      
+        }
+
         const feedbackData = isCorrect ? q.feedback.correct : q.feedback.incorrect;
-        
+
         const panelOptions = {
-            isCorrect: isCorrect,
+            isCorrect,
             title: feedbackData.title,
             text: feedbackData.text,
             image: q.image,
@@ -253,6 +318,7 @@ export default class Game {
 
         showFeedbackPanel(panelOptions);
     }
+
 
     /**
      * Plays the correct or wrong sound effect.
@@ -285,7 +351,7 @@ export default class Game {
         
         switch (rewardId) {
         case 'SPEED_UP_1':
-            this.player.increaseSpeed(20); // Aumenta a velocidade em %
+            this.player.increaseSpeed(60); // Aumenta a velocidade em %
             break;
 
         default:
@@ -309,10 +375,12 @@ export default class Game {
     triggerQuestionSequence(q) {
         this.paused = true;
         showQuestionPanel(q.question.text, (userAnswer) => {
-            const isCorrect = this.evaluateAnswer(userAnswer);
+            const isCorrect = this.evaluateAnswer(q, userAnswer);
             this.showAnswerFeedback(isCorrect, q);
         }, q.image, q.imageClass, q.question.options);
     }
+
+
 
 
 
@@ -321,19 +389,17 @@ export default class Game {
      * @param {string} userAnswer - A resposta fornecida pelo usuário.
      * @returns {boolean} Retorna true se a resposta estiver correta, false caso contrário.
      */
-    evaluateAnswer(userAnswer) {
-        const q = this.questions[this.currentQuestionIndex];
-        if (!q) return false;
+    evaluateAnswer(question, userAnswer) {
+        if (!question) return false;
 
-        // Se for verdadeiro/falso
-        if (!q.question.options) {
-            return userAnswer.toLowerCase() === q.question.answer.toLowerCase(); //true ou false
-        }
-        // Se for múltipla escolha
-        else {
-            return userAnswer === q.question.answer; // true ou false
+        if (!question.question.options) { // Verdadeiro/Falso
+            return userAnswer.toLowerCase() === question.question.answer.toLowerCase();
+        } else { // Múltipla escolha
+            return userAnswer === question.question.answer;
         }
     }
+
+
 
     /**
      * Handles keyboard input specifically for active UI panels.
@@ -368,6 +434,25 @@ export default class Game {
                 break;
         }
     }
+
+
+
+    /**
+     * Handles a wrong answer scenario.
+     */
+    onWrongAnswer(question) {
+        if (!question.answeredCorrectly) {
+            question.infoShown = false; // vai mostrar info novamente
+            this.pendingQuestions.push(question); // adiciona à fila
+
+            //tira 5 pontos
+            this.score = Math.max(0, this.score - 5);
+            updateScore(this.score);
+            updateProgress(this.score);
+        }
+    }
+
+
 
     
 }

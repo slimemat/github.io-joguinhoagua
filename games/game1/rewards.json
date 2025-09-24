@@ -2,8 +2,8 @@
   "rewards": [
     {
       "id": "SPEED_UP_1",
-      "title": "Velocidade",
-      "subtitle": "20% mais rápido"
+      "title": "Vento",
+      "subtitle": "Aumenta a velocidade horizontal do personagem em 60%"
     }
   ]
 }

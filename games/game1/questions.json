@@ -86,6 +86,60 @@
           "text": "Na verdade, é falso. A umidade gerada pela <span class='bg-condensation'><b>Floresta Amazônica</b></span> viaja milhares de quilômetros como <span class='bg-liquid'><b>Rios Voadores</b></span>, sendo crucial para a <span class='bg-precipitation'><b>chuva</b></span> em lugares distantes, incluindo a região Sudeste."
         }
       }
+    },
+    {
+    "id": 5,
+    "info": "Em cidades, a <span class='bg-liquid'><b>água</b></span> presente em rios, lagos e poças pode evaporar mais rapidamente se houver calor intenso e pouca vegetação. Plantas e árvores ajudam a manter a umidade e equilibrar o ciclo da água.",
+    "question": {
+      "text": "Por que plantar árvores e ter jardins ajuda a manter o ciclo da água na cidade?",
+      "type": "multichoice",
+      "options": [
+        "Porque as plantas reduzem a evaporação e ajudam a água a voltar para rios e córregos",
+        "Porque as plantas aumentam a evaporação e secam os rios"
+      ],
+      "answer": "Porque as plantas reduzem a evaporação e ajudam a água a voltar para rios e córregos"
+    },
+    "image": "../../assets/city_garden.png",
+    "imageClass": "img-panel",
+    "feedback": {
+      "correct": {
+        "title": "Muito bem!",
+        "text": "Exato! Plantas e árvores mantêm o solo úmido, ajudam a reter a água da chuva e reduzem a evaporação rápida, mantendo o ciclo da água equilibrado na cidade.",
+        "offers_reward": false
+      },
+      "incorrect": {
+        "title": "Quase!",
+        "text": "Na verdade, árvores e jardins ajudam a reduzir a evaporação e a manter a água disponível, não a aumentar a secagem."
+      }
     }
+  },
+  {
+    "id": 6,
+    "info": "O <span class='bg-evaporation'><b>calor</b></span> do sol faz com que a água de superfícies urbanas, como ruas e telhados, evapore. Se a água não tiver para onde ir, como rios e lagoas próximos, o ciclo da água pode ser afetado.",
+    "question": {
+      "text": "O que podemos fazer para que a água que cai na chuva não se perca e continue circulando no ciclo da água?",
+      "type": "multichoice",
+      "options": [
+        "Criar áreas verdes, caixas de captação e rios limpos para a água retornar ao ciclo",
+        "Deixar a água escorrer para ralos e esgotos sem controle"
+      ],
+      "answer": "Criar áreas verdes, caixas de captação e rios limpos para a água retornar ao ciclo"
+    },
+    "image": "../../assets/rainwater_city.png",
+    "imageClass": "img-panel",
+    "feedback": {
+      "correct": {
+        "title": "Corretíssimo!",
+        "text": "Exato! Soluções como áreas verdes, rios limpos e captação de água ajudam a manter a água no ciclo, evitando que se perca rapidamente para esgotos.",
+        "offers_reward": true
+      },
+      "incorrect": {
+        "title": "Ops!",
+        "text": "Na verdade, apenas deixar a água ir para os esgotos não mantém o ciclo da água funcionando corretamente."
+      }
+    }
+  }
+
+
   ]
 }

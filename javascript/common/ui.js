@@ -35,3 +35,39 @@ export function showGameContainer() {
         gameContainer.style.display = "block";
     }
 }
+
+export function initMilestones(milestones, maxScore, questions) {
+    const container = document.getElementById('milestones');
+    container.innerHTML = '';
+
+    milestones.forEach((score, index) => {
+        const div = document.createElement('div');
+
+        // Se a pergunta correspondente oferece reward
+        const question = questions[index]; // assumes mesma ordem do JSON
+        if (question && question.feedback.correct.offers_reward) {
+            div.classList.add('milestone-reward');
+        } else {
+            div.classList.add('milestone-info');
+        }
+
+        div.style.left = `${(score / maxScore) * 100}%`;
+
+        container.appendChild(div);
+    });
+}
+
+
+export function updateProgress(score) {
+    const progressBar = document.getElementById('progress-bar');
+    const maxScore = 100;
+    progressBar.style.width = Math.min((score / maxScore) * 100, 100) + '%';
+
+    const milestones = document.querySelectorAll('#milestones div');
+    milestones.forEach(div => {
+        const milestoneScore = parseInt(div.dataset.value);
+        if (score >= milestoneScore) div.classList.add('milestone-active');
+    });
+}
+
+
