@@ -11,6 +11,8 @@ import { showInfoPanel } from '../../javascript/common/infoPanel.js';
 import { showFeedbackPanel } from '../../javascript/common/feedbackPanel.js';
 import { updateProgress, initMilestones } from '../common/ui.js';
 import RewardsManager from './RewardsManager.js'; 
+import Enemy from './Enemy.js';
+import StatusEffect from './StatusEffect.js';
 
 
 export default class Game {
@@ -39,6 +41,7 @@ export default class Game {
         
         this.player = null;
         this.item = null;
+        this.status = null;
 
         this.score = 0;
         this.hasMoved = false;
@@ -59,6 +62,15 @@ export default class Game {
         this.firstQuestions = this.questions.slice(0,4); // primeiras 4 sempre na ordem
         this.remainingQuestions = this.questions.slice(4); // restantes para sorteio
         this.pendingQuestions = []; // perguntas que a criança errou
+
+        this.enemies = [];
+        this.enemySpawnScore = 40;
+        this.enemySpawnInterval = 5000; // em ms
+        this.lastEnemySpawn = 0;
+
+        this.invincible = false;
+        this.invincibilityDuration = 5000; // 5s
+        this.lastHitTime = 0;
         
         // Listener para redimensionamento da janela
         window.addEventListener('resize', this.resize.bind(this));
@@ -78,6 +90,7 @@ export default class Game {
 
         if (!this.player) this.player = new Player(this);
         if (!this.item) this.item = new Item(this);
+        if (!this.status) this.status = new StatusEffect(this.player);
 
         this.audio.playMusic();
 
@@ -183,20 +196,41 @@ export default class Game {
      * Atualiza o estado do jogo a cada frame.
      */
     update() {
+        this.handleInput();
+        this.updateEntities();
+        this.checkCollisions();
+        this.checkFirstMove();
+        this.spawnEnemy();
+    }
+
+
+    handleInput() {
         if (this.input.keys[' ']) {
             this.player.changeState();
             this.input.keys[' '] = false;
         }
+    }
 
+    updateEntities() {
         this.player.update(this.input.keys);
-        this.checkCollision();
-        this.checkFirstMove();
+
+        if (this.enemies) {
+            this.enemies.forEach(enemy => enemy.update());
+        }
+    }
+
+    /**
+     * Verifica todas as colisões (player com item, player com inimigos).
+     */
+    checkCollisions() {
+        this.checkItemCollision();
+        this.checkEnemyCollisions();
     }
 
     /**
      * Verifica colisão entre o jogador e o item e atualiza a pontuação.
      */
-    checkCollision() {
+    checkItemCollision() {
         if (!this.item || !this.item.element) return;
 
         const playerRect = this.player.element.getBoundingClientRect();
@@ -226,6 +260,75 @@ export default class Game {
             this.item.randomizePosition(this.player.currentStateIndex);
         }
     }
+
+    /**
+     * Verifica se houve colisão com inimigos.
+     */
+    checkEnemyCollisions() {
+    if (!this.enemies || this.invincible) return; // se invencível, ignora
+
+        const playerRect = this.player.element.getBoundingClientRect();
+
+        this.enemies.forEach(enemy => {
+            const enemyRect = enemy.element.getBoundingClientRect();
+
+            if (
+                playerRect.left < enemyRect.right &&
+                playerRect.right > enemyRect.left &&
+                playerRect.top < enemyRect.bottom &&
+                playerRect.bottom > enemyRect.top
+            ) {
+                this.onEnemyCollision(enemy);
+            }
+        });
+    }
+
+
+    /**
+     * O que acontece quando o player encosta em um inimigo.
+     */
+    onEnemyCollision(enemy) {
+        const now = Date.now();
+
+        if (now - this.lastHitTime < this.invincibilityDuration) {
+            return; // ainda invencível
+        }
+
+        this.lastHitTime = now;
+
+        // aplica invencibilidade (piscar)
+        this.status.apply(
+            'invincible',
+            this.invincibilityDuration,
+            p => p.applyInvincibleEffect(),
+            p => p.removeInvincibleEffect()
+        );
+
+        // aplica toxicidade (verde e lento, tem que durar mais tempo que invencibilidade)
+        this.status.apply(
+            'toxic',
+            10000, // 10s
+            p => p.applyToxicEffect(),
+            p => p.removeToxicEffect()
+        );
+
+        // remover inimigo
+        enemy.element.remove();
+        this.enemies = this.enemies.filter(e => e !== enemy);
+    }
+
+
+    spawnEnemy() {
+        if (this.score < 40) return;
+
+        const now = Date.now();
+        if (now - this.lastEnemySpawn > this.enemySpawnInterval) {
+            const enemy = new Enemy(this);
+            this.enemies.push(enemy);
+            this.lastEnemySpawn = now;
+        }
+    }
+
 
     /**
      * Verifica se o jogador fez o primeiro movimento e esconde a imagem de dicas.
@@ -351,7 +454,7 @@ export default class Game {
         
         switch (rewardId) {
         case 'SPEED_UP_1':
-            this.player.increaseSpeed(60); // Aumenta a velocidade em %
+            this.player.increaseSpeed(30); // Aumenta a velocidade em %
             break;
 
         default:

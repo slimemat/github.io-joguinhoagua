@@ -5,7 +5,6 @@ export function showQuestionPanel(text, onAnswer, image = null, imageClass = '',
   showOverlay();
   const panel = document.createElement('div');
   panel.className = 'question-panel';
-  let imageHTML = image ? `<img src="${image}" class="question-panel-img ${imageClass}" alt="">` : '';
   let buttonsHTML = '';
 
 
@@ -25,7 +24,6 @@ export function showQuestionPanel(text, onAnswer, image = null, imageClass = '',
   }
 
   panel.innerHTML = `
-    ${imageHTML}
     <p>${text}</p>
     ${buttonsHTML}
   `;

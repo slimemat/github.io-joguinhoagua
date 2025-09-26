@@ -57,8 +57,7 @@
         "correct": {
           "title": "Isso mesmo!",
           "text": "Correto! A diminuição da temperatura com a <span class='bg-condensation'><b>altitude</b></span> é o que causa a <span class='bg-condensation'><b>condensação</b></span> do <span class='bg-gas'><b>vapor</b></span> de água, formando as gotículas que compõem as <span class='bg-condensation'><b>nuvens</b></span>.",
-          "choice_prompt": "Escolha sua recompensa!",
-          "offers_reward": true
+          "offers_reward": false
         },
         "incorrect": {
           "title": "Não foi dessa vez!",
@@ -88,57 +87,81 @@
       }
     },
     {
-    "id": 5,
-    "info": "Em cidades, a <span class='bg-liquid'><b>água</b></span> presente em rios, lagos e poças pode evaporar mais rapidamente se houver calor intenso e pouca vegetação. Plantas e árvores ajudam a manter a umidade e equilibrar o ciclo da água.",
-    "question": {
-      "text": "Por que plantar árvores e ter jardins ajuda a manter o ciclo da água na cidade?",
-      "type": "multichoice",
-      "options": [
-        "Porque as plantas reduzem a evaporação e ajudam a água a voltar para rios e córregos",
-        "Porque as plantas aumentam a evaporação e secam os rios"
-      ],
-      "answer": "Porque as plantas reduzem a evaporação e ajudam a água a voltar para rios e córregos"
-    },
-    "image": "../../assets/city_garden.png",
-    "imageClass": "img-panel",
-    "feedback": {
-      "correct": {
-        "title": "Muito bem!",
-        "text": "Exato! Plantas e árvores mantêm o solo úmido, ajudam a reter a água da chuva e reduzem a evaporação rápida, mantendo o ciclo da água equilibrado na cidade.",
-        "offers_reward": false
+      "id": 5,
+      "info": "A maior parte da água do planeta está nos <span class='bg-liquid'><b>oceanos</b></span>. Embora as <span class='bg-solid'><b>geleiras</b></span> também guardem uma enorme quantidade de água <span class='bg-solid'><b>sólida</b></span> (gelo), elas representam uma parte bem menor. Quando as <span class='bg-solid'><b>geleiras</b></span> derretem, o nível do mar pode aumentar e isso afeta o clima e as cidades costeiras.",
+      "question": {
+        "text": "Onde está a maior parte da água do planeta Terra?",
+        "type": "multichoice",
+        "options": [
+          "Nos oceanos",
+          "Nas geleiras"
+        ],
+        "answer": "Nos oceanos"
       },
-      "incorrect": {
-        "title": "Quase!",
-        "text": "Na verdade, árvores e jardins ajudam a reduzir a evaporação e a manter a água disponível, não a aumentar a secagem."
+      "image": "../../assets/planet_melt.gif",
+      "imageClass": "img-panel",
+      "feedback": {
+        "correct": {
+          "title": "Isso aí!",
+          "text": "Certo! A maior parte da água do planeta está nos <span class='bg-liquid'><b>oceanos</b></span>, que cobrem cerca de 70% da superfície da Terra. As <span class='bg-solid'><b>geleiras</b></span> guardam bastante água <span class='bg-solid'><b>sólida</b></span> (gelo), mas em quantidade bem menor.",
+          "offers_reward": false
+        },
+        "incorrect": {
+          "title": "Quase!",
+          "text": "Na verdade, a maior parte da água está nos <span class='bg-liquid'><b>oceanos</b></span>. As <span class='bg-solid'><b>geleiras</b></span> guardam bastante água doce, mas são minoria quando comparadas ao volume dos mares."
+        }
+      }
+    },
+    {
+      "id": 6,
+      "info": "A água participa do ciclo hidrológico em diversos lugares: rios, lagos, oceanos, solo e até nos seres vivos. Ela se move, evapora, condensa e precipita, mostrando como tudo está interligado. Uma fonte poluída pode afetar outras regiões quando a água se move pelo ciclo.",
+      "question": {
+        "text": "Uma fonte de água poluída pode interferir em quê?",
+        "type": "multichoice",
+        "options": [
+          "Em rios, lagos, oceanos, solo e até mesmo em seres vivos",
+          "Somente nas nuvens e nos rios"
+        ],
+        "answer": "Em rios, lagos, oceanos, solo e até mesmo em seres vivos"
+      },
+      "image": "../../assets/river.gif",
+      "imageClass": "img-panel",
+      "feedback": {
+        "correct": {
+          "title": "Muito bem!",
+          "text": "Exato! A água do ciclo hidrológico está em muitos lugares, e tudo está interligado. A poluição em uma região pode afetar outras partes do planeta em diferentes momentos.",
+          "choice_prompt": "Para se defender da poluição: Escolha sua recompensa!",
+          "offers_reward": true
+        },
+        "incorrect": {
+          "title": "Ops!",
+          "text": "Não é bem assim. A água do ciclo hidrológico não fica só nos oceanos ou nas nuvens. Ela circula por rios, lagos, solo e até dentro de seres vivos!"
+        }
+      }
+    },
+    {
+      "id": 7,
+      "info": "A água poluída em um estágio do ciclo pode carregar problemas para outros estágios. Por exemplo, se um rio contaminado <span class='bg-evaporation'>evapora</span>, o vapor pode formar nuvens que <span class='bg-liquid'>precipitam</span> poluição em outros lugares, afetando plantas, animais e pessoas.",
+      "question": {
+        "text": "A água contaminada em um estágio do ciclo hidrológico pode afetar outros estágios e regiões?",
+        "type": "multichoice",
+        "answer": "verdadeiro"
+      },
+      "image": "../../assets/polluted-cloud.gif",
+      "imageClass": "img-panel",
+      "feedback": {
+        "correct": {
+          "title": "Exato!",
+          "text": "Muito bem! A poluição pode se mover com a água pelo ciclo, afetando regiões distantes. Por isso é tão importante preservar a água limpa em todos os lugares.",
+          "offers_reward": false
+        },
+        "incorrect": {
+          "title": "Pense de novo!",
+          "text": "Na verdade, a contaminação pode se espalhar. Se a água poluída evapora e forma nuvens, a chuva pode levar a poluição para outros locais."
+        }
       }
     }
-  },
-  {
-    "id": 6,
-    "info": "O <span class='bg-evaporation'><b>calor</b></span> do sol faz com que a água de superfícies urbanas, como ruas e telhados, evapore. Se a água não tiver para onde ir, como rios e lagoas próximos, o ciclo da água pode ser afetado.",
-    "question": {
-      "text": "O que podemos fazer para que a água que cai na chuva não se perca e continue circulando no ciclo da água?",
-      "type": "multichoice",
-      "options": [
-        "Criar áreas verdes, caixas de captação e rios limpos para a água retornar ao ciclo",
-        "Deixar a água escorrer para ralos e esgotos sem controle"
-      ],
-      "answer": "Criar áreas verdes, caixas de captação e rios limpos para a água retornar ao ciclo"
-    },
-    "image": "../../assets/rainwater_city.png",
-    "imageClass": "img-panel",
-    "feedback": {
-      "correct": {
-        "title": "Corretíssimo!",
-        "text": "Exato! Soluções como áreas verdes, rios limpos e captação de água ajudam a manter a água no ciclo, evitando que se perca rapidamente para esgotos.",
-        "offers_reward": true
-      },
-      "incorrect": {
-        "title": "Ops!",
-        "text": "Na verdade, apenas deixar a água ir para os esgotos não mantém o ciclo da água funcionando corretamente."
-      }
-    }
-  }
+
 
 
   ]

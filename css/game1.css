@@ -579,5 +579,24 @@ body, html {
   box-shadow: 0 0 6px #00aaff, inset 0 0 6px rgba(0, 170, 255, 0.5);
 }
 
+/* === Efeitos Visuais do Personagem === */
+
+/* personagem sob efeito tóxico */
+.toxic {
+  filter: hue-rotate(120deg) brightness(0.8);
+}
+
+/* personagem invencível pisca */
+.invincible {
+  animation: blink 0.3s infinite;
+}
+
+@keyframes blink {
+  0%   { opacity: 1; }
+  50%  { opacity: 0.3; }
+  100% { opacity: 1; }
+}
+
+
 
 

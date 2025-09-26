@@ -31,6 +31,9 @@ export default class Player {
         this.y = this.game.height - 130;
         this.speedX = 3;
         this.speedY = 3;
+
+        this.baseSpeedX = this.speedX;
+        this.baseSpeedY = this.speedY;
         
         this.updatePosition();
     }
@@ -152,4 +155,26 @@ export default class Player {
             this.touchedBottom = false; // reseta quando sair do chão
         }
     }
+
+    //helpers para efeitos de status do player
+    applyToxicEffect() {
+        this.element.classList.add('toxic');
+        this.speedX = this.baseSpeedX * 0.1;
+        this.speedY = this.baseSpeedY * 0.1;
+    }
+
+    removeToxicEffect() {
+        this.element.classList.remove('toxic');
+        this.speedX = this.baseSpeedX;
+        this.speedY = this.baseSpeedY;
+    }
+
+    applyInvincibleEffect() {
+        this.element.classList.add('invincible');
+    }
+
+    removeInvincibleEffect() {
+        this.element.classList.remove('invincible');
+    }
+
 }
