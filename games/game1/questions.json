@@ -141,7 +141,7 @@
     },
     {
       "id": 7,
-      "info": "A água poluída em um estágio do ciclo pode carregar problemas para outros estágios. Por exemplo, se um rio contaminado <span class='bg-evaporation'>evapora</span>, o vapor pode formar nuvens que <span class='bg-liquid'>precipitam</span> poluição em outros lugares, afetando plantas, animais e pessoas.",
+      "info": "A água poluída em um estágio do ciclo pode carregar problemas para outros estágios. Por exemplo, se um rio contaminado <span class='bg-evaporation'>evapora</span>, o vapor pode formar nuvens que <span class='bg-liquid'>precipitam</span> poluição em outros lugares, afetando plantas e animais",
       "question": {
         "text": "A água contaminada em um estágio do ciclo hidrológico pode afetar outros estágios e regiões?",
         "type": "multichoice",
@@ -158,6 +158,79 @@
         "incorrect": {
           "title": "Pense de novo!",
           "text": "Na verdade, a contaminação pode se espalhar. Se a água poluída evapora e forma nuvens, a chuva pode levar a poluição para outros locais."
+        }
+      }
+    },
+    {
+      "id": 8,
+      "info": "Toda água que desce pelo ralo precisa ser tratada novamente antes de poder ser usada, e esse processo <b>custa caro e gasta muita energia</b>. Por isso, ao <b>economizar</b>, valorizamos a água que já está limpa e pronta para o uso. Embora as grandes indústrias sejam as que mais consomem, a mudança de hábito de cada um de nós é fundamental para cuidar do nosso planeta.",
+      "question": {
+        "text": "Economizar água em casa não faz diferença, pois ela sempre volta para o tratamento. Verdadeiro ou Falso?",
+        "answer": "falso"
+      },
+      "image": "../../assets/water-treatment.gif",
+      "imageClass": "img-panel",
+      "feedback": {
+        "correct": {
+          "title": "Exato!",
+          "text": "Isso mesmo! Cada gota economizada conta. Evitar o desperdício significa que menos água precisará passar pelo <b>caro e complexo</b> processo de tratamento, ajudando a preservar nossos recursos.",
+          "offers_reward": false
+        },
+        "incorrect": {
+          "title": "Pense de novo!",
+          "text": "Na verdade, faz muita diferença. Tratar a água de novo exige <b>muitos recursos</b>. Economizar a água que já está limpa é um ato de inteligência e cuidado com o meio ambiente."
+        }
+      }
+    },
+    {
+      "id": 9,
+      "info": "O lixo descartado em locais errados é um grande perigo. A chuva pode arrastar os poluentes para os rios ou fazê-los <b>infiltrar no solo</b>, contaminando a água subterrânea. Itens como <b>pilhas, baterias e eletrônicos</b> liberam químicos muito tóxicos que prejudicam a saúde de todos os seres vivos.",
+      "question": {
+        "text": "Por que não devemos jogar lixo, especialmente eletrônicos e pilhas, na natureza?",
+        "type": "multichoice",
+        "options": [
+          "Porque eles podem liberar substâncias tóxicas que contaminam a água e o solo",
+          "Porque eles deixam um cheiro desagradável"
+        ],
+        "answer": "Porque eles podem liberar substâncias tóxicas que contaminam a água e o solo"
+      },
+      "image": "../../assets/e-trash.gif",
+      "imageClass": "img-panel",
+      "feedback": {
+        "correct": {
+          "title": "Perfeito!",
+          "text": "Isso mesmo. O descarte correto é essencial porque esses materiais contêm <b>químicos perigosos</b> que podem se espalhar pelo ambiente através da água, contaminando tudo.",
+          "offers_reward": false
+        },
+        "incorrect": {
+          "title": "Tente outra vez!",
+          "text": "O maior problema é a <b>contaminação</b>. Os químicos tóxicos de pilhas e eletrônicos podem vazar e poluir a água que um dia poderíamos beber."
+        }
+      }
+    },
+    {
+      "id": 10,
+      "info": "A água potável é um recurso valioso. No nosso dia a dia, podemos ser inteligentes e <b>reaproveitar</b> a água para tarefas que não exigem que ela seja 100% limpa. Isso é uma forma de participar ativamente do ciclo, garantindo que a água limpa seja usada onde é mais necessário.",
+      "question": {
+        "text": "Qual destas é uma boa ideia para reaproveitar a água em casa?",
+        "type": "multichoice",
+        "options": [
+          "Usar a água do enxágue da máquina de lavar para lavar o quintal",
+          "Usar a mangueira para limpar a calçada por 30 minutos"
+        ],
+        "answer": "Usar a água do enxágue da máquina de lavar para lavar o quintal"
+      },
+      "image": "../../assets/water-hose.gif",
+      "imageClass": "img-panel",
+      "feedback": {
+        "correct": {
+          "title": "Ideia genial!",
+          "text": "Exatamente! A água do enxágue da roupa, que não está tão suja, é perfeita para lavar pisos e quintais. É uma forma inteligente de <b>economizar</b> <span class='bg-liquid'>água potável.</span>",
+          "offers_reward": false
+        },
+        "incorrect": {
+          "title": "Essa não é a melhor opção!",
+          "text": "Usar a mangueira com água potável para limpar calçadas é um grande <b>desperdício</b>. A melhor atitude é sempre buscar formas de <b>reaproveitar</b> a água."
         }
       }
     }
