@@ -13,6 +13,7 @@ import { updateProgress, initMilestones } from '../common/ui.js';
 import RewardsManager from './RewardsManager.js'; 
 import Enemy from './Enemy.js';
 import StatusEffect from './StatusEffect.js';
+import PauseManager from './PauseManager.js';
 
 
 export default class Game {
@@ -71,6 +72,8 @@ export default class Game {
         this.invincible = false;
         this.invincibilityDuration = 5000; // 5s
         this.lastHitTime = 0;
+
+        this.pauseManager = new PauseManager(this);
         
         // Listener para redimensionamento da janela
         window.addEventListener('resize', this.resize.bind(this));
