@@ -501,6 +501,8 @@ body, html {
 .bg-condensation { background-color: #7e57c2; color: #fff; padding: 0.2em 0.4em; border-radius: 0.3em; }
 .bg-precipitation { background-color: #1565c0; color: #fff; padding: 0.2em 0.4em; border-radius: 0.3em; }
 
+.bg-toxic{background-color: #ff1575; color: #fff; padding: 0.2em 0.4em; border-radius: 0.3em;}
+
 /* Overlay que escurece o fundo */
 #overlay {
     position: fixed;       
@@ -596,6 +598,16 @@ body, html {
   50%  { opacity: 0.3; }
   100% { opacity: 1; }
 }
+
+/* Títulos acima dos painéis */
+
+.panel-title{
+  position: absolute;
+  top: -2em;
+  font-size: larger;
+}
+
+
 
 
 

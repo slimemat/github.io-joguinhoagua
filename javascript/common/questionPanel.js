@@ -24,6 +24,7 @@ export function showQuestionPanel(text, onAnswer, image = null, imageClass = '',
   }
 
   panel.innerHTML = `
+    <div class="panel-title">Pergunta</div>
     <p>${text}</p>
     ${buttonsHTML}
   `;

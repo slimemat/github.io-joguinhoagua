@@ -88,30 +88,31 @@
     },
     {
       "id": 5,
-      "info": "A maior parte da água do planeta está nos <span class='bg-liquid'><b>oceanos</b></span>. Embora as <span class='bg-solid'><b>geleiras</b></span> também guardem uma enorme quantidade de água <span class='bg-solid'><b>sólida</b></span> (gelo), elas representam uma parte bem menor. Quando as <span class='bg-solid'><b>geleiras</b></span> derretem, o nível do mar pode aumentar e isso afeta o clima e as cidades costeiras.",
+      "info": "A maior parte da água está nos <span class='bg-liquid'><b>oceanos</b></span>, mas ela é <span class='bg-salt'><b>salgada</b></span> e não serve para beber. A <span class='bg-liquid'><b>água doce</b></span>, com pouco sal, está em <span class='bg-solid'><b>geleiras</b></span>, <span class='bg-liquid'><b>rios</b></span> e <span class='bg-liquid'><b>lagos</b></span>. As <span class='bg-solid'><b>geleiras</b></span> guardam grande parte dessa água, mas não podemos usá-la facilmente. Com o <span class='bg-heat'><b>aquecimento global</b></span>, elas derretem mais rápido, aumentando o nível do mar.",
       "question": {
-        "text": "Onde está a maior parte da água do planeta Terra?",
+        "text": "De onde vem a maior parte da água que usamos no dia a dia?",
         "type": "multichoice",
         "options": [
-          "Nos oceanos",
-          "Nas geleiras"
+          "Das geleiras e calotas polares",
+          "De rios, lagos e águas subterrâneas"
         ],
-        "answer": "Nos oceanos"
+        "answer": "De rios, lagos e águas subterrâneas"
       },
       "image": "../../assets/planet_melt.gif",
       "imageClass": "img-panel",
       "feedback": {
         "correct": {
-          "title": "Isso aí!",
-          "text": "Certo! A maior parte da água do planeta está nos <span class='bg-liquid'><b>oceanos</b></span>, que cobrem cerca de 70% da superfície da Terra. As <span class='bg-solid'><b>geleiras</b></span> guardam bastante água <span class='bg-solid'><b>sólida</b></span> (gelo), mas em quantidade bem menor.",
+          "title": "Muito bem!",
+          "text": "Isso mesmo! A <span class='bg-liquid'><b>água doce</b></span> que usamos no dia a dia vem principalmente de <span class='bg-liquid'><b>rios, lagos</b></span> e <span class='bg-liquid'><b>águas subterrâneas</b></span>. As <span class='bg-solid'><b>geleiras</b></span> guardam bastante água doce, mas não são uma fonte acessível para nosso consumo.",
           "offers_reward": false
         },
         "incorrect": {
           "title": "Quase!",
-          "text": "Na verdade, a maior parte da água está nos <span class='bg-liquid'><b>oceanos</b></span>. As <span class='bg-solid'><b>geleiras</b></span> guardam bastante água doce, mas são minoria quando comparadas ao volume dos mares."
+          "text": "Na verdade, a água que usamos vem de <span class='bg-liquid'><b>rios, lagos</b></span> e <span class='bg-liquid'><b>águas subterrâneas</b></span>. As <span class='bg-solid'><b>geleiras</b></span> armazenam grande parte da água doce, mas não estão disponíveis para nosso uso direto."
         }
       }
     },
+
     {
       "id": 6,
       "info": "A água participa do ciclo hidrológico em diversos lugares: rios, lagos, oceanos, solo e até nos seres vivos. Ela se move, evapora, condensa e precipita, mostrando como tudo está interligado. Uma fonte poluída pode afetar outras regiões quando a água se move pelo ciclo.",
@@ -184,7 +185,7 @@
     },
     {
       "id": 9,
-      "info": "O lixo descartado em locais errados é um grande perigo. A chuva pode arrastar os poluentes para os rios ou fazê-los <b>infiltrar no solo</b>, contaminando a água subterrânea. Itens como <b>pilhas, baterias e eletrônicos</b> liberam químicos muito tóxicos que prejudicam a saúde de todos os seres vivos.",
+      "info": "O lixo descartado em locais errados é um grande perigo. A chuva pode arrastar os <span class='bg-toxic'>poluentes</span> para os rios ou fazê-los <b>infiltrar no solo</b>, contaminando a água subterrânea. Itens como <b>pilhas, baterias e eletrônicos</b> liberam químicos muito tóxicos que prejudicam a saúde de todos os seres vivos.",
       "question": {
         "text": "Por que não devemos jogar lixo, especialmente eletrônicos e pilhas, na natureza?",
         "type": "multichoice",

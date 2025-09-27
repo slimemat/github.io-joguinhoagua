@@ -10,6 +10,7 @@ export function showInfoPanel(text, onClose, image = null, imageClass = '') {
   panel.className = 'info-panel';
   let imageHTML = image ? `<img src="${image}" class="info-panel-img ${imageClass}" alt="">` : '';
   panel.innerHTML = `
+    <div class="panel-title">Info</div>
     ${imageHTML}
     <p>${text}</p>
     <button id="close-info">OK<span class="key-hint">F</span></button>
