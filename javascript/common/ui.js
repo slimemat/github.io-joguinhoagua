@@ -85,3 +85,22 @@ export function hideOverlay() {
     if (overlay) overlay.style.display = 'none';
 }
 
+export function showPhaseEndPanel(callbacks) {
+    const panel = document.createElement('div');
+    panel.className = 'panel';
+    panel.innerHTML = `
+        <div>Parabéns! Você chegou a 100 pontos!</div>
+        <button id="continue-btn">Continuar jogando</button>
+        <button id="map-btn">Voltar ao mapa</button>
+    `;
+    document.body.appendChild(panel);
+
+    document.getElementById('continue-btn').onclick = () => { 
+        panel.remove(); 
+        callbacks.continue(); 
+    };
+    document.getElementById('map-btn').onclick = () => { 
+        panel.remove(); 
+        callbacks.map(); 
+    };
+}

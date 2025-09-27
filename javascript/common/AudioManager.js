@@ -7,6 +7,7 @@ export default class AudioManager {
         this.collectSound = document.getElementById("collect-sound");
         this.correctSound = document.getElementById("correct-sound");
         this.wrongSound = document.getElementById("wrong-sound");
+        this.celebrationSound = document.getElementById("celebration-sound");
 
         this.isMusicPlaying = true;
 
@@ -62,4 +63,13 @@ export default class AudioManager {
             this.wrongSound.play();
         }
     }
+
+    playCelebration() {
+        if (this.celebrationSound) {
+            this.celebrationSound.currentTime = 0;
+            this.celebrationSound.play();
+        }
+    }
+
+  
 }

@@ -76,4 +76,34 @@ export default class Enemy {
     destroy() {
         this.element.remove();
     }
+
+    /**
+     * Aplica um "boost" no inimigo para a fase final do jogo.
+     * Aumenta aleatoriamente a velocidade e o tamanho do inimigo, mantendo a direção atual.
+     * Esse método é chamado normalmente quando a pontuação do jogador atinge o fim de fase.
+     *
+     * @param {number} [chance=0.5] - Probabilidade (0 a 1) de aplicar o boost neste inimigo.
+     *                                Por exemplo, 0.5 significa 50% de chance.
+     * @param {number} [maxSpeed=3] - Valor máximo de velocidade que o inimigo pode atingir com o boost.
+     *                                A velocidade mínima é 1.
+     * @param {number} [maxSize=100] - Tamanho máximo em pixels que o inimigo pode atingir com o boost.
+     *                                 O tamanho padrão sem boost é 70px.
+     *
+     * @example
+     * // Aplica boost com 70% de chance, velocidade máxima 5 e tamanho máximo 120px
+     * enemy.endGameBoost(0.7, 5, 120);
+     */
+    endGameBoost(chance = 0.5, maxSpeed = 3, maxSize = 100) {
+        if (Math.random() < chance) {
+            this.speed = 1 + Math.random() * (maxSpeed - 1); // nova speed
+            this.size = 70 + Math.random() * (maxSize - 70); // novo size
+            this.element.style.width = this.size + 'px';
+            this.element.style.height = this.size + 'px';
+
+            // recalcula vx/vy mantendo direção
+            const norm = Math.sqrt(this.vx**2 + this.vy**2) || 1;
+            this.vx = (this.vx / norm) * this.speed;
+            this.vy = (this.vy / norm) * this.speed;
+        }
+    }
 }

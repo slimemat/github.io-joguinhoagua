@@ -14,6 +14,8 @@ import RewardsManager from './RewardsManager.js';
 import Enemy from './Enemy.js';
 import StatusEffect from './StatusEffect.js';
 import PauseManager from './PauseManager.js';
+import EffectsManager from '../common/EffectsManager.js';
+import { showLevelEndPanel } from '../common/levelEndPanel.js';
 
 
 export default class Game {
@@ -66,14 +68,22 @@ export default class Game {
 
         this.enemies = [];
         this.enemySpawnScore = 40;
-        this.enemySpawnInterval = 5000; // em ms
+
+        this.BASE_INTERVAL = 5000; // ms
+        this.enemySpawnInterval = this.BASE_INTERVAL;
         this.lastEnemySpawn = 0;
+        this._frenzyActive = false;
+        this._frenzyUsed = { 120: false, 150: false };
 
         this.invincible = false;
         this.invincibilityDuration = 5000; // 5s
         this.lastHitTime = 0;
 
         this.pauseManager = new PauseManager(this);
+
+        this.effectsManager = new EffectsManager();
+        this.phaseCompleted = false;
+
         
         // Listener para redimensionamento da janela
         window.addEventListener('resize', this.resize.bind(this));
@@ -108,6 +118,15 @@ export default class Game {
         initMilestones(this.milestones, 100, this.questions); // max score 100
 
         this.gameLoop();
+
+        // ======== Teste rápido do Level End ========
+        /*
+        setTimeout(() => {
+            console.log('>>> Testando Level End Panel');
+            this.score = 100; // força o score
+            this.triggerPhaseEnd();
+        }, 2000); // 2 segundos depois do start
+        */
     }
 
     /**
@@ -327,9 +346,58 @@ export default class Game {
         const now = Date.now();
         if (now - this.lastEnemySpawn > this.enemySpawnInterval) {
             const enemy = new Enemy(this);
+
+            this.applyEnemyBoost(enemy);
             this.enemies.push(enemy);
             this.lastEnemySpawn = now;
+
+            if (this.score == 120) this.triggerFrenzyMode(120, 5000, 50, 200);
+            if (this.score == 150) this.triggerFrenzyMode(150, 5000, 50, 200);
+
+            // recalcula o intervalo aleatório
+            this.enemySpawnInterval = this.BASE_INTERVAL * (0.5 + Math.random());
         }
+    }
+
+    
+    applyEnemyBoost(enemy) {
+        switch (this.score) {
+            case 70:
+                enemy.endGameBoost(0.5, 3, 120);
+                this.BASE_INTERVAL = 3500;
+                break;
+            case 100:
+                enemy.endGameBoost(0.5, 5, 120);
+                this.BASE_INTERVAL = 2500;
+                break;
+        
+            default:
+                break;
+        }
+    }
+
+    triggerFrenzyMode(scoreTrigger, duration = 5000, minInterval = 50, maxInterval = 150) {
+        if (this._frenzyUsed[scoreTrigger] || this.score < scoreTrigger) return;
+
+        console.log(`>>> Frenzy Mode Activated for score ${scoreTrigger}!`);
+        this._frenzyUsed[scoreTrigger] = true;
+
+        const frenzyInterval = setInterval(() => {
+            // spawn múltiplos inimigos de forma aleatória
+            const numEnemies = Math.floor(Math.random() * 3) + 1; // 1-3
+            for (let i = 0; i < numEnemies; i++) {
+                const enemy = new Enemy(this);
+                this.enemies.push(enemy);
+            }
+            // redefine enemySpawnInterval aleatório bem baixo
+            this.enemySpawnInterval = minInterval + Math.random() * (maxInterval - minInterval);
+        }, minInterval);
+
+        setTimeout(() => {
+            clearInterval(frenzyInterval);
+            this.enemySpawnInterval = this.BASE_INTERVAL; // volta ao normal
+            console.log(`>>> Frenzy Mode ended for score ${scoreTrigger}`);
+        }, duration);
     }
 
 
@@ -374,6 +442,7 @@ export default class Game {
         if (!this.milestones.includes(this.score)) return;
 
         this.showNextQuestionWithInfo();
+        this.triggerPhaseEnd(); // will check
     }
 
 
@@ -556,6 +625,35 @@ export default class Game {
             updateScore(this.score);
             updateProgress(this.score);
         }
+    }
+
+    /**
+     * Triggers the end-of-phase sequence when score reaches 100.
+     * This includes confetti, sound, and a special panel.
+     */
+    triggerPhaseEnd() {
+        if (this.score >= 100 && !this.phaseCompleted) {
+            this.phaseCompleted = true;
+            this.paused = true;
+            this.audio.playCelebration();
+            this.effectsManager.showConfetti();
+            
+            showLevelEndPanel({
+                continue: () => this.startExtraMode(),
+                map: () => this.returnToMap()
+            });
+
+            //maybe hide the progress bar in the future
+        }
+    }
+
+    startExtraMode() {
+        this.paused = false;
+        this.enemySpawnInterval /= 2; // spawn mais rápido
+        this.enemies.forEach(enemy => {
+            enemy.endGameBoost(0.5, 3, 100);
+        });
+        this.milestones.push(200); // pergunta surpresa
     }
 
 
