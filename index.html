@@ -3,44 +3,77 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CICLO DA ÁGUA</title>
-    <link rel="stylesheet" href="style.css">
+    <title>O Ciclo da Água - Menu Principal</title>
+
+    <!-- Main stylesheet for layout and effects -->
+    <link rel="stylesheet" href="css/index_menu.css">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Press+Start+2P&display=swap" rel="stylesheet">
 </head>
 <body>
-    <!-- Fundo do Jogo -->
+    <!-- Cursor follower is now an img tag with a placeholder -->
+    <img id="cursor-follower" src="assets/cursor.png" alt="cursor follower">
+
     <div class="background">
-        <!-- Tela de Início -->
-        <div id="start-screen">
-            <button id="play-button" onclick="startGame()">JOGAR</button>
+        <!-- The clouds layer is now clickable for our easter egg -->
+        <div class="clouds-layer"></div>
+
+        <div class="menu-container">
+            <header class="game-title">
+                <h1>O Ciclo da Água</h1>
+                <p class="subtitle">Preparado para testar seus conhecimentos?</p>
+            </header>
+            
+            <nav class="menu-options">
+                <a href="./map/index.html" class="menu-button">Jogar</a>
+                <a href="#" class="menu-button">Opções</a>
+                <!-- UPDATED: Added an ID to the credits button -->
+                <a href="#" id="credits-button" class="menu-button">Créditos</a>
+                <a href="#" class="menu-button">Extras</a>
+            </nav>
         </div>
-
-        <!-- Container do Jogo -->
-        <div id="game-container" class="hidden">
-            <h1>CICLO DA ÁGUA</h1>
-
-            <div id="score-container">
-                <span id="score-label">Pontuação: </span><span id="score">0</span>
-            </div>
-
-            <div class="gameCanvas" id="gameCanvas">
-                <!-- Aqui você pode adicionar elementos do jogo -->
-                <img id="arrowKeysImage" src="assets/arrowkeys.png" class='small-img' alt="pressione as setas para se mover">
-                <img id="item" class="item" src="assets/xp1.gif">
-            </div>
-        </div>
-
-        <!-- Música de fundo -->
-        <audio id="background-music" loop>
-            <source src="musica-de-fundo.mp3" type="audio/mpeg">
-            <source src="musica-de-fundo.ogg" type="audio/ogg">
-            Seu navegador não suporta o elemento de áudio.
-        </audio>
-
-        <audio id="collect-sound" src="assets/xp.mp3" preload="auto"></audio>
-        <button id="toggle-music" onclick="toggleMusic()">Pausar Música</button>
-
     </div>
 
-    <script src="script.js"></script>
+    <!-- NEW: Credits Overlay Structure -->
+    <div id="credits-overlay" class="hidden">
+        <div class="credits-content">
+            <div class="credits-scroller">
+                <h2>Créditos</h2>
+                
+                <h3>Papel</h3>
+                <p>Laura Sampaio Sacramento</p>
+
+                <h3>Papel</h3>
+                <p>Matheus Bueno Garrido</p>
+
+                <h3>Papel</h3>
+                <p>Matheus Santos Ferreira</p>
+                
+                <h3>Papel</h3>
+                <p>Pedro Henrique Salina</p>
+                
+                <h3>Música & Efeitos Sonoros</h3>
+                <p>MyInstants e Pexels</p>
+                
+                <h3>Agradecimentos</h3>
+                <p>Professor Orientador</p>
+                
+                <h3 class="references-title">Referências Bibliográficas</h3>
+                <p class="references-text">
+                    <br><br>
+                    Site h2obivous. "Ciclo da Água". Disponível em: &lt;URL&gt;. Acesso em: dd de mm. de 2025.
+                </p>
+            </div>
+        </div>
+        <button id="close-credits">Fechar</button>
+    </div>
+
+
+    <!-- Link to the external JavaScript file -->
+    <script src="javascript/menu/menu.js"></script>
 </body>
 </html>
+

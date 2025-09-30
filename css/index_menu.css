@@ -1,0 +1,310 @@
+/* === General and Layout Styles === */
+body, html {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    font-family: 'Poppins', sans-serif;
+    color: #fff;
+    /* Hide the default system cursor */
+    cursor: none;
+}
+
+.background {
+    width: 100vw;
+    height: 100vh;
+    background: url('../assets/background-clear.png') no-repeat center center;
+    background-size: cover;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.clouds-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 200%;
+    height: 100%;
+    background-image: url('../assets/3clouds.png'); 
+    background-repeat: repeat-x;
+    animation: scroll 60s linear infinite;
+    z-index: 1;
+    opacity: 0.6;
+    /* FIX: Explicitly hide the default pointer cursor */
+    cursor: none;
+}
+
+@keyframes scroll {
+    from {
+        transform: translateX(0);
+    }
+    to {
+        transform: translateX(-50%);
+    }
+}
+
+.menu-container {
+    position: relative;
+    z-index: 2;
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 40px 60px;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    /* FIX: Make the text inside the menu non-selectable */
+    user-select: none;
+}
+
+.game-title h1 {
+    font-family: 'Press Start 2P', cursive;
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    margin: 0;
+    text-shadow: 4px 4px 0px rgba(0,0,0,0.5);
+}
+
+.subtitle {
+    font-size: clamp(1rem, 2.5vw, 1.2rem);
+    margin-top: 10px;
+    opacity: 0.9;
+    letter-spacing: 1px;
+}
+
+.menu-options {
+    margin-top: 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.menu-button {
+    font-family: 'Press Start 2P', cursive;
+    text-decoration: none;
+    color: #fff;
+    background-color: #3b82f6;
+    padding: 15px 30px;
+    border-radius: 10px;
+    font-size: 1.2rem;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    transition: all 0.2s ease-in-out;
+    border-bottom: 4px solid #1d4ed8;
+    /* FIX: Explicitly hide the default pointer cursor here as well */
+    cursor: none;
+}
+
+.menu-button:hover {
+    background-color: #2563eb;
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+}
+
+
+/* === Styles for Interactive Effects === */
+
+/* Ensures the body fades out smoothly on page transition */
+body {
+    transition: opacity 0.5s ease-out;
+}
+
+body.fade-out {
+    opacity: 0;
+}
+
+/* 1. Cursor Follower (as an image) */
+#cursor-follower {
+    position: fixed;
+    /* UPDATED: Increased size */
+    width: 80px;
+    height: 80px;
+    pointer-events: none; /* Allows clicks to pass through it */
+    z-index: 9999999;
+    /* UPDATED: Adjusted transform for the clicker image.
+      This moves the image so the top-left tip of the finger,
+      not the center of the image, is at the cursor's location.
+    */
+    transform: translate(-10px, -5px);
+    transition: transform 0.1s ease-out;
+    
+    /* This is the key property for crisp pixel art */
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges; /* Firefox */
+    -ms-interpolation-mode: nearest-neighbor; /* Internet Explorer */
+}
+
+/* 2. Raining Clouds Easter Egg */
+.raindrop {
+    position: absolute;
+    bottom: 100%; /* Start above the screen */
+    width: 6px;
+    height: 36px;
+    background: linear-gradient(to top, rgba(135, 206, 250, 0.8), rgba(255, 255, 255, 0)); /* Light sky blue rain */
+    /* FIX: Changed animation from 'infinite' to 'forwards' to allow 'animationend' to fire */
+    animation: fall 4s linear forwards;
+    z-index: 1; /* Underneath the menu, but over the background */
+    border-radius: 1px;
+    pointer-events: none; /* Rain should not be clickable */
+    transition: opacity 200ms ease;
+}
+
+@keyframes fall {
+    from {
+        transform: translateY(0);
+    }
+    to {
+        transform: translateY(110vh); /* Fall completely off the bottom of the screen */
+    }
+}
+
+
+/* === NEW: Styles for Credits Overlay === */
+
+/* The main overlay container that covers the screen */
+#credits-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.9);
+    z-index: 10000;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    opacity: 1;
+    transition: opacity 0.4s ease-in-out;
+}
+
+/* A helper class to hide elements */
+#credits-overlay.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* The container for the scrolling text */
+.credits-content {
+    width: 80%;
+    max-width: 600px;
+    height: 70%;
+    color: #fff;
+    font-family: 'Poppins', sans-serif;
+    text-align: center;
+    overflow: hidden; /* This hides the text before it scrolls into view */
+    position: relative;
+}
+
+/* UPDATED: Allows the container to be scrollable and adds Firefox support */
+.credits-content.scrollable {
+    overflow-y: auto;
+    /* Firefox specific scrollbar styling */
+    scrollbar-width: thin;
+    scrollbar-color: #3b82f6 rgba(0, 0, 0, 0.3);
+}
+
+/* Optional custom scrollbar for WebKit browsers (Chrome, Safari, Edge) */
+.credits-content.scrollable::-webkit-scrollbar {
+    width: 10px;
+}
+
+/* NEW: Added a track style for a more complete look in WebKit */
+.credits-content.scrollable::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 5px;
+}
+
+.credits-content.scrollable::-webkit-scrollbar-thumb {
+    background-color: #3b82f6;
+    border-radius: 5px;
+}
+
+/* The element that actually scrolls up */
+.credits-scroller {
+    position: absolute;
+    top: 100%; /* Start below the visible area */
+    left: 0;
+    right: 0;
+    padding: 0 20px; /* Add some padding so text isn't against the edge */
+    animation: scroll-credits 20s linear forwards; /* Adjust duration as needed */
+}
+
+/* NEW: Class to stop the animation and position the text for scrolling */
+.credits-scroller.animation-finished {
+    animation: none; /* Instantly stop the animation */
+    top: 0; /* Snap the text to the top of the container */
+}
+
+
+@keyframes scroll-credits {
+    from {
+        top: 100%;
+    }
+    to {
+        top: -100%; /* Scroll until it's completely off the top */
+    }
+}
+
+.credits-scroller h2 {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 2rem;
+    color: #FFD700; /* Gold color for the main title */
+    margin-bottom: 40px;
+}
+
+.credits-scroller h3 {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 1.2rem;
+    color: #3b82f6; /* Blue to match buttons */
+    margin-top: 30px;
+    margin-bottom: 10px;
+}
+
+.credits-scroller p {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
+
+.references-title {
+    margin-top: 50px !important;
+}
+
+.references-text {
+    font-size: 0.9rem !important;
+    opacity: 0.8;
+}
+
+
+/* The button to close the credits overlay */
+#close-credits {
+    margin-top: 20px;
+    font-family: 'Press Start 2P', cursive;
+    text-decoration: none;
+    color: #fff;
+    background-color: #d32f2f; /* A distinct red color */
+    padding: 15px 30px;
+    border-radius: 10px;
+    font-size: 1rem;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    transition: all 0.2s ease-in-out;
+    border: none;
+    border-bottom: 4px solid #b71c1c;
+    /* UPDATED: Removed cursor: none; this will be handled by the body class now */
+}
+
+#close-credits:hover {
+    background-color: #b71c1c;
+    transform: translateY(-3px);
+}
+
+/* NEW: Rules to restore the default cursor when credits are active */
+body.credits-active {
+    cursor: default;
+}
+
+body.credits-active #cursor-follower {
+    display: none;
+}
+
