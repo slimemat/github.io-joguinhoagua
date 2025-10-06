@@ -67,13 +67,13 @@ export default class Game {
         this.pendingQuestions = []; // perguntas que a criança errou
 
         this.enemies = [];
-        this.enemySpawnScore = 40;
+        this.enemySpawnScore = 20;
 
         this.BASE_INTERVAL = 5000; // ms
         this.enemySpawnInterval = this.BASE_INTERVAL;
         this.lastEnemySpawn = 0;
         this._frenzyActive = false;
-        this._frenzyUsed = { 120: false, 150: false };
+        this._frenzyUsed = {50: false, 120: false, 150: false };
 
         this.invincible = false;
         this.invincibilityDuration = 5000; // 5s
@@ -351,6 +351,7 @@ export default class Game {
             this.enemies.push(enemy);
             this.lastEnemySpawn = now;
 
+            if (this.score == 50) this.triggerFrenzyMode(50, 5000, 500, 1000);
             if (this.score == 120) this.triggerFrenzyMode(120, 5000, 50, 200);
             if (this.score == 150) this.triggerFrenzyMode(150, 5000, 50, 200);
 
