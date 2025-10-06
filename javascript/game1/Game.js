@@ -341,7 +341,7 @@ export default class Game {
 
 
     spawnEnemy() {
-        if (this.score < 40) return;
+        if (this.score < this.enemySpawnScore) return;
 
         const now = Date.now();
         if (now - this.lastEnemySpawn > this.enemySpawnInterval) {
