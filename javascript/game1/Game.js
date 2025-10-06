@@ -329,7 +329,7 @@ export default class Game {
         // aplica toxicidade (verde e lento, tem que durar mais tempo que invencibilidade)
         this.status.apply(
             'toxic',
-            10000, // 10s
+            3000, // 3s
             p => p.applyToxicEffect(),
             p => p.removeToxicEffect()
         );
