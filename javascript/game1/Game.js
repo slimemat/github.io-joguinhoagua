@@ -20,11 +20,6 @@ import { showLevelEndPanel } from '../common/levelEndPanel.js';
 
 export default class Game {
 
-    //static INFO_INTERVAL = 10;      // Pontos para mostrar info
-    //static QUESTION_OFFSET = 5;    // Pontos após info para mostrar questão
-
-    
-
     /**
      * Cria uma nova instância do jogo.
      * @param {HTMLCanvasElement} canvas - O canvas onde o jogo será renderizado.
@@ -39,7 +34,6 @@ export default class Game {
         this.audio = new Audio();
         this.rewardsManager = new RewardsManager();
 
-        //from the other class input.js
         this.input = new InputHandler(() => this.resetHintTimer());
         
         this.player = null;
@@ -72,18 +66,30 @@ export default class Game {
         this.BASE_INTERVAL = 5000; // ms
         this.enemySpawnInterval = this.BASE_INTERVAL;
         this.lastEnemySpawn = 0;
-        this._frenzyActive = false;
-        this._frenzyUsed = {50: false, 120: false, 150: false };
 
         this.invincible = false;
         this.invincibilityDuration = 5000; // 5s
         this.lastHitTime = 0;
 
         this.pauseManager = new PauseManager(this);
-
         this.effectsManager = new EffectsManager();
         this.phaseCompleted = false;
 
+        // === ADDED: Single source of truth for all frenzy events ===
+        // To add, remove, or change an event, you ONLY edit this array.
+        this.frenzyEvents = [
+            { score: 36,  duration: 2500, minInterval: 800, maxInterval: 2000 },
+            { score: 50,  duration: 8000, minInterval: 1500, maxInterval: 4000 },
+            { score: 65,  duration: 3000, minInterval: 1000, maxInterval: 2000 },
+            { score: 95,  duration: 8000, minInterval: 1000, maxInterval: 3000 },
+            { score: 120, duration: 5000, minInterval: 100, maxInterval: 500  },
+            { score: 150, duration: 5000, minInterval: 100, maxInterval: 200  }
+        ];
+        
+        // === CHANGED: Automatically create the _frenzyUsed tracker from the configuration ===
+        this._frenzyUsed = Object.fromEntries(
+            this.frenzyEvents.map(event => [event.score, false])
+        );
         
         // Listener para redimensionamento da janela
         window.addEventListener('resize', this.resize.bind(this));
@@ -118,15 +124,6 @@ export default class Game {
         initMilestones(this.milestones, 100, this.questions); // max score 100
 
         this.gameLoop();
-
-        // ======== Teste rápido do Level End ========
-        /*
-        setTimeout(() => {
-            console.log('>>> Testando Level End Panel');
-            this.score = 100; // força o score
-            this.triggerPhaseEnd();
-        }, 2000); // 2 segundos depois do start
-        */
     }
 
     /**
@@ -188,9 +185,6 @@ export default class Game {
             this.triggerQuestionSequence(q);
         }
     }
-
-
-
 
     /**
      * Atualiza as dimensões do jogo e mantém o jogador dentro da tela.
@@ -268,7 +262,9 @@ export default class Game {
             this.score++;
             updateScore(this.score);
             updateProgress(this.score)
-
+            
+            // === ADDED: Call the central event checker every time the score changes ===
+            this.checkScoreEvents();
 
             //after score is updated, check if we should show a info/question
             if (this.questions && this.questions.length > 0) {
@@ -280,6 +276,26 @@ export default class Game {
             }
 
             this.item.randomizePosition(this.player.currentStateIndex);
+        }
+    }
+    
+    /**
+     * === ADDED: The new central event checker function ===
+     * Checks for and triggers score-based events like Frenzy Mode.
+     * Reads from the frenzyEvents configuration array.
+     */
+    checkScoreEvents() {
+        for (const event of this.frenzyEvents) {
+            // Check if score is high enough AND this event hasn't been used yet
+            if (this.score >= event.score && !this._frenzyUsed[event.score]) {
+                // Trigger the event using its specific parameters
+                this.triggerFrenzyMode(
+                    event.score, 
+                    event.duration, 
+                    event.minInterval, 
+                    event.maxInterval
+                );
+            }
         }
     }
 
@@ -351,9 +367,7 @@ export default class Game {
             this.enemies.push(enemy);
             this.lastEnemySpawn = now;
 
-            if (this.score == 50) this.triggerFrenzyMode(50, 5000, 500, 1000);
-            if (this.score == 120) this.triggerFrenzyMode(120, 5000, 50, 200);
-            if (this.score == 150) this.triggerFrenzyMode(150, 5000, 50, 200);
+            // === REMOVED: All the old "if (this.score == ...)" checks are gone from here ===
 
             // recalcula o intervalo aleatório
             this.enemySpawnInterval = this.BASE_INTERVAL * (0.5 + Math.random());
@@ -446,8 +460,6 @@ export default class Game {
         this.triggerPhaseEnd(); // will check
     }
 
-
-
     /**
      * Pauses the game and shows the informational panel.
      * @param {object} q - The current question/info data object.
@@ -520,7 +532,7 @@ export default class Game {
     }
 
     /**
-     *  This is where the actual effect of a chosen reward is handled.
+     * This is where the actual effect of a chosen reward is handled.
      */
     applyReward(rewardId) {
         console.log(`Applying reward: ${rewardId}`);
@@ -556,10 +568,6 @@ export default class Game {
         }, q.image, q.imageClass, q.question.options);
     }
 
-
-
-
-
     /**
      * Avalia a resposta do usuário para a pergunta atual.
      * @param {string} userAnswer - A resposta fornecida pelo usuário.
@@ -574,8 +582,6 @@ export default class Game {
             return userAnswer === question.question.answer;
         }
     }
-
-
 
     /**
      * Handles keyboard input specifically for active UI panels.
@@ -610,8 +616,6 @@ export default class Game {
                 break;
         }
     }
-
-
 
     /**
      * Handles a wrong answer scenario.
@@ -656,8 +660,4 @@ export default class Game {
         });
         this.milestones.push(200); // pergunta surpresa
     }
-
-
-
-    
 }
