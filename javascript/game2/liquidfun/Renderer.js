@@ -1,3 +1,9 @@
+/**
+ * Manages all drawing operations on the canvas.
+ * @param {box2d.b2World} world - The Box2D world instance.
+ * @param {CanvasRenderingContext2D} ctx - The canvas 2D rendering context.
+ * @constructor
+ */
 function Renderer(world, ctx) {
     var canvas = document.getElementById("gameCanvas");
     var ctx = canvas.getContext("2d");
@@ -8,26 +14,29 @@ function Renderer(world, ctx) {
         wetnessGrid[y] = new Array(TERRAIN_WIDTH).fill(0.0);
     }
 
-    // --- No changes to the top part of the file ---
-
+    /**
+     * Clears the canvas and draws all game elements for the current frame.
+     * @returns {void}
+     */
     this.render = function() {
         ctx.fillStyle = '#87CEEB'; // Sky color
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        // First, draw the new terrain grid
         this.drawTerrainGrid();
 
-        // Then, draw all other physics bodies (like walls)
         for (let body = world.GetBodyList(); body; body = body.GetNext()) {
             for (let f = body.GetFixtureList(); f; f = f.GetNext()) {
                 this.draw(f);
             }
         }
         
-        // Finally, draw the water on top
         this.drawParticleSystem();
     }
     
+    /**
+     * Renders the terrain based on the 2D terrain grid array.
+     * @returns {void}
+     */
     this.drawTerrainGrid = function() {
         ctx.fillStyle = '#8B4513'; // Dirt brown color
         for (let y = 0; y < TERRAIN_HEIGHT; y++) {
@@ -44,6 +53,11 @@ function Renderer(world, ctx) {
         }
     }
 
+    /**
+     * Draws a single fixture, currently only handles walls.
+     * @param {box2d.b2Fixture} fixture - The fixture to be drawn.
+     * @returns {void}
+     */
     this.draw = function(fixture) {
         const userData = fixture.GetUserData();
         if (!userData) return;
@@ -54,6 +68,11 @@ function Renderer(world, ctx) {
         }
     }
     
+    /**
+     * A helper function to draw a polygon shape from a fixture.
+     * @param {box2d.b2Fixture} fixture - The fixture containing the polygon shape.
+     * @returns {void}
+     */
     this.drawPolygon = function(fixture) {
         const body = fixture.GetBody();
         const shape = fixture.GetShape();
@@ -68,18 +87,20 @@ function Renderer(world, ctx) {
         ctx.fill();
     }
 
-    // ==========================================================
-    // NEW AND IMPROVED WATER RENDERING FUNCTION
-    // ==========================================================
+    /**
+     * Renders the water particles using a persistent 'wetness' grid. This creates
+     * a fading trail effect and adds a visual surface layer to the water.
+     * @returns {void}
+     */
     this.drawParticleSystem = function() {
         const system = world.GetParticleSystemList();
         const particles = system.GetPositionBuffer();
+        const particleCount = system.m_count;
         const velocities = system.GetVelocityBuffer();
 
-        const FADE_SPEED = 0.10; // How fast water fades. Lower is slower. Try 0.02 to 0.1
+        // You can tweak this value. Lower is slower fade, higher is faster.
+        const FADE_SPEED = 0.10;
 
-        // Step A: Decay (Evaporation)
-        // Every frame, slightly reduce the wetness of every cell that isn't totally dry.
         for (let y = 0; y < TERRAIN_HEIGHT; y++) {
             for (let x = 0; x < TERRAIN_WIDTH; x++) {
                 if (wetnessGrid[y][x] > 0) {
@@ -88,26 +109,19 @@ function Renderer(world, ctx) {
             }
         }
 
-        // Step B: Add New Water
-        // For every active physics particle, set its grid cell to be fully wet (1.0).
-        for (let i = 0; i < system.GetParticleCount(); i++) {
+        for (let i = 0; i < particleCount; i++) {
             const pos = particles[i];
             const gridX = Math.floor((pos.x * SCALE) / TERRAIN_RESOLUTION);
             const gridY = Math.floor((pos.y * SCALE) / TERRAIN_RESOLUTION);
-
             if (gridY >= 0 && gridY < TERRAIN_HEIGHT && gridX >= 0 && gridX < TERRAIN_WIDTH) {
-                // FIXED: The error was here. It should be gridY, not y.
                 wetnessGrid[gridY][gridX] = 1.0;
             }
         }
 
-        // Step C: Render the Grid
-        // Draw each cell, using its wetness value to control its transparency.
         for (let y = 0; y < TERRAIN_HEIGHT; y++) {
             for (let x = 0; x < TERRAIN_WIDTH; x++) {
                 const wetness = wetnessGrid[y][x];
                 if (wetness > 0) {
-                    // The base color's alpha is now tied directly to the wetness
                     ctx.fillStyle = `rgba(0, 100, 255, ${wetness * 0.9})`;
                     ctx.fillRect(
                         x * TERRAIN_RESOLUTION,
@@ -115,23 +129,31 @@ function Renderer(world, ctx) {
                         TERRAIN_RESOLUTION,
                         TERRAIN_RESOLUTION
                     );
+
+                    const isSurface = (y === 0 || wetnessGrid[y - 1][x] < 0.1);
+                    if (isSurface) {
+                        ctx.fillStyle = `rgba(100, 180, 255, ${wetness * 0.7})`;
+                        ctx.fillRect(
+                            x * TERRAIN_RESOLUTION,
+                            y * TERRAIN_RESOLUTION,
+                            TERRAIN_RESOLUTION,
+                            // You can change the '3' to make the surface thicker or thinner
+                            TERRAIN_RESOLUTION / 3 
+                        );
+                    }
                 }
             }
         }
         
-        // --- Draw Flow Indicators on Top ---
         const velocityScale = 0.05;
         const minVelocityThreshold = 0.40;
-
         ctx.strokeStyle = 'rgba(0, 153, 255, 1)';
         ctx.lineWidth = 4;
-        ctx.beginPath(); // Begin a single path for all lines for better performance
-
-        for (let i = 0; i < system.GetParticleCount(); i++) {
+        ctx.beginPath();
+        for (let i = 0; i < particleCount; i++) {
             const pos = particles[i];
             const vel = velocities[i];
             const speed = Math.sqrt(vel.x * vel.x + vel.y * vel.y);
-
             if (speed > minVelocityThreshold) {
                 const startX = pos.x * SCALE;
                 const startY = pos.y * SCALE;
@@ -141,6 +163,6 @@ function Renderer(world, ctx) {
                 ctx.lineTo(endX, endY);
             }
         }
-        ctx.stroke(); // Draw all the lines at once
-    }
+        ctx.stroke();
+    };
 }
