@@ -1,5 +1,6 @@
 // --- Global Variables ---
 let world;
+let frameCount = 0;
 
 // --- Terrain Variables ---
 const TERRAIN_RESOLUTION = 12;
@@ -172,7 +173,7 @@ function mainApp(args) {
 
     function createWater() {
         // ... (this function is unchanged)
-        const circle = new box2d.b2CircleShape(1.5);
+        const circle = new box2d.b2CircleShape(2.0);
         const pgd = new box2d.b2ParticleGroupDef();
         pgd.position.Set(5, 1);
         pgd.flags = box2d.b2ParticleFlag.b2_waterParticle;
@@ -181,14 +182,87 @@ function mainApp(args) {
         world.GetParticleSystemList().CreateParticleGroup(pgd);
     }
 
+    function handleEvaporation() {
+        const particleSystem = world.GetParticleSystemList();
+        const particles = particleSystem.GetPositionBuffer(); // We need particle positions
+        const particleCount = particleSystem.m_count;
+        if (particleCount === 0) {
+            return;
+        }
+
+        // This still works the same way: a particle needs at least this many neighbors to survive.
+        const NEIGHBOR_THRESHOLD = 0;
+
+        // --- New Grid Logic ---
+
+        // Step 1: Create a temporary spatial grid. Each cell will hold a list of particle indices.
+        const particleGrid = Array.from({ length: TERRAIN_HEIGHT }, () => 
+            Array.from({ length: TERRAIN_WIDTH }, () => [])
+        );
+
+        // Step 2: Place all particle indices onto the grid.
+        const SCALE = 100; // This must match the SCALE in Renderer.js (canvas.width / 10)
+        for (let i = 0; i < particleCount; i++) {
+            const pos = particles[i];
+            const gridX = Math.floor((pos.x * SCALE) / TERRAIN_RESOLUTION);
+            const gridY = Math.floor((pos.y * SCALE) / TERRAIN_RESOLUTION);
+
+            if (gridY >= 0 && gridY < TERRAIN_HEIGHT && gridX >= 0 && gridX < TERRAIN_WIDTH) {
+                particleGrid[gridY][gridX].push(i);
+            }
+        }
+
+        const particlesToDestroy = [];
+
+        // Step 3: Check the neighborhood of each particle using the grid.
+        for (let i = 0; i < particleCount; i++) {
+            const pos = particles[i];
+            const gridX = Math.floor((pos.x * SCALE) / TERRAIN_RESOLUTION);
+            const gridY = Math.floor((pos.y * SCALE) / TERRAIN_RESOLUTION);
+            
+            let neighborCount = 0;
+
+            // Check the 3x3 area of cells around the particle's current cell.
+            for (let dy = -1; dy <= 1; dy++) {
+                for (let dx = -1; dx <= 1; dx++) {
+                    const checkY = gridY + dy;
+                    const checkX = gridX + dx;
+
+                    if (checkY >= 0 && checkY < TERRAIN_HEIGHT && checkX >= 0 && checkX < TERRAIN_WIDTH) {
+                        // Add the number of particles in the neighboring cell to our count.
+                        neighborCount += particleGrid[checkY][checkX].length;
+                    }
+                }
+            }
+            
+            // A particle will always find itself, so we subtract 1 from the count.
+            // If the remaining count is less than our threshold, mark the particle for destruction.
+            if ((neighborCount - 1) < NEIGHBOR_THRESHOLD) {
+                particlesToDestroy.push(i);
+            }
+        }
+
+        // Step 4: Destroy the marked particles (in reverse order).
+        for (let i = particlesToDestroy.length - 1; i >= 0; i--) {
+            const particleIndex = particlesToDestroy[i];
+            particleSystem.DestroyParticle(particleIndex);
+        }
+    }
+
     // CHANGED: The game loop now handles the rebuilding
     const gameLoop = function() {
+        frameCount++;
         // If a rebuild is needed and we aren't already busy rebuilding
         if (needsRebuild && !isRebuilding) {
             rebuildTerrainBodies();
         }
 
         world.Step(1 / 60, 10, 10);
+
+        if (frameCount > 120) {
+            handleEvaporation();
+        }
+
         Renderer.render();
         requestAnimationFrame(gameLoop);
     };
