@@ -63,10 +63,13 @@ function Renderer(world, ctx) {
         if (!userData) return;
 
         if (userData.type === "wall") {
-            ctx.fillStyle = '#424242'; // Dark grey
+            ctx.fillStyle = '#424242'; 
+            this.drawPolygon(fixture);
+        } else if (userData.type === "pipe") { 
+            ctx.fillStyle = '#00C853';
             this.drawPolygon(fixture);
         }
-    }
+    };
     
     /**
      * A helper function to draw a polygon shape from a fixture.
@@ -77,11 +80,16 @@ function Renderer(world, ctx) {
         const body = fixture.GetBody();
         const shape = fixture.GetShape();
         const pos = body.GetPosition();
+
+        // Use the public properties for this version of Box2D
         const vertices = shape.m_vertices;
+        const vertexCount = shape.m_count;
+
         ctx.beginPath();
         ctx.moveTo((vertices[0].x + pos.x) * SCALE, (vertices[0].y + pos.y) * SCALE);
-        for (let i = 1; i < vertices.length; i++) {
-            ctx.lineTo((vertices[i].x + pos.x) * SCALE, (vertices[i].y + pos.y) * SCALE);
+        for (let i = 1; i < vertexCount; i++) { // Loop to the correct count
+            const vertex = vertices[i];
+            ctx.lineTo((vertex.x + pos.x) * SCALE, (vertex.y + pos.y) * SCALE);
         }
         ctx.closePath();
         ctx.fill();
