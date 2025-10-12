@@ -122,7 +122,7 @@ function Renderer(world, ctx) {
             for (let x = 0; x < TERRAIN_WIDTH; x++) {
                 const wetness = wetnessGrid[y][x];
                 if (wetness > 0) {
-                    ctx.fillStyle = `rgba(0, 100, 255, ${wetness * 0.9})`;
+                    ctx.fillStyle = `rgba(0, 100, 255, ${wetness * 0.5})`;
                     ctx.fillRect(
                         x * TERRAIN_RESOLUTION,
                         y * TERRAIN_RESOLUTION,
@@ -138,7 +138,7 @@ function Renderer(world, ctx) {
                             y * TERRAIN_RESOLUTION,
                             TERRAIN_RESOLUTION,
                             // You can change the '3' to make the surface thicker or thinner
-                            TERRAIN_RESOLUTION / 3 
+                            TERRAIN_RESOLUTION / 1 
                         );
                     }
                 }
@@ -146,23 +146,54 @@ function Renderer(world, ctx) {
         }
         
         const velocityScale = 0.05;
-        const minVelocityThreshold = 0.40;
-        ctx.strokeStyle = 'rgba(0, 153, 255, 1)';
-        ctx.lineWidth = 4;
-        ctx.beginPath();
+        const minVelocityThreshold = 0.70;
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.30)';
+        ctx.lineWidth = 2;
+        ctx.lineCap = 'round';
+
         for (let i = 0; i < particleCount; i++) {
             const pos = particles[i];
             const vel = velocities[i];
             const speed = Math.sqrt(vel.x * vel.x + vel.y * vel.y);
-            if (speed > minVelocityThreshold) {
+
+            // --- New Logic Starts Here ---
+
+            // 1. Convert particle's world position to grid coordinates
+            const gridX = Math.floor((pos.x * SCALE) / TERRAIN_RESOLUTION);
+            const gridY = Math.floor((pos.y * SCALE) / TERRAIN_RESOLUTION);
+
+            // 2. Check if the particle is near any terrain
+            let isNearTerrain = false;
+            const checkRadius = 1; // Checks a 3x3 area (1 cell in each direction)
+            
+            for (let dy = -checkRadius; dy <= checkRadius; dy++) {
+                for (let dx = -checkRadius; dx <= checkRadius; dx++) {
+                    const checkX = gridX + dx;
+                    const checkY = gridY + dy;
+
+                    // Ensure we're checking within the grid bounds
+                    if (checkY >= 0 && checkY < TERRAIN_HEIGHT && checkX >= 0 && checkX < TERRAIN_WIDTH) {
+                        if (terrain[checkY][checkX] === 1) {
+                            isNearTerrain = true;
+                            break; // Found terrain, no need to check further
+                        }
+                    }
+                }
+                if (isNearTerrain) break;
+            }
+
+            // 3. Only draw if speed is high AND the particle is not near terrain
+            if (speed > minVelocityThreshold && !isNearTerrain) {
                 const startX = pos.x * SCALE;
                 const startY = pos.y * SCALE;
                 const endX = (pos.x + vel.x * velocityScale) * SCALE;
                 const endY = (pos.y + vel.y * velocityScale) * SCALE;
+
+                ctx.beginPath();
                 ctx.moveTo(startX, startY);
                 ctx.lineTo(endX, endY);
+                ctx.stroke();
             }
         }
-        ctx.stroke();
     };
 }
