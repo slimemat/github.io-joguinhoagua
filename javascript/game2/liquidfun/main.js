@@ -4,6 +4,8 @@ let frameCount = 0;
 let waterInGoal = 0; 
 const WATER_TO_WIN = 500;
 let initialParticleCount = 0;
+let collectedParticleCount = 0;
+let currentLevelIndex = 0;
 
 // --- Terrain Variables ---
 const TERRAIN_RESOLUTION = 12;
@@ -25,23 +27,30 @@ function mainApp(args) {
      * This function is called once the application starts.
      * @returns {void}
      */
-    function onload() {
+    async function onload() {
+
+        const response = await fetch('levels.json');
+        const levelData = await response.json();
+        window.levels = levelData;
+
         const gravity = new box2d.b2Vec2(0, 10);
         world = new box2d.b2World(gravity);
         const particleSystemDef = new box2d.b2ParticleSystemDef();
         world.CreateParticleSystem(particleSystemDef);
         Renderer = new Renderer(world);
 
-        // Create all the game objects first
-        createWorldBoundaries();
-        initializeTerrain();
-        rebuildTerrainBodies();
-        createWater();
-        createPipe();
+        document.getElementById('next-level-btn').addEventListener('click', () => {
+            currentLevelIndex++;
+            if (currentLevelIndex >= window.levels.length) {
+                alert("You beat the game! Congratulations!");
+                currentLevelIndex = 0; // Restart
+            }
+            loadLevel(currentLevelIndex);
+        });
         
         // Set up user interactions
         setupDigging(); 
-        
+        loadLevel(currentLevelIndex);
         // Start the game
         requestAnimationFrame(gameLoop);
     }
@@ -112,11 +121,14 @@ function mainApp(args) {
      * Populates the initial terrain grid with solid (1) and empty (0) cells.
      * @returns {void}
      */
-    function initializeTerrain() {
+    function initializeTerrain(layout) {
         for (let y = 0; y < TERRAIN_HEIGHT; y++) {
             terrain[y] = [];
             for (let x = 0; x < TERRAIN_WIDTH; x++) {
-                if (y > TERRAIN_HEIGHT / 3) {
+                const layoutY = Math.floor(y / (TERRAIN_HEIGHT / layout.length));
+                const layoutX = Math.floor(x / (TERRAIN_WIDTH / layout[0].length));
+                
+                if (layout[layoutY] && layout[layoutY][layoutX] === 'x') {
                     terrain[y][x] = 1;
                 } else {
                     terrain[y][x] = 0;
@@ -248,20 +260,52 @@ function mainApp(args) {
      * Creates the initial particle group that represents water.
      * @returns {void}
      */
-    function createWater() {
-        const shape = new box2d.b2PolygonShape();   
-        shape.SetAsBox(4, 1); 
-        const pgd = new box2d.b2ParticleGroupDef();
-        pgd.position.Set(5, 1);
-        // We no longer need the contact listener flag
-        pgd.flags = box2d.b2ParticleFlag.b2_waterParticle;
-        pgd.shape = shape;
+    function createWater(shapesDataArray) {
         const particleSystem = world.GetParticleSystemList();
         particleSystem.SetRadius(0.05);
-        particleSystem.CreateParticleGroup(pgd);
+        const SCALE = 100; // canvas.width / 10
 
+        // Loop through each water shape defined in the JSON
+        for (const shapeData of shapesDataArray) {
+            const pgd = new box2d.b2ParticleGroupDef();
+            pgd.position.Set(shapeData.x, shapeData.y);
+            pgd.flags = box2d.b2ParticleFlag.b2_waterParticle;
+
+            if (shapeData.type === 'box') {
+                const shape = new box2d.b2PolygonShape();
+                shape.SetAsBox(shapeData.halfWidth, shapeData.halfHeight);
+                pgd.shape = shape;
+            }
+
+            const countBefore = particleSystem.GetParticleCount();
+            particleSystem.CreateParticleGroup(pgd);
+            const countAfter = particleSystem.GetParticleCount();
+
+            // This is the temporary, pre-carving count
+            console.log("Particles created (before carving):", countAfter - countBefore);
+
+            // Check if carving is needed for this specific water body
+            if (!shapeData.canGoThroughDirt) {
+                const particles = particleSystem.GetPositionBuffer();
+                
+                // Carve only the particles that were just created
+                for (let i = countAfter - 1; i >= countBefore; i--) {
+                    const pos = particles[i];
+                    const gridX = Math.floor((pos.x * SCALE) / TERRAIN_RESOLUTION);
+                    const gridY = Math.floor((pos.y * SCALE) / TERRAIN_RESOLUTION);
+
+                    if (gridY >= 0 && gridY < TERRAIN_HEIGHT && gridX >= 0 && gridX < TERRAIN_WIDTH) {
+                        if (terrain[gridY][gridX] === 1) {
+                            particleSystem.DestroyParticle(i);
+                        }
+                    }
+                }
+            }
+        }
+        
+        // This is the final, correct count AFTER all creation and carving is done.
         initialParticleCount = particleSystem.GetParticleCount();
-        console.log("Starting with", initialParticleCount, "water particles.");
+        console.log(`Level ${currentLevelIndex + 1}: Actual starting particles: ${initialParticleCount}`);
     }
 
     /**
@@ -279,78 +323,57 @@ function mainApp(args) {
             // If particle is below the screen (world height is 6)
             if (particleY > 6.2) {
                 particleSystem.DestroyParticle(i);
+                collectedParticleCount++;
             }
         }
     }
 
-    /**
-     * Manages the evaporation of isolated water particles based on spatial proximity.
-     * @returns {void}
-     */
-    function handleEvaporation() {
+    function loadLevel(levelIndex) {
+        // Clear everything from the old level
+        for (let body = world.GetBodyList(); body; body = body.GetNext()) {
+            world.DestroyBody(body);
+        }
         const particleSystem = world.GetParticleSystemList();
-        const particles = particleSystem.GetPositionBuffer();
-        const particleCount = particleSystem.m_count;
-        if (particleCount === 0) {
-            return;
-        }
-
-        // A particle needs at least this many neighbors in adjacent cells to survive.
-        const NEIGHBOR_THRESHOLD = 0;
-
-        const particleGrid = Array.from({ length: TERRAIN_HEIGHT }, () => 
-            Array.from({ length: TERRAIN_WIDTH }, () => [])
-        );
-
-        const SCALE = 100; // This must match the SCALE in Renderer.js (canvas.width / 10)
-        for (let i = 0; i < particleCount; i++) {
-            const pos = particles[i];
-            const gridX = Math.floor((pos.x * SCALE) / TERRAIN_RESOLUTION);
-            const gridY = Math.floor((pos.y * SCALE) / TERRAIN_RESOLUTION);
-            if (gridY >= 0 && gridY < TERRAIN_HEIGHT && gridX >= 0 && gridX < TERRAIN_WIDTH) {
-                particleGrid[gridY][gridX].push(i);
+        const particleCount = particleSystem.GetParticleCount();
+        if (particleCount > 0) {
+            for (let i = particleCount - 1; i >= 0; i--) {
+                particleSystem.DestroyParticle(i);
             }
         }
 
-        const particlesToDestroy = [];
-        for (let i = 0; i < particleCount; i++) {
-            const pos = particles[i];
-            const gridX = Math.floor((pos.x * SCALE) / TERRAIN_RESOLUTION);
-            const gridY = Math.floor((pos.y * SCALE) / TERRAIN_RESOLUTION);
-            
-            let neighborCount = 0;
-            for (let dy = -1; dy <= 1; dy++) {
-                for (let dx = -1; dx <= 1; dx++) {
-                    const checkY = gridY + dy;
-                    const checkX = gridX + dx;
-                    if (checkY >= 0 && checkY < TERRAIN_HEIGHT && checkX >= 0 && checkX < TERRAIN_WIDTH) {
-                        neighborCount += particleGrid[checkY][checkX].length;
-                    }
-                }
-            }
-            
-            if ((neighborCount - 1) < NEIGHBOR_THRESHOLD) {
-                particlesToDestroy.push(i);
-            }
-        }
+        // Hide the win message
+        document.getElementById('win-message').style.display = 'none';
+        
+        // Reset counters
+        waterInGoal = 0;
+        frameCount = 0;
+        initialParticleCount = 0;
+        collectedParticleCount = 0;
 
-        for (let i = particlesToDestroy.length - 1; i >= 0; i--) {
-            const particleIndex = particlesToDestroy[i];
-            particleSystem.DestroyParticle(particleIndex);
-        }
+        // Load data for the new level
+        const levelData = window.levels[levelIndex];
+        
+        // Create the new level
+        createWorldBoundaries();
+        initializeTerrain(levelData.terrain);
+        rebuildTerrainBodies();
+        createPipe(levelData.pipePosition);
+        createWater(levelData.waterShapes);
     }
+
 
     /**
      * Creates the two vertical walls of the pipe.
      */
-    function createPipe() {
-        const pipeY = 5.5;
+    function createPipe(position) {
+        const pipeY = position.y;
+        const pipeX = position.x;
         const pipeThickness = 0.2;
         const pipeHeight = 1.5;
 
         // Left wall of the pipe
         const leftWallDef = new box2d.b2BodyDef();
-        leftWallDef.position.Set(7.5, pipeY);
+        leftWallDef.position.Set(pipeX, pipeY);
         const leftWallBody = world.CreateBody(leftWallDef);
         const leftShape = new box2d.b2PolygonShape();
         leftShape.SetAsBox(pipeThickness / 2, pipeHeight / 2);
@@ -359,7 +382,7 @@ function mainApp(args) {
 
         // Right wall of the pipe
         const rightWallDef = new box2d.b2BodyDef();
-        rightWallDef.position.Set(8.5, pipeY);
+        rightWallDef.position.Set(pipeX + 1.0, pipeY);
         const rightWallBody = world.CreateBody(rightWallDef);
         const rightShape = new box2d.b2PolygonShape();
         rightShape.SetAsBox(pipeThickness / 2, pipeHeight / 2);
@@ -381,24 +404,18 @@ function mainApp(args) {
 
         world.Step(1 / 60, 10, 10);
         
-        // Call our new functions
         destroyOffScreenParticles();
-        handleEvaporation();
 
-        // --- New Win Condition Logic ---
-        const currentParticleCount = world.GetParticleSystemList().GetParticleCount();
-        const collectedParticles = initialParticleCount - currentParticleCount;
-        const goalAmount = Math.floor(initialParticleCount * 0.60); // Win after % is collected
+        const goalAmount = Math.floor(initialParticleCount * window.levels[currentLevelIndex].waterAmount);
 
-        // Update UI
+        // Update UI with the correct count
         const waterCountEl = document.getElementById('water-count');
         if (waterCountEl) {
-            // Update the text to show the new goal
-            waterCountEl.textContent = `${collectedParticles} / ${goalAmount}`;
+            waterCountEl.textContent = `${collectedParticleCount} / ${goalAmount}`;
         }
 
-        // Check for win
-        if (collectedParticles >= goalAmount && initialParticleCount > 0) {
+        // Check for win with the correct count
+        if (collectedParticleCount >= goalAmount && initialParticleCount > 0) {
             const winMessageEl = document.getElementById('win-message');
             if (winMessageEl) {
                 winMessageEl.style.display = 'block';
