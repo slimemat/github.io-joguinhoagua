@@ -69,6 +69,10 @@ function Renderer(world, ctx) {
             ctx.fillStyle = '#00C853';
             this.drawPolygon(fixture);
         }
+        else if (userData.type === "win_sensor") { 
+            ctx.fillStyle = 'rgba(255, 0, 0, 0.5)'; // Transparent Red
+            this.drawPolygon(fixture);
+        }
     };
     
     /**

@@ -3,6 +3,7 @@ let world;
 let frameCount = 0;
 let waterInGoal = 0; 
 const WATER_TO_WIN = 500;
+let initialParticleCount = 0;
 
 // --- Terrain Variables ---
 const TERRAIN_RESOLUTION = 12;
@@ -31,25 +32,44 @@ function mainApp(args) {
         world.CreateParticleSystem(particleSystemDef);
         Renderer = new Renderer(world);
 
-        createContainerWalls();
+        // Create all the game objects first
+        createWorldBoundaries();
         initializeTerrain();
         rebuildTerrainBodies();
         createWater();
         createPipe();
-        createTestSquare();
-        setupContactListener();
-        setupDigging();
         
+        // Set up user interactions
+        setupDigging(); 
+        
+        // Start the game
         requestAnimationFrame(gameLoop);
     }
 
     /**
-     * Creates the static container walls for the physics world.
-     * @returns {void}
+     * Creates the top, side, and a split bottom wall, with a sensor in the bottom gap.
      */
-    function createContainerWalls() {
-        createWallBody(0, 3, 0.2, 6);
-        createWallBody(10, 3, 0.2, 6);
+    function createWorldBoundaries() {
+        // Helper function to create a static wall segment
+        const createWall = (x, y, width, height) => {
+            const bodyDef = new box2d.b2BodyDef();
+            bodyDef.position.Set(x, y);
+            const body = world.CreateBody(bodyDef);
+            const shape = new box2d.b2PolygonShape();
+            shape.SetAsBox(width / 2, height / 2);
+            const fixture = body.CreateFixture(shape, 0.0);
+            fixture.SetUserData({ type: "wall" });
+        };
+
+        // --- Create Walls ---
+        // World dimensions (width=10, height=6 in Box2D units)
+        createWall(5, 0, 10, 0.2); // Top wall
+        createWall(0, 3, 0.2, 6); // Left wall
+        createWall(10, 3, 0.2, 6); // Right wall
+
+        // Create a split bottom wall with a gap for the pipe (at x=8)
+        createWall(3.7, 6, 7.4, 0.2); // Bottom-left segment
+        createWall(9.3, 6, 1.4, 0.2); // Bottom-right segment
     }
 
     /**
@@ -219,7 +239,7 @@ function mainApp(args) {
                 dig(e);
             }
         });
-        canvas.addEventListener('mouseup', () => {
+        window.addEventListener('mouseup', () => {
             isDigging = false;
         });
     }
@@ -229,13 +249,38 @@ function mainApp(args) {
      * @returns {void}
      */
     function createWater() {
-        const circle = new box2d.b2CircleShape(2.60);
+        const shape = new box2d.b2PolygonShape();   
+        shape.SetAsBox(4, 1); 
         const pgd = new box2d.b2ParticleGroupDef();
         pgd.position.Set(5, 1);
+        // We no longer need the contact listener flag
         pgd.flags = box2d.b2ParticleFlag.b2_waterParticle;
-        pgd.shape = circle;
-        world.GetParticleSystemList().SetRadius(0.05);
-        world.GetParticleSystemList().CreateParticleGroup(pgd);
+        pgd.shape = shape;
+        const particleSystem = world.GetParticleSystemList();
+        particleSystem.SetRadius(0.05);
+        particleSystem.CreateParticleGroup(pgd);
+
+        initialParticleCount = particleSystem.GetParticleCount();
+        console.log("Starting with", initialParticleCount, "water particles.");
+    }
+
+    /**
+     * Checks for and destroys any particles that have fallen below the world boundary.
+     */
+    function destroyOffScreenParticles() {
+        const particleSystem = world.GetParticleSystemList();
+        const particles = particleSystem.GetPositionBuffer();
+        const particleCount = particleSystem.GetParticleCount();
+
+        // Loop backwards when destroying items from a list
+        for (let i = particleCount - 1; i >= 0; i--) {
+            const particleY = particles[i].y;
+
+            // If particle is below the screen (world height is 6)
+            if (particleY > 6.2) {
+                particleSystem.DestroyParticle(i);
+            }
+        }
     }
 
     /**
@@ -296,15 +341,13 @@ function mainApp(args) {
     }
 
     /**
-     * Creates the pipe walls and an invisible sensor to count water.
+     * Creates the two vertical walls of the pipe.
      */
     function createPipe() {
         const pipeY = 5.5;
         const pipeThickness = 0.2;
         const pipeHeight = 1.5;
-        const pipeWidth = 1.0;
 
-        // --- Create Pipe Walls ---
         // Left wall of the pipe
         const leftWallDef = new box2d.b2BodyDef();
         leftWallDef.position.Set(7.5, pipeY);
@@ -312,7 +355,7 @@ function mainApp(args) {
         const leftShape = new box2d.b2PolygonShape();
         leftShape.SetAsBox(pipeThickness / 2, pipeHeight / 2);
         const leftFixture = leftWallBody.CreateFixture(leftShape, 0.0);
-        leftFixture.SetUserData({ type: "pipe" }); // For green rendering
+        leftFixture.SetUserData({ type: "pipe" });
 
         // Right wall of the pipe
         const rightWallDef = new box2d.b2BodyDef();
@@ -321,53 +364,9 @@ function mainApp(args) {
         const rightShape = new box2d.b2PolygonShape();
         rightShape.SetAsBox(pipeThickness / 2, pipeHeight / 2);
         const rightFixture = rightWallBody.CreateFixture(rightShape, 0.0);
-        rightFixture.SetUserData({ type: "pipe" }); // For green rendering
-
-        const baseDef = new box2d.b2BodyDef();
-        // Position it in the middle of the walls, at the bottom
-        baseDef.position.Set(7.5 + pipeWidth / 2, pipeY + pipeHeight / 2 - pipeThickness / 2);
-        const baseBody = world.CreateBody(baseDef);
-        const baseShape = new box2d.b2PolygonShape();
-        // The width is the pipe's width plus thickness; height is the thickness
-        baseShape.SetAsBox((pipeWidth + pipeThickness) / 2, pipeThickness / 2);
-        const baseFixture = baseBody.CreateFixture(baseShape, 0.0);
-        baseFixture.SetUserData({ type: "pipe" }); // Render it green, too!
-
-        // --- Create Invisible Sensor ---
-        const sensorDef = new box2d.b2BodyDef();
-        // Adjusted position to account for pipeWidth
-        sensorDef.position.Set(7.5 + pipeWidth / 2, pipeY - (pipeHeight / 2));
-        const sensorBody = world.CreateBody(sensorDef);
-        const sensorShape = new box2d.b2PolygonShape();
-        sensorShape.SetAsBox(0.45, 0.1); // Covers the opening
-        const sensorFixtureDef = new box2d.b2FixtureDef();
-        sensorFixtureDef.shape = sensorShape;
-        sensorFixtureDef.isSensor = true; // IMPORTANT: Detects collision without reacting
-        const sensorFixture = sensorBody.CreateFixture(sensorFixtureDef);
-        sensorFixture.SetUserData({ type: "win_sensor" });
+        rightFixture.SetUserData({ type: "pipe" });
     }
 
-    function setupContactListener() {
-        const listener = new box2d.b2ContactListener();
-
-        // This function is called when a particle touches a fixture
-        listener.BeginContactFixtureParticle = function(system, particleIndex, fixture) {
-            const fixtureData = fixture.GetUserData();
-
-            // Check if the fixture is our win sensor
-            if (fixtureData && fixtureData.type === 'win_sensor') {
-                const particleData = system.GetUserDataBuffer();
-
-                // Check if this particle has already been counted
-                if (!particleData[particleIndex]) {
-                    particleData[particleIndex] = 1; // Mark as counted
-                    waterInGoal++;
-                    console.log(`Water particle #${particleIndex} collected! Total: ${waterInGoal}`);
-                }
-            }
-        };
-        world.SetContactListener(listener);
-    }
 
     /**
      * The core game loop, called via requestAnimationFrame, which updates the physics
@@ -381,18 +380,25 @@ function mainApp(args) {
         }
 
         world.Step(1 / 60, 10, 10);
+        
+        // Call our new functions
+        destroyOffScreenParticles();
+        handleEvaporation();
 
-        if (frameCount > 120) {
-            handleEvaporation();
-        }
+        // --- New Win Condition Logic ---
+        const currentParticleCount = world.GetParticleSystemList().GetParticleCount();
+        const collectedParticles = initialParticleCount - currentParticleCount;
+        const goalAmount = Math.floor(initialParticleCount * 0.60); // Win after % is collected
 
-        // to update UI and check for win ---
+        // Update UI
         const waterCountEl = document.getElementById('water-count');
         if (waterCountEl) {
-            waterCountEl.textContent = waterInGoal;
+            // Update the text to show the new goal
+            waterCountEl.textContent = `${collectedParticles} / ${goalAmount}`;
         }
 
-        if (waterInGoal >= WATER_TO_WIN) {
+        // Check for win
+        if (collectedParticles >= goalAmount && initialParticleCount > 0) {
             const winMessageEl = document.getElementById('win-message');
             if (winMessageEl) {
                 winMessageEl.style.display = 'block';

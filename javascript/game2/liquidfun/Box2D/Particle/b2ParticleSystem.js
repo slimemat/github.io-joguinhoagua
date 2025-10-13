@@ -4739,7 +4739,7 @@ box2d.b2ParticleSystem.prototype.NotifyBodyContactListenerPreContact = function(
   ///  fixtureSet.Initialize(m_bodyContactBuffer.Begin(), m_bodyContactBuffer.GetCount(), GetFlagsBuffer());
   fixtureSet.Initialize(this.m_bodyContactBuffer, this.m_flagsBuffer);
 
-  throw new Error(); // TODO: notify
+  //throw new Error(); // TODO: notify
 }
 
 /**
@@ -4785,7 +4785,7 @@ box2d.b2ParticleSystem.prototype.NotifyBodyContactListenerPostContact = function
   ///    }
   ///  }
 
-  throw new Error(); // TODO: notify
+  //throw new Error(); // TODO: notify
 }
 
 /**
