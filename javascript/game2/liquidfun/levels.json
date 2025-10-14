@@ -11,6 +11,33 @@
         "canGoThroughDirt": false
       }
     ],
+    "obstacles": [
+      {
+        "type": "block",
+        "x": 5, "y": 3.5,
+        "halfWidth": 0.3, "halfHeight": 0.3
+      },
+      {
+        "type": "block",
+        "x": 6, "y": 4.5,
+        "halfWidth": 0.2, "halfHeight": 0.2
+      },
+      {
+        "type": "block",
+        "x": 8, "y": 3.5,
+        "halfWidth": 0.4, "halfHeight": 0.4
+      },
+      {
+        "type": "block",
+        "x": 9, "y": 4.5,
+        "halfWidth": 0.2, "halfHeight": 0.2
+      },
+      {
+        "type": "block",
+        "x": 9.5, "y": 3.5,
+        "halfWidth": 0.1, "halfHeight": 0.1
+      }
+    ],
     "terrain": [
       "                    ",
       "                    ",
@@ -26,34 +53,54 @@
   },
   {
     "id": 2,
-    "waterAmount": 0.40,
+    "waterAmount": 0.20,
     "pipePosition": { "x": 7.5, "y": 5.5 },
     "waterShapes": [
       {
         "type": "box",
         "halfWidth": 2,
-        "halfHeight": 1,
-        "x": 4,
+        "halfHeight": 2,
+        "x": 3,
         "y": 2.75,
         "canGoThroughDirt": false
       },
       {
         "type": "box",
-        "halfWidth": 3.5,
-        "halfHeight": 3.5,
+        "halfWidth": 1.0,
+        "halfHeight": 1.0,
         "x": 2,
-        "y": 1.5,
+        "y": 1.4,
         "canGoThroughDirt": false
+      }
+    ],
+    "obstacles": [
+      {
+        "type": "block",
+        "x": 5, "y": 3.5,
+        "halfWidth": 0.5, "halfHeight": 0.5
+      },
+      {
+        "type": "block",
+        "x": 4.6, "y": 2.5,
+        "halfWidth": 0.3, "halfHeight": 0.3
+      },
+      {
+        "type": "toxic_liquid",
+        "shape": {
+          "type": "box", "halfWidth": 1.0, "halfHeight": 0.5,
+          "x": 8, "y": 2
+        },
+        "canGoThroughDirt": true
       }
     ],
     "terrain": [
       "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
       "xxxxxxxx  xxxxxxxxxxxxxxxxxxxx",
       "xx     xxxxxxxxxxxxxxxxxxxxxxx",
-      "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-      "xxxxxx  xxxxxxxxxxxxxxxxxxxxxx",
-      "xx         xxxxxxxxxxxxxxxxxxx",
-      "x          xxxxxxxxxxxxxxxxxxx",
+      "xxxxxxxxxxxxxxxxxxx x  xxxxxxx",
+      "xxxxxx  xxxxxxxxxx      xxxxxx",
+      "xx         xxxxxxxxxx   xxxxxx",
+      "x          xxxxxxxxxxx xxxxxxx",
       "xx         xxxxxxxxxxxxxxxxxxx",
       "xxxx     xxxxxxxxxxxxxxxxxxxxx",
       "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",

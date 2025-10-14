@@ -11,7 +11,7 @@ function Renderer(world, ctx) {
 
     const wetnessGrid = [];
     for (let y = 0; y < TERRAIN_HEIGHT; y++) {
-        wetnessGrid[y] = new Array(TERRAIN_WIDTH).fill(0.0);
+        wetnessGrid[y] = new Array(TERRAIN_WIDTH).fill(null);
     }
 
     /**
@@ -69,6 +69,10 @@ function Renderer(world, ctx) {
             ctx.fillStyle = '#00C853';
             this.drawPolygon(fixture);
         }
+        else if (userData.type === "block") {
+            ctx.fillStyle = '#7a7a7aff'; // A rocky grey color
+            this.drawPolygon(fixture);
+        }
         else if (userData.type === "win_sensor") { 
             ctx.fillStyle = 'rgba(255, 0, 0, 0.5)'; // Transparent Red
             this.drawPolygon(fixture);
@@ -107,56 +111,57 @@ function Renderer(world, ctx) {
     this.drawParticleSystem = function() {
         const system = world.GetParticleSystemList();
         const particles = system.GetPositionBuffer();
-        const particleCount = system.m_count;
+        const colors = system.GetColorBuffer();
         const velocities = system.GetVelocityBuffer();
+        const particleCount = system.GetParticleCount();
 
-        // You can tweak this value. Lower is slower fade, higher is faster.
+        // --- 1. Fade the Wetness Grid ---
         const FADE_SPEED = 0.10;
-
         for (let y = 0; y < TERRAIN_HEIGHT; y++) {
             for (let x = 0; x < TERRAIN_WIDTH; x++) {
-                if (wetnessGrid[y][x] > 0) {
-                    wetnessGrid[y][x] = Math.max(0, wetnessGrid[y][x] - FADE_SPEED);
+                const cell = wetnessGrid[y][x];
+                if (cell) {
+                    cell.wetness = Math.max(0, cell.wetness - FADE_SPEED);
+                    if (cell.wetness === 0) {
+                        wetnessGrid[y][x] = null;
+                    }
                 }
             }
         }
 
+        // --- 2. Update Grid with Particle Data ---
         for (let i = 0; i < particleCount; i++) {
             const pos = particles[i];
             const gridX = Math.floor((pos.x * SCALE) / TERRAIN_RESOLUTION);
             const gridY = Math.floor((pos.y * SCALE) / TERRAIN_RESOLUTION);
             if (gridY >= 0 && gridY < TERRAIN_HEIGHT && gridX >= 0 && gridX < TERRAIN_WIDTH) {
-                wetnessGrid[gridY][gridX] = 1.0;
+                wetnessGrid[gridY][gridX] = { wetness: 1.0, color: colors[i] };
             }
         }
 
+        // --- 3. Draw the Wetness Grid ---
         for (let y = 0; y < TERRAIN_HEIGHT; y++) {
             for (let x = 0; x < TERRAIN_WIDTH; x++) {
-                const wetness = wetnessGrid[y][x];
-                if (wetness > 0) {
-                    ctx.fillStyle = `rgba(0, 100, 255, ${wetness * 0.5})`;
-                    ctx.fillRect(
-                        x * TERRAIN_RESOLUTION,
-                        y * TERRAIN_RESOLUTION,
-                        TERRAIN_RESOLUTION,
-                        TERRAIN_RESOLUTION
-                    );
+                const cell = wetnessGrid[y][x];
+                if (cell) {
+                    const color = cell.color;
+                    const r = color ? color.r : 0;
+                    const g = color ? color.g : 100;
+                    const b = color ? color.b : 255;
 
-                    const isSurface = (y === 0 || wetnessGrid[y - 1][x] < 0.1);
+                    ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${cell.wetness * 0.5})`;
+                    ctx.fillRect(x * TERRAIN_RESOLUTION, y * TERRAIN_RESOLUTION, TERRAIN_RESOLUTION, TERRAIN_RESOLUTION);
+
+                    const isSurface = (y === 0 || wetnessGrid[y - 1][x] === null || wetnessGrid[y - 1][x].wetness < 0.1);
                     if (isSurface) {
-                        ctx.fillStyle = `rgba(100, 180, 255, ${wetness * 0.7})`;
-                        ctx.fillRect(
-                            x * TERRAIN_RESOLUTION,
-                            y * TERRAIN_RESOLUTION,
-                            TERRAIN_RESOLUTION,
-                            // You can change the '3' to make the surface thicker or thinner
-                            TERRAIN_RESOLUTION / 1 
-                        );
+                        ctx.fillStyle = `rgba(${r + 100}, ${g + 100}, ${b + 100}, ${cell.wetness * 0.6})`;
+                        ctx.fillRect(x * TERRAIN_RESOLUTION, y * TERRAIN_RESOLUTION, TERRAIN_RESOLUTION, TERRAIN_RESOLUTION / 2);
                     }
                 }
             }
         }
         
+        // --- 4. Draw Velocity Lines (with correct wall padding) ---
         const velocityScale = 0.05;
         const minVelocityThreshold = 0.70;
         ctx.strokeStyle = 'rgba(255, 255, 255, 0.30)';
@@ -167,44 +172,34 @@ function Renderer(world, ctx) {
             const pos = particles[i];
             const vel = velocities[i];
             const speed = Math.sqrt(vel.x * vel.x + vel.y * vel.y);
-
-            // --- New Logic Starts Here ---
-
-            // 1. Convert particle's world position to grid coordinates
-            const gridX = Math.floor((pos.x * SCALE) / TERRAIN_RESOLUTION);
-            const gridY = Math.floor((pos.y * SCALE) / TERRAIN_RESOLUTION);
-
-            // 2. Check if the particle is near any terrain
-            let isNearTerrain = false;
-            const checkRadius = 1; // Checks a 3x3 area (1 cell in each direction)
             
-            for (let dy = -checkRadius; dy <= checkRadius; dy++) {
-                for (let dx = -checkRadius; dx <= checkRadius; dx++) {
-                    const checkX = gridX + dx;
-                    const checkY = gridY + dy;
-
-                    // Ensure we're checking within the grid bounds
-                    if (checkY >= 0 && checkY < TERRAIN_HEIGHT && checkX >= 0 && checkX < TERRAIN_WIDTH) {
-                        if (terrain[checkY][checkX] === 1) {
-                            isNearTerrain = true;
-                            break; // Found terrain, no need to check further
+            if (speed > minVelocityThreshold) {
+                const gridX = Math.floor((pos.x * SCALE) / TERRAIN_RESOLUTION);
+                const gridY = Math.floor((pos.y * SCALE) / TERRAIN_RESOLUTION);
+                
+                // Restore the full 3x3 check for nearby terrain
+                let isNearTerrain = false;
+                const checkRadius = 1;
+                for (let dy = -checkRadius; dy <= checkRadius; dy++) {
+                    for (let dx = -checkRadius; dx <= checkRadius; dx++) {
+                        const checkX = gridX + dx;
+                        const checkY = gridY + dy;
+                        if (checkY >= 0 && checkY < TERRAIN_HEIGHT && checkX >= 0 && checkX < TERRAIN_WIDTH) {
+                            if (terrain[checkY][checkX] === 1) {
+                                isNearTerrain = true;
+                                break;
+                            }
                         }
                     }
+                    if (isNearTerrain) break;
                 }
-                if (isNearTerrain) break;
-            }
 
-            // 3. Only draw if speed is high AND the particle is not near terrain
-            if (speed > minVelocityThreshold && !isNearTerrain) {
-                const startX = pos.x * SCALE;
-                const startY = pos.y * SCALE;
-                const endX = (pos.x + vel.x * velocityScale) * SCALE;
-                const endY = (pos.y + vel.y * velocityScale) * SCALE;
-
-                ctx.beginPath();
-                ctx.moveTo(startX, startY);
-                ctx.lineTo(endX, endY);
-                ctx.stroke();
+                if (!isNearTerrain) {
+                    ctx.beginPath();
+                    ctx.moveTo(pos.x * SCALE, pos.y * SCALE);
+                    ctx.lineTo((pos.x + vel.x * velocityScale) * SCALE, (pos.y + vel.y * velocityScale) * SCALE);
+                    ctx.stroke();
+                }
             }
         }
     };

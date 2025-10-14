@@ -6,6 +6,10 @@ const WATER_TO_WIN = 500;
 let initialParticleCount = 0;
 let collectedParticleCount = 0;
 let currentLevelIndex = 0;
+const ParticleType = {
+    WATER: 1,
+    TOXIC: 2
+};
 
 // --- Terrain Variables ---
 const TERRAIN_RESOLUTION = 12;
@@ -270,6 +274,9 @@ function mainApp(args) {
             const pgd = new box2d.b2ParticleGroupDef();
             pgd.position.Set(shapeData.x, shapeData.y);
             pgd.flags = box2d.b2ParticleFlag.b2_waterParticle;
+            pgd.color.Set(0, 100, 255, 255);
+
+            pgd.userData = ParticleType.WATER;
 
             if (shapeData.type === 'box') {
                 const shape = new box2d.b2PolygonShape();
@@ -313,17 +320,22 @@ function mainApp(args) {
      */
     function destroyOffScreenParticles() {
         const particleSystem = world.GetParticleSystemList();
-        const particles = particleSystem.GetPositionBuffer();
+        const userDataBuffer = particleSystem.GetUserDataBuffer();
         const particleCount = particleSystem.GetParticleCount();
 
-        // Loop backwards when destroying items from a list
         for (let i = particleCount - 1; i >= 0; i--) {
-            const particleY = particles[i].y;
+            const particleY = particleSystem.GetPositionBuffer()[i].y;
 
-            // If particle is below the screen (world height is 6)
             if (particleY > 6.2) {
+                const particleType = userDataBuffer[i];
+                
+                console.log(`Destroying particle of type: ${particleType}`);
+                
+                if (particleType === ParticleType.WATER) {
+                    collectedParticleCount++;
+                }
+                
                 particleSystem.DestroyParticle(i);
-                collectedParticleCount++;
             }
         }
     }
@@ -359,6 +371,7 @@ function mainApp(args) {
         rebuildTerrainBodies();
         createPipe(levelData.pipePosition);
         createWater(levelData.waterShapes);
+        createObstacles(levelData.obstacles);
     }
 
 
@@ -388,6 +401,44 @@ function mainApp(args) {
         rightShape.SetAsBox(pipeThickness / 2, pipeHeight / 2);
         const rightFixture = rightWallBody.CreateFixture(rightShape, 0.0);
         rightFixture.SetUserData({ type: "pipe" });
+    }
+
+    function createObstacles(obstaclesData) {
+        if (!obstaclesData) return;
+
+        const particleSystem = world.GetParticleSystemList();
+
+        for (const obstacle of obstaclesData) {
+            if (obstacle.type === 'block') {
+                const bodyDef = new box2d.b2BodyDef();
+                bodyDef.position.Set(obstacle.x, obstacle.y);
+                const body = world.CreateBody(bodyDef);
+                const shape = new box2d.b2PolygonShape();
+                shape.SetAsBox(obstacle.halfWidth, obstacle.halfHeight);
+                const fixture = body.CreateFixture(shape, 0.0);
+                fixture.SetUserData({ type: "block" });
+            } 
+            else if (obstacle.type === 'toxic_liquid') {
+                const shapeData = obstacle.shape;
+                const pgd = new box2d.b2ParticleGroupDef();
+                pgd.position.Set(shapeData.x, shapeData.y);
+                pgd.flags = box2d.b2ParticleFlag.b2_waterParticle;
+                pgd.color.Set(128, 0, 128, 255);
+
+                pgd.userData = ParticleType.TOXIC;
+
+                if (shapeData.type === 'box') {
+                    const shape = new box2d.b2PolygonShape();
+                    shape.SetAsBox(shapeData.halfWidth, shapeData.halfHeight);
+                    pgd.shape = shape;
+                }
+
+                particleSystem.CreateParticleGroup(pgd);
+                
+            }
+        }
+
+        //TODO: maybe add the carving toxic water mechanic
     }
 
 
