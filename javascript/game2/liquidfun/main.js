@@ -273,7 +273,7 @@ function mainApp(args) {
         for (const shapeData of shapesDataArray) {
             const pgd = new box2d.b2ParticleGroupDef();
             pgd.position.Set(shapeData.x, shapeData.y);
-            pgd.flags = box2d.b2ParticleFlag.b2_waterParticle;
+            pgd.flags = box2d.b2ParticleFlag.b2_waterParticle | box2d.b2ParticleFlag.b2_contactListenerParticle;
             pgd.color.Set(0, 100, 255, 255);
 
             pgd.userData = ParticleType.WATER;
@@ -422,7 +422,7 @@ function mainApp(args) {
                 const shapeData = obstacle.shape;
                 const pgd = new box2d.b2ParticleGroupDef();
                 pgd.position.Set(shapeData.x, shapeData.y);
-                pgd.flags = box2d.b2ParticleFlag.b2_waterParticle;
+                pgd.flags = box2d.b2ParticleFlag.b2_waterParticle | box2d.b2ParticleFlag.b2_contactListenerParticle;
                 pgd.color.Set(128, 0, 128, 255);
 
                 pgd.userData = ParticleType.TOXIC;
@@ -441,6 +441,34 @@ function mainApp(args) {
         //TODO: maybe add the carving toxic water mechanic
     }
 
+    function handleContamination() {
+        const particleSystem = world.GetParticleSystemList();
+        const contacts = particleSystem.GetContacts();
+        const contactCount = particleSystem.GetContactCount();
+        const userDataBuffer = particleSystem.GetUserDataBuffer();
+        const colorBuffer = particleSystem.GetColorBuffer();
+
+        for (let i = 0; i < contactCount; i++) {
+            const contact = contacts[i];
+            const indexA = contact.GetIndexA();
+            const indexB = contact.GetIndexB();
+
+            const typeA = userDataBuffer[indexA];
+            const typeB = userDataBuffer[indexB];
+
+            // Check if a WATER particle is touching a TOXIC particle
+            if (typeA === ParticleType.WATER && typeB === ParticleType.TOXIC) {
+                // Contaminate particle A
+                userDataBuffer[indexA] = ParticleType.TOXIC; 
+                colorBuffer[indexA].Set(128, 0, 128, 255);    
+            } else if (typeA === ParticleType.TOXIC && typeB === ParticleType.WATER) {
+                // Contaminate particle B
+                userDataBuffer[indexB] = ParticleType.TOXIC;
+                colorBuffer[indexB].Set(128, 0, 128, 255);
+            }
+        }
+    }
+
 
     /**
      * The core game loop, called via requestAnimationFrame, which updates the physics
@@ -455,6 +483,7 @@ function mainApp(args) {
 
         world.Step(1 / 60, 10, 10);
         
+        handleContamination();
         destroyOffScreenParticles();
 
         const goalAmount = Math.floor(initialParticleCount * window.levels[currentLevelIndex].waterAmount);
