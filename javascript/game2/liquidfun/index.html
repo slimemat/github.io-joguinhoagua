@@ -10,7 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Press+Start+2P&display=swap" rel="stylesheet">
 </head>
 
-<body onload="mainApp()">
+<body>
     <h1>Ciclo da água</h1>
 
     <div id="game-container">
@@ -30,6 +30,9 @@
         <p>You've successfully guided the water!</p>
         <button id="next-level-btn">Próxima Fase</button>
     </div>
+
+    <audio id="sizzle-sound" src="../../../assets/poison.mp3" loop></audio>
+    <audio id="rushing-water-sound" src="../../../assets/bubbly_water.mp3" loop></audio>
 
     <script src="inherit.js"></script>
     <script src="Box2D/Common/b2Settings.js"></script>
@@ -90,7 +93,7 @@
     <script src="Box2D/Dynamics/b2World.js"></script>
     <script src="Box2D/Rope/b2Rope.js"></script>
     <script src="Renderer.js"></script>
-    <script src="main.js"></script>
+    <script src="main.js" type="module"></script>
 
 </body>
 </html>

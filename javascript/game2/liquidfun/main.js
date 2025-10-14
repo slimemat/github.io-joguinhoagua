@@ -1,177 +1,266 @@
-// --- Global Variables ---
-let world;
-let frameCount = 0;
-let waterInGoal = 0; 
-const WATER_TO_WIN = 500;
-let initialParticleCount = 0;
-let collectedParticleCount = 0;
-let currentLevelIndex = 0;
+import AudioManager from '../../common/AudioManager.js';
+
+// --- Global Constants ---
+const TERRAIN_RESOLUTION = 12;
+const TERRAIN_WIDTH = Math.floor(1000 / TERRAIN_RESOLUTION);
+const TERRAIN_HEIGHT = Math.floor(600 / TERRAIN_RESOLUTION);
+
 const ParticleType = {
     WATER: 1,
     TOXIC: 2
 };
 
-// --- Terrain Variables ---
-const TERRAIN_RESOLUTION = 12;
-const TERRAIN_WIDTH = Math.floor(1000 / TERRAIN_RESOLUTION);
-const TERRAIN_HEIGHT = Math.floor(600 / TERRAIN_RESOLUTION);
-let terrain = [];
+const ParticleColors = {
+    WATER: new box2d.b2ParticleColor(0, 100, 255, 255),
+    TOXIC: new box2d.b2ParticleColor(128, 0, 128, 255) //purple
+};
 
-let needsRebuild = false;
-let isRebuilding = false;
-
-/**
- * Main entry point for the application. Initializes and runs the simulation.
- * @param {any} args - Unused arguments.
- */
-function mainApp(args) {
-
+class Game {
     /**
-     * Sets up the Box2D world, renderer, and initial game state.
-     * This function is called once the application starts.
-     * @returns {void}
+     * Initializes the game's state properties.
      */
-    async function onload() {
-
-        const response = await fetch('levels.json');
-        const levelData = await response.json();
-        window.levels = levelData;
-
-        const gravity = new box2d.b2Vec2(0, 10);
-        world = new box2d.b2World(gravity);
-        const particleSystemDef = new box2d.b2ParticleSystemDef();
-        world.CreateParticleSystem(particleSystemDef);
-        Renderer = new Renderer(world);
-
-        document.getElementById('next-level-btn').addEventListener('click', () => {
-            currentLevelIndex++;
-            if (currentLevelIndex >= window.levels.length) {
-                alert("You beat the game! Congratulations!");
-                currentLevelIndex = 0; // Restart
-            }
-            loadLevel(currentLevelIndex);
-        });
-        
-        // Set up user interactions
-        setupDigging(); 
-        loadLevel(currentLevelIndex);
-        // Start the game
-        requestAnimationFrame(gameLoop);
+    constructor() {
+        this.firstClick = false;
+        this.world = null;
+        this.renderer = null;
+        this.frameCount = 0;
+        this.initialParticleCount = 0;
+        this.collectedParticleCount = 0;
+        this.currentLevelIndex = 0;
+        this.terrain = [];
+        this.needsRebuild = false;
+        this.isRebuilding = false;
+        this.audioManager = new AudioManager();
+        this.sizzleCooldown = 0;
     }
 
     /**
-     * Creates the top, side, and a split bottom wall, with a sensor in the bottom gap.
+     * Asynchronously sets up the game world, fetches level data, and starts the game loop.
+     * @returns {Promise<void>}
      */
-    function createWorldBoundaries() {
-        // Helper function to create a static wall segment
+    async init() {
+        const response = await fetch('levels.json');
+        window.levels = await response.json();
+
+        const gravity = new box2d.b2Vec2(0, 10);
+        this.world = new box2d.b2World(gravity);
+        this.world.CreateParticleSystem(new box2d.b2ParticleSystemDef());
+        
+        this.renderer = new Renderer(this.world, this.terrain, TERRAIN_WIDTH, TERRAIN_HEIGHT, TERRAIN_RESOLUTION);
+
+        document.getElementById('next-level-btn').addEventListener('click', () => {
+            this.currentLevelIndex++;
+            if (this.currentLevelIndex >= window.levels.length) {
+                alert("You beat the game! Congratulations!");
+                this.currentLevelIndex = 0;
+            }
+            this.loadLevel(this.currentLevelIndex);
+        });
+        
+        this.setupDigging(); 
+        this.loadLevel(this.currentLevelIndex);
+        
+        requestAnimationFrame(() => this.gameLoop());
+    }
+
+    /**
+     * Clears the old level and sets up all objects for the new level.
+     * @param {number} levelIndex - The index of the level to load.
+     */
+    loadLevel(levelIndex) {
+        for (let body = this.world.GetBodyList(); body; body = body.GetNext()) {
+            this.world.DestroyBody(body);
+        }
+        const particleSystem = this.world.GetParticleSystemList();
+        const particleCount = particleSystem.GetParticleCount();
+        if (particleCount > 0) {
+            for (let i = particleCount - 1; i >= 0; i--) {
+                particleSystem.DestroyParticle(i);
+            }
+        }
+
+        document.getElementById('win-message').style.display = 'none';
+        
+        this.frameCount = 0;
+        this.initialParticleCount = 0;
+        this.collectedParticleCount = 0;
+
+        const levelData = window.levels[levelIndex];
+        
+        this.createWorldBoundaries();
+        this.initializeTerrain(levelData.terrain);
+        this.rebuildTerrainBodies();
+        this.createPipe(levelData.pipePosition);
+        this.createWater(levelData.waterShapes);
+        this.createObstacles(levelData.obstacles);
+    }
+
+    /**
+     * Checks if any water particles NOT near a wall are moving faster than a set threshold.
+     * @returns {boolean} - True if any water is moving fast in open space.
+     */
+    handleFastWaterSound() {
+        const particleSystem = this.world.GetParticleSystemList();
+        const velocities = particleSystem.GetVelocityBuffer();
+        const positions = particleSystem.GetPositionBuffer(); // We need positions now
+        const userData = particleSystem.GetUserDataBuffer();
+        const count = particleSystem.GetParticleCount();
+        const speedThreshold = 1.20;
+        const SCALE = 100; // canvas.width / 10
+
+        for (let i = 0; i < count; i++) {
+            if (userData[i] === ParticleType.WATER) {
+                const vel = velocities[i];
+                const speed = Math.sqrt(vel.x * vel.x + vel.y * vel.y);
+
+                if (speed > speedThreshold) {
+                    
+                    const pos = positions[i];
+                    const gridX = Math.floor((pos.x * SCALE) / TERRAIN_RESOLUTION);
+                    const gridY = Math.floor((pos.y * SCALE) / TERRAIN_RESOLUTION);
+
+                    let isNearTerrain = false;
+                    const checkRadius = 1;
+                    for (let dy = -checkRadius; dy <= checkRadius; dy++) {
+                        for (let dx = -checkRadius; dx <= checkRadius; dx++) {
+                            const checkX = gridX + dx;
+                            const checkY = gridY + dy;
+                            if (checkY >= 0 && checkY < TERRAIN_HEIGHT && checkX >= 0 && checkX < TERRAIN_WIDTH) {
+                                if (this.terrain[checkY][checkX] === 1) {
+                                    isNearTerrain = true;
+                                    break;
+                                }
+                            }
+                        }
+                        if (isNearTerrain) break;
+                    }
+                    
+
+                    // Only trigger the sound if the particle is fast AND not near a wall
+                    if (!isNearTerrain) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * The core game loop, which updates physics and triggers rendering.
+     */
+    gameLoop() {
+        if (this.needsRebuild && !this.isRebuilding) {
+            this.rebuildTerrainBodies();
+        }
+
+        this.world.Step(1 / 60, 10, 10);
+        
+        const contaminationHappened = this.handleContamination();
+        
+        if (contaminationHappened) {
+            this.audioManager.startSizzle();
+            this.sizzleCooldown = 10; // Set a 10-frame grace period
+        } else {
+            this.sizzleCooldown--; // Decrease the cooldown
+            if (this.sizzleCooldown <= 0) {
+                this.audioManager.stopSizzle();
+            }
+        }
+
+        const waterIsRushing = this.handleFastWaterSound(); 
+        if (waterIsRushing) {
+            this.audioManager.startRushingWater(); 
+        } else {
+            this.audioManager.stopRushingWater();
+        }
+        
+        this.destroyOffScreenParticles();
+
+        const goalAmount = Math.floor(this.initialParticleCount * window.levels[this.currentLevelIndex].waterAmount);
+
+        const waterCountEl = document.getElementById('water-count');
+        if (waterCountEl) {
+            waterCountEl.textContent = `${this.collectedParticleCount} / ${goalAmount}`;
+        }
+
+        if (this.collectedParticleCount >= goalAmount && this.initialParticleCount > 0) {
+            const winMessageEl = document.getElementById('win-message');
+            if (winMessageEl) {
+                winMessageEl.style.display = 'block';
+            }
+        }
+
+        this.renderer.render();
+        requestAnimationFrame(() => this.gameLoop());
+    }
+    
+    /**
+     * Creates the static boundaries of the game world.
+     */
+    createWorldBoundaries() {
         const createWall = (x, y, width, height) => {
             const bodyDef = new box2d.b2BodyDef();
             bodyDef.position.Set(x, y);
-            const body = world.CreateBody(bodyDef);
+            const body = this.world.CreateBody(bodyDef);
             const shape = new box2d.b2PolygonShape();
             shape.SetAsBox(width / 2, height / 2);
             const fixture = body.CreateFixture(shape, 0.0);
             fixture.SetUserData({ type: "wall" });
         };
 
-        // --- Create Walls ---
-        // World dimensions (width=10, height=6 in Box2D units)
-        createWall(5, 0, 10, 0.2); // Top wall
-        createWall(0, 3, 0.2, 6); // Left wall
-        createWall(10, 3, 0.2, 6); // Right wall
-
-        // Create a split bottom wall with a gap for the pipe (at x=8)
-        createWall(3.7, 6, 7.4, 0.2); // Bottom-left segment
-        createWall(9.3, 6, 1.4, 0.2); // Bottom-right segment
+        createWall(5, 0, 10, 0.2);
+        createWall(0, 3, 0.2, 6);
+        createWall(10, 3, 0.2, 6);
+        createWall(3.7, 6, 7.4, 0.2);
+        createWall(9.3, 6, 1.4, 0.2);
     }
 
     /**
-     * Creates a simple static square for debugging purposes.
+     * Populates the internal terrain grid based on a layout from the level data.
+     * @param {string[]} layout - An array of strings representing the terrain shape.
      */
-    function createTestSquare() {
-        const bodyDef = new box2d.b2BodyDef();
-        bodyDef.position.Set(5, 4); // Positioned in the middle of the screen
-
-        const body = world.CreateBody(bodyDef);
-        const shape = new box2d.b2PolygonShape();
-        
-        // Creates a 1x1 square (0.5 half-width, 0.5 half-height)
-        shape.SetAsBox(0.5, 0.5);
-        
-        const fixture = body.CreateFixture(shape, 0.0);
-        // Let's reuse the "wall" style so we can see it
-        fixture.SetUserData({ type: "wall" });
-    }
-
-    /**
-     * A helper function to create a single static wall body.
-     * @param {number} x - The center x-coordinate in world units.
-     * @param {number} y - The center y-coordinate in world units.
-     * @param {number} width - The width of the wall in world units.
-     * @param {number} height - The height of the wall in world units.
-     * @returns {void}
-     */
-    function createWallBody(x, y, width, height) {
-        const bodyDef = new box2d.b2BodyDef();
-        bodyDef.position.Set(x, y);
-        const body = world.CreateBody(bodyDef);
-        const shape = new box2d.b2PolygonShape();
-        shape.SetAsBox(width / 2, height / 2);
-        const fixtureDef = body.CreateFixture(shape, 0.0);
-        fixtureDef.SetUserData({ type: "wall" }); 
-    }
-
-    /**
-     * Populates the initial terrain grid with solid (1) and empty (0) cells.
-     * @returns {void}
-     */
-    function initializeTerrain(layout) {
+    initializeTerrain(layout) {
         for (let y = 0; y < TERRAIN_HEIGHT; y++) {
-            terrain[y] = [];
+            this.terrain[y] = [];
             for (let x = 0; x < TERRAIN_WIDTH; x++) {
                 const layoutY = Math.floor(y / (TERRAIN_HEIGHT / layout.length));
                 const layoutX = Math.floor(x / (TERRAIN_WIDTH / layout[0].length));
                 
                 if (layout[layoutY] && layout[layoutY][layoutX] === 'x') {
-                    terrain[y][x] = 1;
+                    this.terrain[y][x] = 1;
                 } else {
-                    terrain[y][x] = 0;
+                    this.terrain[y][x] = 0;
                 }
             }
         }
     }
 
     /**
-     * Scans the terrain grid, destroys old physics bodies, and generates new,
-     * optimized static physics bodies for collision.
-     * @returns {void}
+     * Scans the terrain grid and generates optimized static physics bodies.
      */
-    function rebuildTerrainBodies() {
-        isRebuilding = true;
+    rebuildTerrainBodies() {
+        this.isRebuilding = true;
         const bodiesToDestroy = [];
-        for (let body = world.GetBodyList(); body; body = body.GetNext()) {
-            const userData = body.GetUserData();
-            if (userData && userData.type === 'terrain') {
+        for (let body = this.world.GetBodyList(); body; body = body.GetNext()) {
+            if (body.GetUserData() && body.GetUserData().type === 'terrain') {
                 bodiesToDestroy.push(body);
             }
         }
-        for (const body of bodiesToDestroy) {
-            world.DestroyBody(body);
-        }
+        bodiesToDestroy.forEach(body => this.world.DestroyBody(body));
 
-        const visited = new Array(TERRAIN_HEIGHT).fill(0).map(() => new Array(TERRAIN_WIDTH).fill(false));
+        const visited = Array.from({ length: TERRAIN_HEIGHT }, () => Array(TERRAIN_WIDTH).fill(false));
         for (let y = 0; y < TERRAIN_HEIGHT; y++) {
             for (let x = 0; x < TERRAIN_WIDTH; x++) {
-                if (terrain[y][x] === 1 && !visited[y][x]) {
+                if (this.terrain[y][x] === 1 && !visited[y][x]) {
                     let width = 0;
-                    while (x + width < TERRAIN_WIDTH && terrain[y][x + width] === 1 && !visited[y][x + width]) {
+                    while (x + width < TERRAIN_WIDTH && this.terrain[y][x + width] === 1 && !visited[y][x + width]) {
                         width++;
                     }
                     let height = 1;
-                    outer:
-                    while (y + height < TERRAIN_HEIGHT) {
+                    outer: while (y + height < TERRAIN_HEIGHT) {
                         for (let i = 0; i < width; i++) {
-                            if (terrain[y + height][x + i] !== 1 || visited[y + height][x + i]) {
+                            if (this.terrain[y + height][x + i] !== 1 || visited[y + height][x + i]) {
                                 break outer;
                             }
                         }
@@ -186,42 +275,38 @@ function mainApp(args) {
                     const bodyY = (y + height / 2) * (6 / TERRAIN_HEIGHT);
                     const bodyWidth = width * (10 / TERRAIN_WIDTH);
                     const bodyHeight = height * (6 / TERRAIN_HEIGHT);
-                    createTerrainBody(bodyX, bodyY, bodyWidth, bodyHeight);
+                    this.createTerrainBody(bodyX, bodyY, bodyWidth, bodyHeight);
                 }
             }
         }
-        
-        isRebuilding = false;
-        needsRebuild = false;
+        this.isRebuilding = false;
+        this.needsRebuild = false;
     }
     
     /**
-     * A helper function to create a single static terrain body.
-     * @param {number} x - The center x-coordinate in world units.
-     * @param {number} y - The center y-coordinate in world units.
-     * @param {number} width - The width of the terrain block in world units.
-     * @param {number} height - The height of the terrain block in world units.
-     * @returns {void}
+     * Creates a single static terrain body.
+     * @param {number} x - The center x-coordinate.
+     * @param {number} y - The center y-coordinate.
+     * @param {number} width - The width of the block.
+     * @param {number} height - The height of the block.
      */
-    function createTerrainBody(x, y, width, height) {
+    createTerrainBody(x, y, width, height) {
         const bodyDef = new box2d.b2BodyDef();
         bodyDef.position.Set(x, y);
-        const body = world.CreateBody(bodyDef);
+        const body = this.world.CreateBody(bodyDef);
         const shape = new box2d.b2PolygonShape();
         shape.SetAsBox(width / 2, height / 2);
-        const fixtureDef = body.CreateFixture(shape, 0.0);
-        fixtureDef.SetUserData({ type: "terrain" });
+        const fixture = body.CreateFixture(shape, 0.0);
+        fixture.SetUserData({ type: "terrain" });
         body.SetUserData({ type: "terrain" });
     }
     
     /**
-     * Sets up the mouse event listeners on the canvas for digging interactions.
-     * @returns {void}
+     * Sets up mouse event listeners for digging.
      */
-    function setupDigging() {
+    setupDigging() {
         let isDigging = false;
         const canvas = document.getElementById('gameCanvas');
-
         const dig = (e) => {
             const rect = canvas.getBoundingClientRect();
             const mouseX = e.clientX - rect.left;
@@ -229,282 +314,177 @@ function mainApp(args) {
             const gridX = Math.floor(mouseX / TERRAIN_RESOLUTION);
             const gridY = Math.floor(mouseY / TERRAIN_RESOLUTION);
             const digRadius = 2;
-
             for (let y = -digRadius; y <= digRadius; y++) {
                 for (let x = -digRadius; x <= digRadius; x++) {
                     if (Math.sqrt(x*x + y*y) <= digRadius) {
                         const currentY = gridY + y;
                         const currentX = gridX + x;
                         if (currentY >= 0 && currentY < TERRAIN_HEIGHT && currentX >= 0 && currentX < TERRAIN_WIDTH) {
-                            if (terrain[currentY][currentX] === 1) {
-                                terrain[currentY][currentX] = 0;
-                                needsRebuild = true;
+                            if (this.terrain[currentY][currentX] === 1) {
+                                this.terrain[currentY][currentX] = 0;
+                                this.needsRebuild = true;
                             }
                         }
                     }
                 }
             }
         };
-
-        canvas.addEventListener('mousedown', (e) => {
-            isDigging = true;
-            dig(e);
-        });
-        canvas.addEventListener('mousemove', (e) => {
-            if (isDigging) {
-                dig(e);
+        canvas.addEventListener('mousedown', (e) => { 
+                isDigging = true; dig(e); if (!this.firstClick) {
+                    this.audioManager.unlockAudioContext();
+                    this.firstClick = true;
+                }
             }
-        });
-        window.addEventListener('mouseup', () => {
-            isDigging = false;
-        });
+        );
+        canvas.addEventListener('mousemove', (e) => { if (isDigging) { dig(e); } });
+        window.addEventListener('mouseup', () => { isDigging = false; });
     }
 
     /**
-     * Creates the initial particle group that represents water.
-     * @returns {void}
+     * Creates water particle groups based on the level data.
+     * @param {object[]} shapesDataArray - An array of objects defining water bodies.
      */
-    function createWater(shapesDataArray) {
-        const particleSystem = world.GetParticleSystemList();
+    createWater(shapesDataArray) {
+        const particleSystem = this.world.GetParticleSystemList();
         particleSystem.SetRadius(0.05);
-        const SCALE = 100; // canvas.width / 10
-
-        // Loop through each water shape defined in the JSON
+        const SCALE = 100;
         for (const shapeData of shapesDataArray) {
             const pgd = new box2d.b2ParticleGroupDef();
             pgd.position.Set(shapeData.x, shapeData.y);
             pgd.flags = box2d.b2ParticleFlag.b2_waterParticle | box2d.b2ParticleFlag.b2_contactListenerParticle;
-            pgd.color.Set(0, 100, 255, 255);
-
+            pgd.color.Copy(ParticleColors.WATER);
             pgd.userData = ParticleType.WATER;
-
             if (shapeData.type === 'box') {
                 const shape = new box2d.b2PolygonShape();
                 shape.SetAsBox(shapeData.halfWidth, shapeData.halfHeight);
                 pgd.shape = shape;
             }
-
             const countBefore = particleSystem.GetParticleCount();
             particleSystem.CreateParticleGroup(pgd);
             const countAfter = particleSystem.GetParticleCount();
-
-            // This is the temporary, pre-carving count
-            console.log("Particles created (before carving):", countAfter - countBefore);
-
-            // Check if carving is needed for this specific water body
             if (!shapeData.canGoThroughDirt) {
                 const particles = particleSystem.GetPositionBuffer();
-                
-                // Carve only the particles that were just created
                 for (let i = countAfter - 1; i >= countBefore; i--) {
                     const pos = particles[i];
                     const gridX = Math.floor((pos.x * SCALE) / TERRAIN_RESOLUTION);
                     const gridY = Math.floor((pos.y * SCALE) / TERRAIN_RESOLUTION);
-
                     if (gridY >= 0 && gridY < TERRAIN_HEIGHT && gridX >= 0 && gridX < TERRAIN_WIDTH) {
-                        if (terrain[gridY][gridX] === 1) {
+                        if (this.terrain[gridY][gridX] === 1) {
                             particleSystem.DestroyParticle(i);
                         }
                     }
                 }
             }
         }
-        
-        // This is the final, correct count AFTER all creation and carving is done.
-        initialParticleCount = particleSystem.GetParticleCount();
-        console.log(`Level ${currentLevelIndex + 1}: Actual starting particles: ${initialParticleCount}`);
+        this.initialParticleCount = particleSystem.GetParticleCount();
     }
 
     /**
-     * Checks for and destroys any particles that have fallen below the world boundary.
+     * Creates obstacle bodies and liquids based on the level data.
+     * @param {object[]} obstaclesData - An array of objects defining obstacles.
      */
-    function destroyOffScreenParticles() {
-        const particleSystem = world.GetParticleSystemList();
-        const userDataBuffer = particleSystem.GetUserDataBuffer();
-        const particleCount = particleSystem.GetParticleCount();
-
-        for (let i = particleCount - 1; i >= 0; i--) {
-            const particleY = particleSystem.GetPositionBuffer()[i].y;
-
-            if (particleY > 6.2) {
-                const particleType = userDataBuffer[i];
-                
-                console.log(`Destroying particle of type: ${particleType}`);
-                
-                if (particleType === ParticleType.WATER) {
-                    collectedParticleCount++;
-                }
-                
-                particleSystem.DestroyParticle(i);
-            }
-        }
-    }
-
-    function loadLevel(levelIndex) {
-        // Clear everything from the old level
-        for (let body = world.GetBodyList(); body; body = body.GetNext()) {
-            world.DestroyBody(body);
-        }
-        const particleSystem = world.GetParticleSystemList();
-        const particleCount = particleSystem.GetParticleCount();
-        if (particleCount > 0) {
-            for (let i = particleCount - 1; i >= 0; i--) {
-                particleSystem.DestroyParticle(i);
-            }
-        }
-
-        // Hide the win message
-        document.getElementById('win-message').style.display = 'none';
-        
-        // Reset counters
-        waterInGoal = 0;
-        frameCount = 0;
-        initialParticleCount = 0;
-        collectedParticleCount = 0;
-
-        // Load data for the new level
-        const levelData = window.levels[levelIndex];
-        
-        // Create the new level
-        createWorldBoundaries();
-        initializeTerrain(levelData.terrain);
-        rebuildTerrainBodies();
-        createPipe(levelData.pipePosition);
-        createWater(levelData.waterShapes);
-        createObstacles(levelData.obstacles);
-    }
-
-
-    /**
-     * Creates the two vertical walls of the pipe.
-     */
-    function createPipe(position) {
-        const pipeY = position.y;
-        const pipeX = position.x;
-        const pipeThickness = 0.2;
-        const pipeHeight = 1.5;
-
-        // Left wall of the pipe
-        const leftWallDef = new box2d.b2BodyDef();
-        leftWallDef.position.Set(pipeX, pipeY);
-        const leftWallBody = world.CreateBody(leftWallDef);
-        const leftShape = new box2d.b2PolygonShape();
-        leftShape.SetAsBox(pipeThickness / 2, pipeHeight / 2);
-        const leftFixture = leftWallBody.CreateFixture(leftShape, 0.0);
-        leftFixture.SetUserData({ type: "pipe" });
-
-        // Right wall of the pipe
-        const rightWallDef = new box2d.b2BodyDef();
-        rightWallDef.position.Set(pipeX + 1.0, pipeY);
-        const rightWallBody = world.CreateBody(rightWallDef);
-        const rightShape = new box2d.b2PolygonShape();
-        rightShape.SetAsBox(pipeThickness / 2, pipeHeight / 2);
-        const rightFixture = rightWallBody.CreateFixture(rightShape, 0.0);
-        rightFixture.SetUserData({ type: "pipe" });
-    }
-
-    function createObstacles(obstaclesData) {
+    createObstacles(obstaclesData) {
         if (!obstaclesData) return;
-
-        const particleSystem = world.GetParticleSystemList();
-
+        const particleSystem = this.world.GetParticleSystemList();
         for (const obstacle of obstaclesData) {
             if (obstacle.type === 'block') {
                 const bodyDef = new box2d.b2BodyDef();
                 bodyDef.position.Set(obstacle.x, obstacle.y);
-                const body = world.CreateBody(bodyDef);
+                const body = this.world.CreateBody(bodyDef);
                 const shape = new box2d.b2PolygonShape();
                 shape.SetAsBox(obstacle.halfWidth, obstacle.halfHeight);
                 const fixture = body.CreateFixture(shape, 0.0);
                 fixture.SetUserData({ type: "block" });
-            } 
-            else if (obstacle.type === 'toxic_liquid') {
+            } else if (obstacle.type === 'toxic_liquid') {
                 const shapeData = obstacle.shape;
                 const pgd = new box2d.b2ParticleGroupDef();
                 pgd.position.Set(shapeData.x, shapeData.y);
                 pgd.flags = box2d.b2ParticleFlag.b2_waterParticle | box2d.b2ParticleFlag.b2_contactListenerParticle;
-                pgd.color.Set(128, 0, 128, 255);
-
+                pgd.color.Copy(ParticleColors.TOXIC);
                 pgd.userData = ParticleType.TOXIC;
-
                 if (shapeData.type === 'box') {
                     const shape = new box2d.b2PolygonShape();
                     shape.SetAsBox(shapeData.halfWidth, shapeData.halfHeight);
                     pgd.shape = shape;
                 }
-
                 particleSystem.CreateParticleGroup(pgd);
-                
             }
         }
-
-        //TODO: maybe add the carving toxic water mechanic
     }
 
-    function handleContamination() {
-        const particleSystem = world.GetParticleSystemList();
+    /**
+     * Creates the pipe structure based on the level data.
+     * @param {object} position - An object with x and y coordinates for the pipe.
+     */
+    createPipe(position) {
+        const pipeY = position.y;
+        const pipeX = position.x;
+        const pipeThickness = 0.2;
+        const pipeHeight = 1.5;
+        const createWall = (x, y, isPipe) => {
+            const bodyDef = new box2d.b2BodyDef();
+            bodyDef.position.Set(x, y);
+            const body = this.world.CreateBody(bodyDef);
+            const shape = new box2d.b2PolygonShape();
+            shape.SetAsBox(pipeThickness / 2, pipeHeight / 2);
+            const fixture = body.CreateFixture(shape, 0.0);
+            fixture.SetUserData({ type: "pipe" });
+        };
+        createWall(pipeX, pipeY, true);
+        createWall(pipeX + 1.0, pipeY, true);
+    }
+
+    /**
+     * Checks for and destroys particles that have fallen off-screen, counting them if they are water.
+     */
+    destroyOffScreenParticles() {
+        const particleSystem = this.world.GetParticleSystemList();
+        const userDataBuffer = particleSystem.GetUserDataBuffer();
+        const particleCount = particleSystem.GetParticleCount();
+        for (let i = particleCount - 1; i >= 0; i--) {
+            const particleY = particleSystem.GetPositionBuffer()[i].y;
+            if (particleY > 6.2) {
+                if (userDataBuffer && userDataBuffer[i] === ParticleType.WATER) {
+                    this.collectedParticleCount++;
+                }
+                particleSystem.DestroyParticle(i);
+            }
+        }
+    }
+
+    /**
+     * Checks for contact between water and toxic particles and spreads contamination.
+     * @returns {boolean} - True if any contamination occurred this frame.
+     */
+    handleContamination() {
+        let contaminationHappened = false;
+        const particleSystem = this.world.GetParticleSystemList();
         const contacts = particleSystem.GetContacts();
         const contactCount = particleSystem.GetContactCount();
         const userDataBuffer = particleSystem.GetUserDataBuffer();
         const colorBuffer = particleSystem.GetColorBuffer();
-
         for (let i = 0; i < contactCount; i++) {
             const contact = contacts[i];
             const indexA = contact.GetIndexA();
             const indexB = contact.GetIndexB();
-
-            const typeA = userDataBuffer[indexA];
-            const typeB = userDataBuffer[indexB];
-
-            // Check if a WATER particle is touching a TOXIC particle
-            if (typeA === ParticleType.WATER && typeB === ParticleType.TOXIC) {
-                // Contaminate particle A
-                userDataBuffer[indexA] = ParticleType.TOXIC; 
-                colorBuffer[indexA].Set(128, 0, 128, 255);    
-            } else if (typeA === ParticleType.TOXIC && typeB === ParticleType.WATER) {
-                // Contaminate particle B
-                userDataBuffer[indexB] = ParticleType.TOXIC;
-                colorBuffer[indexB].Set(128, 0, 128, 255);
+            if (userDataBuffer) {
+                const typeA = userDataBuffer[indexA];
+                const typeB = userDataBuffer[indexB];
+                if (typeA === ParticleType.WATER && typeB === ParticleType.TOXIC) {
+                    userDataBuffer[indexA] = ParticleType.TOXIC;
+                    if (colorBuffer) colorBuffer[indexA].Copy(ParticleColors.TOXIC);
+                    contaminationHappened = true;
+                } else if (typeA === ParticleType.TOXIC && typeB === ParticleType.WATER) {
+                    userDataBuffer[indexB] = ParticleType.TOXIC;
+                    if (colorBuffer) colorBuffer[indexB].Copy(ParticleColors.TOXIC);
+                    contaminationHappened = true;
+                }
             }
         }
+        return contaminationHappened;
     }
-
-
-    /**
-     * The core game loop, called via requestAnimationFrame, which updates the physics
-     * and triggers rendering.
-     * @returns {void}
-     */
-    const gameLoop = function() {
-        frameCount++;
-        if (needsRebuild && !isRebuilding) {
-            rebuildTerrainBodies();
-        }
-
-        world.Step(1 / 60, 10, 10);
-        
-        handleContamination();
-        destroyOffScreenParticles();
-
-        const goalAmount = Math.floor(initialParticleCount * window.levels[currentLevelIndex].waterAmount);
-
-        // Update UI with the correct count
-        const waterCountEl = document.getElementById('water-count');
-        if (waterCountEl) {
-            waterCountEl.textContent = `${collectedParticleCount} / ${goalAmount}`;
-        }
-
-        // Check for win with the correct count
-        if (collectedParticleCount >= goalAmount && initialParticleCount > 0) {
-            const winMessageEl = document.getElementById('win-message');
-            if (winMessageEl) {
-                winMessageEl.style.display = 'block';
-            }
-        }
-
-        Renderer.render();
-        requestAnimationFrame(gameLoop);
-    };
-    
-    onload();
 }
+
+// --- Start the Game ---
+const game = new Game();
+game.init();

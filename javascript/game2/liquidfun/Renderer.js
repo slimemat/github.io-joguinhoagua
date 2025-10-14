@@ -4,14 +4,14 @@
  * @param {CanvasRenderingContext2D} ctx - The canvas 2D rendering context.
  * @constructor
  */
-function Renderer(world, ctx) {
+function Renderer(world, terrain, terrainWidth, terrainHeight, terrainResolution) {
     var canvas = document.getElementById("gameCanvas");
     var ctx = canvas.getContext("2d");
     const SCALE = canvas.width / 10;
 
     const wetnessGrid = [];
-    for (let y = 0; y < TERRAIN_HEIGHT; y++) {
-        wetnessGrid[y] = new Array(TERRAIN_WIDTH).fill(null);
+    for (let y = 0; y < terrainWidth; y++) {
+        wetnessGrid[y] = new Array(terrainWidth).fill(null);
     }
 
     /**
@@ -39,14 +39,14 @@ function Renderer(world, ctx) {
      */
     this.drawTerrainGrid = function() {
         ctx.fillStyle = '#8B4513'; // Dirt brown color
-        for (let y = 0; y < TERRAIN_HEIGHT; y++) {
-            for (let x = 0; x < TERRAIN_WIDTH; x++) {
+        for (let y = 0; y < terrainHeight; y++) {
+            for (let x = 0; x < terrainWidth; x++) {
                 if (terrain[y][x] === 1) {
                     ctx.fillRect(
-                        x * TERRAIN_RESOLUTION, 
-                        y * TERRAIN_RESOLUTION, 
-                        TERRAIN_RESOLUTION, 
-                        TERRAIN_RESOLUTION
+                        x * terrainResolution, 
+                        y * terrainResolution, 
+                        terrainResolution, 
+                        terrainResolution
                     );
                 }
             }
@@ -117,8 +117,8 @@ function Renderer(world, ctx) {
 
         // --- 1. Fade the Wetness Grid ---
         const FADE_SPEED = 0.10;
-        for (let y = 0; y < TERRAIN_HEIGHT; y++) {
-            for (let x = 0; x < TERRAIN_WIDTH; x++) {
+        for (let y = 0; y < terrainHeight; y++) {
+            for (let x = 0; x < terrainWidth; x++) {
                 const cell = wetnessGrid[y][x];
                 if (cell) {
                     cell.wetness = Math.max(0, cell.wetness - FADE_SPEED);
@@ -132,16 +132,16 @@ function Renderer(world, ctx) {
         // --- 2. Update Grid with Particle Data ---
         for (let i = 0; i < particleCount; i++) {
             const pos = particles[i];
-            const gridX = Math.floor((pos.x * SCALE) / TERRAIN_RESOLUTION);
-            const gridY = Math.floor((pos.y * SCALE) / TERRAIN_RESOLUTION);
-            if (gridY >= 0 && gridY < TERRAIN_HEIGHT && gridX >= 0 && gridX < TERRAIN_WIDTH) {
+            const gridX = Math.floor((pos.x * SCALE) / terrainResolution);
+            const gridY = Math.floor((pos.y * SCALE) / terrainResolution);
+            if (gridY >= 0 && gridY < terrainHeight && gridX >= 0 && gridX < terrainWidth) {
                 wetnessGrid[gridY][gridX] = { wetness: 1.0, color: colors[i] };
             }
         }
 
         // --- 3. Draw the Wetness Grid ---
-        for (let y = 0; y < TERRAIN_HEIGHT; y++) {
-            for (let x = 0; x < TERRAIN_WIDTH; x++) {
+        for (let y = 0; y < terrainHeight; y++) {
+            for (let x = 0; x < terrainWidth; x++) {
                 const cell = wetnessGrid[y][x];
                 if (cell) {
                     const color = cell.color;
@@ -150,12 +150,12 @@ function Renderer(world, ctx) {
                     const b = color ? color.b : 255;
 
                     ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${cell.wetness * 0.5})`;
-                    ctx.fillRect(x * TERRAIN_RESOLUTION, y * TERRAIN_RESOLUTION, TERRAIN_RESOLUTION, TERRAIN_RESOLUTION);
+                    ctx.fillRect(x * terrainResolution, y * terrainResolution, terrainResolution, terrainResolution);
 
                     const isSurface = (y === 0 || wetnessGrid[y - 1][x] === null || wetnessGrid[y - 1][x].wetness < 0.1);
                     if (isSurface) {
                         ctx.fillStyle = `rgba(${r + 100}, ${g + 100}, ${b + 100}, ${cell.wetness * 0.6})`;
-                        ctx.fillRect(x * TERRAIN_RESOLUTION, y * TERRAIN_RESOLUTION, TERRAIN_RESOLUTION, TERRAIN_RESOLUTION / 2);
+                        ctx.fillRect(x * terrainResolution, y * terrainResolution, terrainResolution, terrainResolution / 2);
                     }
                 }
             }
@@ -174,8 +174,8 @@ function Renderer(world, ctx) {
             const speed = Math.sqrt(vel.x * vel.x + vel.y * vel.y);
             
             if (speed > minVelocityThreshold) {
-                const gridX = Math.floor((pos.x * SCALE) / TERRAIN_RESOLUTION);
-                const gridY = Math.floor((pos.y * SCALE) / TERRAIN_RESOLUTION);
+                const gridX = Math.floor((pos.x * SCALE) / terrainResolution);
+                const gridY = Math.floor((pos.y * SCALE) / terrainResolution);
                 
                 // Restore the full 3x3 check for nearby terrain
                 let isNearTerrain = false;
@@ -184,7 +184,7 @@ function Renderer(world, ctx) {
                     for (let dx = -checkRadius; dx <= checkRadius; dx++) {
                         const checkX = gridX + dx;
                         const checkY = gridY + dy;
-                        if (checkY >= 0 && checkY < TERRAIN_HEIGHT && checkX >= 0 && checkX < TERRAIN_WIDTH) {
+                        if (checkY >= 0 && checkY < terrainHeight && checkX >= 0 && checkX < terrainWidth) {
                             if (terrain[checkY][checkX] === 1) {
                                 isNearTerrain = true;
                                 break;

@@ -3,16 +3,26 @@
 
 export default class AudioManager {
     constructor() {
+        this.isUnlocked = false;
         this.backgroundMusic = document.getElementById("background-music");
         this.collectSound = document.getElementById("collect-sound");
         this.correctSound = document.getElementById("correct-sound");
         this.wrongSound = document.getElementById("wrong-sound");
         this.celebrationSound = document.getElementById("celebration-sound");
+        this.sizzleSound = document.getElementById("sizzle-sound");
+        this.rushingWaterSound = document.getElementById("rushing-water-sound");
 
         this.isMusicPlaying = true;
 
         if(this.backgroundMusic) {
             this.backgroundMusic.volume = 0.3;
+        }
+
+        if (this.sizzleSound) {
+            this.sizzleSound.volume = 0.7;
+        }
+        if (this.rushingWaterSound) {
+            this.rushingWaterSound.volume = 0.4;
         }
     }
 
@@ -26,6 +36,12 @@ export default class AudioManager {
         this.backgroundMusic?.pause();
         this.isMusicPlaying = false;
         this.updateButtonText();
+    }
+
+    unlockAudioContext() {
+        if (this.isUnlocked) return;
+        this.isUnlocked = true;
+        this.playMusic();
     }
 
     toggleMusic() {
@@ -68,6 +84,40 @@ export default class AudioManager {
         if (this.celebrationSound) {
             this.celebrationSound.currentTime = 0;
             this.celebrationSound.play();
+        }
+    }
+
+    startSizzle() {
+        if (!this.isUnlocked) return;
+        if (this.sizzleSound && !this.isSizzling) {
+            this.sizzleSound.currentTime = 0;
+            this.sizzleSound.play();
+            this.isSizzling = true;
+        }
+    }
+
+    stopSizzle() {
+        if (!this.isUnlocked) return;
+        if (this.sizzleSound && this.isSizzling) {
+            this.sizzleSound.pause();
+            this.isSizzling = false;
+        }
+    }
+
+    startRushingWater() {
+        if (!this.isUnlocked) return;
+        if (this.rushingWaterSound && !this.isRushing) {
+            this.rushingWaterSound.currentTime = 0;
+            this.rushingWaterSound.play();
+            this.isRushing = true;
+        }
+    }
+
+    stopRushingWater() {
+        if (!this.isUnlocked) return;
+        if (this.rushingWaterSound && this.isRushing) {
+            this.rushingWaterSound.pause();
+            this.isRushing = false;
         }
     }
 
