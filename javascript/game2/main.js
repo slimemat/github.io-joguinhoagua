@@ -1,4 +1,4 @@
-import AudioManager from '../../common/AudioManager.js';
+import AudioManager from '../common/AudioManager.js';
 
 // --- Global Constants ---
 const TERRAIN_RESOLUTION = 12;
