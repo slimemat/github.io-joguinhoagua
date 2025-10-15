@@ -96,54 +96,72 @@ class Game {
     }
 
     /**
-     * Checks if any water particles NOT near a wall are moving faster than a set threshold.
-     * @returns {boolean} - True if any water is moving fast in open space.
+     * Checks the speed of all liquids and returns their state.
+     * @returns {{water: boolean, toxic: boolean}} - An object indicating which liquids are rushing.
      */
-    handleFastWaterSound() {
+    checkLiquidSpeeds() {
         const particleSystem = this.world.GetParticleSystemList();
         const velocities = particleSystem.GetVelocityBuffer();
-        const positions = particleSystem.GetPositionBuffer(); // We need positions now
+        const positions = particleSystem.GetPositionBuffer();
         const userData = particleSystem.GetUserDataBuffer();
         const count = particleSystem.GetParticleCount();
         const speedThreshold = 1.20;
-        const SCALE = 100; // canvas.width / 10
+        const SCALE = 100;
+
+        // 1. Start with both sounds off
+        let states = { water: false, toxic: false };
 
         for (let i = 0; i < count; i++) {
-            if (userData[i] === ParticleType.WATER) {
-                const vel = velocities[i];
-                const speed = Math.sqrt(vel.x * vel.x + vel.y * vel.y);
+            // Optimization: If we've already found both, we can stop checking.
+            if (states.water && states.toxic) {
+                break;
+            }
 
-                if (speed > speedThreshold) {
-                    
-                    const pos = positions[i];
-                    const gridX = Math.floor((pos.x * SCALE) / TERRAIN_RESOLUTION);
-                    const gridY = Math.floor((pos.y * SCALE) / TERRAIN_RESOLUTION);
+            const particleType = userData[i];
+            
+            // 2. Skip this particle if its sound has already been triggered
+            if ((particleType === ParticleType.WATER && states.water) ||
+                (particleType === ParticleType.TOXIC && states.toxic)) {
+                continue;
+            }
 
-                    let isNearTerrain = false;
-                    const checkRadius = 1;
-                    for (let dy = -checkRadius; dy <= checkRadius; dy++) {
-                        for (let dx = -checkRadius; dx <= checkRadius; dx++) {
-                            const checkX = gridX + dx;
-                            const checkY = gridY + dy;
-                            if (checkY >= 0 && checkY < TERRAIN_HEIGHT && checkX >= 0 && checkX < TERRAIN_WIDTH) {
-                                if (this.terrain[checkY][checkX] === 1) {
-                                    isNearTerrain = true;
-                                    break;
-                                }
+            const vel = velocities[i];
+            const speed = Math.sqrt(vel.x * vel.x + vel.y * vel.y);
+
+            if (speed > speedThreshold) {
+                const pos = positions[i];
+                const gridX = Math.floor((pos.x * SCALE) / TERRAIN_RESOLUTION);
+                const gridY = Math.floor((pos.y * SCALE) / TERRAIN_RESOLUTION);
+
+                // 3. Check if the particle is near a wall
+                let isNearTerrain = false;
+                const checkRadius = 1;
+                for (let dy = -checkRadius; dy <= checkRadius; dy++) {
+                    for (let dx = -checkRadius; dx <= checkRadius; dx++) {
+                        const checkX = gridX + dx;
+                        const checkY = gridY + dy;
+                        if (checkY >= 0 && checkY < TERRAIN_HEIGHT && checkX >= 0 && checkX < TERRAIN_WIDTH) {
+                            if (this.terrain[checkY][checkX] === 1) {
+                                isNearTerrain = true;
+                                break;
                             }
                         }
-                        if (isNearTerrain) break;
                     }
-                    
-
-                    // Only trigger the sound if the particle is fast AND not near a wall
-                    if (!isNearTerrain) {
-                        return true;
+                    if (isNearTerrain) break;
+                }
+                
+                // 4. If it's fast and not near a wall, update the correct state
+                if (!isNearTerrain) {
+                    if (particleType === ParticleType.WATER) {
+                        states.water = true;
+                    } else if (particleType === ParticleType.TOXIC) {
+                        states.toxic = true;
                     }
                 }
             }
         }
-        return false;
+        // 5. Return the final status of both liquids
+        return states;
     }
 
     /**
@@ -168,11 +186,20 @@ class Game {
             }
         }
 
-        const waterIsRushing = this.handleFastWaterSound(); 
-        if (waterIsRushing) {
-            this.audioManager.startRushingWater(); 
+        const liquidStates = this.checkLiquidSpeeds();
+
+        // water running sound
+        if (liquidStates.water) {
+            this.audioManager.startRushingWater();
         } else {
             this.audioManager.stopRushingWater();
+        }
+
+        // toxic running sound
+        if (liquidStates.toxic) {
+            this.audioManager.startToxicRush();
+        } else {
+            this.audioManager.stopToxicRush();
         }
         
         this.destroyOffScreenParticles();

@@ -108,5 +108,41 @@
       "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
       "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
     ]
+  },
+  {
+    "id": 3,
+    "waterAmount": 0.20,
+    "pipePosition": { "x": 7.5, "y": 5.5 }, 
+    "developerNote": "The coordinates are a little messy, we need to fix. x goes from 0 to 10 and y goes from 0 to 6 (ok), but i think y is inverted",
+    "waterShapes": [
+      {
+        "type": "box",
+        "halfWidth": 0, "halfHeight": 0,
+        "x": 5, "y": 2,
+        "canGoThroughDirt": false
+      }
+    ],
+    "obstacles": [
+      {
+        "type": "toxic_liquid",
+        "shape": {
+          "type": "box", "halfWidth": 3, "halfHeight": 2,
+          "x": 5, "y": 2
+        },
+        "canGoThroughDirt": true
+      }
+    ],
+    "terrain": [
+      "                    ",
+      "                    ",
+      "                    ",
+      "                    ",
+      "xxxxxxxxxxxxxxxxxxxx",
+      "xxxxxxxxxxxxxxxxxxxx",
+      "xxxxxxxxxxxxxxxxxxxx",
+      "xxxxxxxxxxxxxxxxxxxx",
+      "xxxxxxxxxxxxxxxxxxxx",
+      "xxxxxxxxxxxxxxxxxxxx"
+    ]
   }
 ]

@@ -11,8 +11,12 @@ export default class AudioManager {
         this.celebrationSound = document.getElementById("celebration-sound");
         this.sizzleSound = document.getElementById("sizzle-sound");
         this.rushingWaterSound = document.getElementById("rushing-water-sound");
+        this.toxicRushSound = document.getElementById("rushing-toxic-sound");
 
         this.isMusicPlaying = true;
+
+        this.isRushing = false;
+        this.isToxicRushing = false;
 
         if(this.backgroundMusic) {
             this.backgroundMusic.volume = 0.3;
@@ -23,6 +27,9 @@ export default class AudioManager {
         }
         if (this.rushingWaterSound) {
             this.rushingWaterSound.volume = 0.4;
+        }
+        if (this.toxicRushSound) {
+            this.toxicRushSound.volume = 0.5;
         }
     }
 
@@ -118,6 +125,23 @@ export default class AudioManager {
         if (this.rushingWaterSound && this.isRushing) {
             this.rushingWaterSound.pause();
             this.isRushing = false;
+        }
+    }
+
+    startToxicRush() {
+        if (!this.isUnlocked) return;
+        if (this.toxicRushSound && !this.isToxicRushing) {
+            this.toxicRushSound.play();
+            this.isToxicRushing = true;
+        }
+    }
+
+    stopToxicRush() {
+        if (!this.isUnlocked) return;
+        if (this.toxicRushSound && this.isToxicRushing) {
+            this.toxicRushSound.pause();
+            this.toxicRushSound.currentTime = 0;
+            this.isToxicRushing = false;
         }
     }
 
