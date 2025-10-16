@@ -4,7 +4,7 @@
 import Player from './player.js';
 import InputHandler from './InputHandler.js';
 import Item from './item.js';
-import Audio from '../common/AudioManager.js';
+import Audio from './AudioManager.js';
 import { updateScore, hideStartScreen, showGameContainer } from '../common/ui.js';
 import { showQuestionPanel } from '../../javascript/common/questionPanel.js';
 import { showInfoPanel } from '../../javascript/common/infoPanel.js';

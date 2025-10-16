@@ -1,26 +1,16 @@
-// js/audio.js
-// Centraliza o controle de todos os áudios do jogo.
+// js/game2/AudioManager.js
+// Centraliza o controle de todos os áudios do jogo 2.
 
 export default class AudioManager {
     constructor() {
         this.isUnlocked = false;
-        this.backgroundMusic = document.getElementById("background-music");
-        this.collectSound = document.getElementById("collect-sound");
-        this.correctSound = document.getElementById("correct-sound");
-        this.wrongSound = document.getElementById("wrong-sound");
-        this.celebrationSound = document.getElementById("celebration-sound");
         this.sizzleSound = document.getElementById("sizzle-sound");
         this.rushingWaterSound = document.getElementById("rushing-water-sound");
         this.toxicRushSound = document.getElementById("rushing-toxic-sound");
 
-        this.isMusicPlaying = true;
-
+        this.isSizzling = false;
         this.isRushing = false;
         this.isToxicRushing = false;
-
-        if(this.backgroundMusic) {
-            this.backgroundMusic.volume = 0.3;
-        }
 
         if (this.sizzleSound) {
             this.sizzleSound.volume = 0.7;
@@ -33,65 +23,10 @@ export default class AudioManager {
         }
     }
 
-    playMusic() {
-        this.backgroundMusic?.play();
-        this.isMusicPlaying = true;
-        this.updateButtonText();
-    }
-
-    pauseMusic() {
-        this.backgroundMusic?.pause();
-        this.isMusicPlaying = false;
-        this.updateButtonText();
-    }
-
-    unlockAudioContext() {
+    // Call this after the first user interaction (e.g., mouse click)
+    unlock() {
         if (this.isUnlocked) return;
         this.isUnlocked = true;
-        this.playMusic();
-    }
-
-    toggleMusic() {
-        if (this.isMusicPlaying) {
-            this.pauseMusic();
-        } else {
-            this.playMusic();
-        }
-    }
-    
-    updateButtonText() {
-        const button = document.getElementById("toggle-music");
-        if (button) {
-            button.innerText = this.isMusicPlaying ? "Pausar Música" : "Reproduzir Música";
-        }
-    }
-
-    playCollectSound() {
-        if (this.collectSound) {
-            this.collectSound.currentTime = 0;
-            this.collectSound.play();
-        }
-    }
-
-    playCorrectSound() {
-        if (this.correctSound) {
-            this.correctSound.currentTime = 0;
-            this.correctSound.play();
-        }
-    }
-
-    playWrongSound() {
-        if (this.wrongSound) {
-            this.wrongSound.currentTime = 0;
-            this.wrongSound.play();
-        }
-    }
-
-    playCelebration() {
-        if (this.celebrationSound) {
-            this.celebrationSound.currentTime = 0;
-            this.celebrationSound.play();
-        }
     }
 
     startSizzle() {
@@ -144,6 +79,4 @@ export default class AudioManager {
             this.isToxicRushing = false;
         }
     }
-
-  
 }
