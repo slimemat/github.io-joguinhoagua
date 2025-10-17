@@ -18,11 +18,17 @@
     </div>
     
     <div class="instructions">
-        <p><strong>Objetivo:</strong> Cave um caminho para levar a água até a área verde!</p>
+        <p><strong>Objetivo:</strong> Cave um caminho para levar a água até o cano!</p>
     </div>
 
     <div class="score-container">
-        <p>Water Collected: <span id="water-count">0</span> / 0</p>
+        <div id="collection-pipe">
+            <div id="pipe-goal-amount">0</div>
+            <div id="pipe-water-level">
+                <div class="pipe-water-surface"></div>
+                <div id="pipe-current-amount">0</div>
+            </div>
+        </div>
     </div>
 
     <div id="win-message" style="display: none;">

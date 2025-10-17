@@ -54,7 +54,7 @@
   },
   {
     "id": 2,
-    "waterAmount": 0.20,
+    "waterAmount": 0.25,
     "pipePosition": { "x": 7.5, "y": 5.5 },
     "waterShapes": [
       {

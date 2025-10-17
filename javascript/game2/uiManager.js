@@ -2,8 +2,9 @@
 
 export default class UIManager {
     constructor() {
-        // Find all the UI elements when the manager is created
-        this.waterCountEl = document.getElementById('water-count');
+        this.pipeWaterLevel = document.getElementById('pipe-water-level');
+        this.pipeGoalAmount = document.getElementById('pipe-goal-amount');
+        this.pipeCurrentAmount = document.getElementById('pipe-current-amount');
         this.onNextLevelCallback = null;
     }
 
@@ -16,13 +17,31 @@ export default class UIManager {
     }
 
     /**
-     * Updates the score display on the screen.
-     * @param {number} collected - The current number of collected particles.
-     * @param {number} goal - The target number of particles to win.
+     * Agora controla a altura da água no visualizador.
+     * @param {number} collected - A quantidade atual de partículas coletadas.
+     * @param {number} goal - A meta de partículas para vencer.
      */
     updateScore(collected, goal) {
-        if (this.waterCountEl) {
-            this.waterCountEl.textContent = `${collected} / ${goal}`;
+        if (this.pipeWaterLevel && this.pipeGoalAmount && this.pipeCurrentAmount) {
+                 
+            // 1. Exibe a meta no topo do cano.
+            // Se a água coletada for MAIOR que a meta, mostra a quantidade atual em vez da meta.
+            if (collected > goal && goal > 0) {
+                this.pipeGoalAmount.textContent = collected;
+            } else {
+                this.pipeGoalAmount.textContent = goal;
+            }
+            
+            // 2. porcentagem do cano
+            const percentage = goal > 0 ? (collected / goal) * 100 : 0;
+            this.pipeWaterLevel.style.height = `${Math.min(percentage, 100)}%`;
+            
+            this.pipeCurrentAmount.textContent = collected;
+            if (percentage > 5 && percentage < 105) {
+                this.pipeCurrentAmount.style.opacity = '1';
+            } else {
+                this.pipeCurrentAmount.style.opacity = '0';
+            }
         }
     }
 
