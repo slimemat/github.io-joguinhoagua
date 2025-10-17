@@ -50,6 +50,7 @@ class Game {
         this.renderer = new Renderer(
             this.world, 
             this.terrainManager,
+            ParticleColors,
             TERRAIN_WIDTH,
             TERRAIN_HEIGHT,
             TERRAIN_RESOLUTION

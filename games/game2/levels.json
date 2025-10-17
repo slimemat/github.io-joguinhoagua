@@ -3,7 +3,7 @@
     "id": 1,
     "waterAmount": 0.20,
     "pipePosition": { "x": 7.5, "y": 5.5 }, 
-    "developerNote": "The coordinates are a little messy, we need to fix. x goes from 0 to 10 and y goes from 0 to 6 (ok), but i think y is inverted",
+    "developerNote": "As coordenadas do y estão invertidas, X vai de 0 a 10, Y vai de 0 a 6",
     "waterShapes": [
       {
         "type": "box",
@@ -52,10 +52,11 @@
       "xxxxxxxxxxxxxxxxxxxx"
     ]
   },
-  {
+    {
     "id": 2,
     "waterAmount": 0.25,
     "pipePosition": { "x": 7.5, "y": 5.5 },
+    "treatmentStations": [{ "x": 9, "y": 3, "width": 1, "height": 1.5 }],
     "waterShapes": [
       {
         "type": "box",
@@ -86,24 +87,39 @@
         "halfWidth": 0.3, "halfHeight": 0.3
       },
       {
+        "type": "block",
+        "x": 8, "y": 3,
+        "halfWidth": 0.3, "halfHeight": 0.3
+      },
+      {
+        "type": "block",
+        "x": 8.2, "y": 3.2,
+        "halfWidth": 0.2, "halfHeight": 0.2
+      },
+      {
+        "type": "block",
+        "x": 6, "y": 2,
+        "halfWidth": 0.2, "halfHeight": 0.2
+      },
+      {
         "type": "toxic_liquid",
         "shape": {
-          "type": "box", "halfWidth": 1.0, "halfHeight": 0.5,
-          "x": 8, "y": 2
+          "type": "box", "halfWidth": 1.0, "halfHeight": 1.2,
+          "x": 7, "y": 1
         },
-        "canGoThroughDirt": true
+        "canGoThroughDirt": false
       }
     ],
     "terrain": [
       "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-      "xxxxxxxx  xxxxxxxxxxxxxxxxxxxx",
-      "xx     xxxxxxxxxxxxxxxxxxxxxxx",
-      "xxxxxxxxxxxxxxxxxxx x  xxxxxxx",
-      "xxxxxx  xxxxxxxxxx      xxxxxx",
-      "xx         xxxxxxxxxx   xxxxxx",
-      "x          xxxxxxxxxxx xxxxxxx",
+      "xxxxxxxx  xxxxxxxxx x  xxxxxxx",
+      "xx     xxxxxxxxxxx      xxxxxx",
+      "xxxxxxxxxxxxxxxxxxxxx   xxxxxx",
+      "xxxxxx  xxxxxxxxxxxxxx xxxxxxx",
       "xx         xxxxxxxxxxxxxxxxxxx",
-      "xxxx     xxxxxxxxxxxxxxxxxxxxx",
+      "x          xxxxxxxxxxxxxx    x",
+      "xx         xxxxxxxxxxxxx     x",
+      "xxxx     xxxxxxxxxxxxxxxxx   x",
       "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
       "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
       "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
@@ -111,14 +127,14 @@
   },
   {
     "id": 3,
-    "waterAmount": 0.20,
+    "waterAmount": 0.2,
     "pipePosition": { "x": 7.5, "y": 5.5 }, 
-    "developerNote": "The coordinates are a little messy, we need to fix. x goes from 0 to 10 and y goes from 0 to 6 (ok), but i think y is inverted",
+    "treatmentStations": [{ "x": 1, "y": 3.5, "width": 0.8, "height": 1.5, "capacity": 150 }],
     "waterShapes": [
       {
         "type": "box",
-        "halfWidth": 0, "halfHeight": 0,
-        "x": 5, "y": 2,
+        "halfWidth": 2.4, "halfHeight": 2.0,
+        "x": 4.4, "y": 4,
         "canGoThroughDirt": false
       }
     ],
@@ -126,23 +142,43 @@
       {
         "type": "toxic_liquid",
         "shape": {
-          "type": "box", "halfWidth": 3, "halfHeight": 2,
-          "x": 5, "y": 2
+          "type": "box", "halfWidth": 4, "halfHeight": 2,
+          "x": 5, "y": 1.8
         },
-        "canGoThroughDirt": true
+        "canGoThroughDirt": false
+      },
+      {
+        "type": "block",
+        "x": 1, "y": 2.5,
+        "halfWidth": 1.8, "halfHeight": 0.1
+      },
+      {
+        "type": "block",
+        "x": 3.1, "y": 5.1,
+        "halfWidth": 0.3, "halfHeight": 0.3
+      },
+      {
+        "type": "block",
+        "x": 1.4, "y": 5.1,
+        "halfWidth": 0.55, "halfHeight": 0.3
+      },
+      {
+        "type": "block",
+        "x": 1.62, "y": 3.8,
+        "halfWidth": 0.2, "halfHeight": 0.2
       }
     ],
     "terrain": [
-      "                    ",
-      "                    ",
-      "                    ",
-      "                    ",
-      "xxxxxxxxxxxxxxxxxxxx",
-      "xxxxxxxxxxxxxxxxxxxx",
-      "xxxxxxxxxxxxxxxxxxxx",
-      "xxxxxxxxxxxxxxxxxxxx",
-      "xxxxxxxxxxxxxxxxxxxx",
-      "xxxxxxxxxxxxxxxxxxxx"
+      "                     ",
+      "                     ",
+      "                     ",
+      "                     ",
+      "xxxxxxxxxxxxxxxxxxxxx",
+      "xxx xxxxxxxxxxxxxxxxx",
+      "xxxxxxxxxxxxxxxxxxxxx",
+      "x   x   x   x xxxxxxx",
+      "x xx  xxx xx  xxxxxxx",
+      "xxxxxxxxxxxxxxxxxxxxx"
     ]
   }
 ]

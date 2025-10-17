@@ -11,36 +11,153 @@ export default class ParticleManager {
     }
 
     /**
-     * Main update method called every frame from the game loop.
-     * Manages all particle behaviors and returns states needed for audio/UI.
+     * Ponto de entrada principal, chamado a cada frame pelo gameLoop.
+     * Orquestra todos os comportamentos das partículas.
      * @returns {{contaminationHappened: boolean, liquidStates: {water: boolean, toxic: boolean}}}
      */
     update() {
-        const contaminationHappened = this._handleContamination();
-        const liquidStates = this._checkLiquidSpeeds();
+        const contaminationHappened = this._handleAllContacts();
         this._destroyOffScreenParticles();
+        this._updateTreatmentStations();
+        const liquidStates = this._checkLiquidSpeeds();
 
         return { contaminationHappened, liquidStates };
     }
 
+    // --- MÉTODOS PRIVADOS DE LÓGICA ---
+
     /**
-     * Checks for contact between water and toxic particles and spreads contamination.
+     * Agrupa e executa todas as verificações de contato.
      * @private
      */
-    _handleContamination() {
+    _handleAllContacts() {
+        const contaminationHappened = this._handleParticleContamination();
+        this._handleParticleBodyContacts();
+        return contaminationHappened;
+    }
+
+    /**
+     * Verifica o contato das partículas com os corpos do mundo.
+     * @private
+     */
+    _handleParticleBodyContacts() {
+        const particleSystem = this.world.GetParticleSystemList();
+        const particleContacts = particleSystem.GetBodyContacts();
+        for (const contact of particleContacts) {
+            const particleIndex = contact.index;
+            const fixture = contact.fixture;
+
+            if (fixture) {
+                const fixtureData = fixture.GetUserData();
+                const particleData = particleSystem.GetUserDataBuffer();
+
+                // Lógica para absorver água na estação de tratamento.
+                if (fixtureData && fixtureData.type === 'treatment_station_body' && particleData[particleIndex] === ParticleType.TOXIC) {
+                    const station = fixtureData.station;
+                    // Só absorve se a estação não estiver cheia ou processando a liberação.
+                    if (!station.isProcessing && station.processingQueue < station.capacity) {
+                        particleSystem.DestroyParticle(particleIndex);
+                        station.processingQueue++;
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Gerencia os timers das estações e o ciclo de encher e esvaziar.
+     * @private
+     */
+    _updateTreatmentStations() {
+        const levelData = window.levels[this.game.currentLevelIndex];
+        if (!levelData || !levelData.treatmentStations) return;
+
+        for (const station of levelData.treatmentStations) {
+            // Se a estação encheu e não está processando, inicia o timer.
+            if (station.processingQueue >= station.capacity && !station.isProcessing) {
+                station.isProcessing = true;
+                station.releaseTimer = 30; // cada 60 frames é um segundo de espera.
+            }
+
+            // Se está processando, diminui o timer.
+            if (station.isProcessing) {
+                station.releaseTimer--;
+
+                // Quando o timer acaba, libera a água limpa e reseta a estação.
+                if (station.releaseTimer <= 0) {
+                    this._releaseCleanWater(station);
+                    station.processingQueue = 0;
+                    station.isProcessing = false;
+                }
+            }
+        }
+    }
+
+    /**
+     * Libera uma quantidade de água limpa e remove as partículas que aparecem dentro da terra.
+     * @param {object} station - Os dados da estação de tratamento.
+     * @private
+     */
+    _releaseCleanWater(station) {
+        const particleSystem = this.world.GetParticleSystemList();
+        const outletX = station.x;
+        const outletY = station.y + station.height / 2 + 0.1; // Sai por baixo
+
+        const particleGroupDef = new box2d.b2ParticleGroupDef();
+        particleGroupDef.position.Set(outletX, outletY);
+        
+        const shape = new box2d.b2PolygonShape();
+        shape.SetAsBox(station.width / 2, (station.capacity / 100) * 0.5); 
+        particleGroupDef.shape = shape;
+
+        particleGroupDef.flags = box2d.b2ParticleFlag.b2_waterParticle | box2d.b2ParticleFlag.b2_contactListenerParticle;
+        particleGroupDef.color.Copy(ParticleColors.WATER);
+        particleGroupDef.userData = ParticleType.WATER;
+        
+        // --- LÓGICA DE VERIFICAÇÃO ADICIONADA ---
+        const terrainGrid = this.terrainManager.getTerrainGrid();
+        const SCALE = 100;
+
+        const countBefore = particleSystem.GetParticleCount();
+        particleSystem.CreateParticleGroup(particleGroupDef);
+        const countAfter = particleSystem.GetParticleCount();
+
+        // Itera sobre as novas partículas criadas e as remove se estiverem na terra.
+        const particles = particleSystem.GetPositionBuffer();
+        for (let i = countAfter - 1; i >= countBefore; i--) {
+            const pos = particles[i];
+            const gridX = Math.floor((pos.x * SCALE) / TERRAIN_RESOLUTION);
+            const gridY = Math.floor((pos.y * SCALE) / TERRAIN_RESOLUTION);
+
+            if (gridY >= 0 && gridY < TERRAIN_HEIGHT && gridX >= 0 && gridX < TERRAIN_WIDTH) {
+                if (terrainGrid[gridY][gridX] === 1) {
+                    particleSystem.DestroyParticle(i);
+                }
+            }
+        }
+    }
+
+    /**
+     * Verifica o contato entre partículas (água vs. tóxica) e espalha a contaminação.
+     * @private
+     */
+    _handleParticleContamination() {
         let contaminationHappened = false;
         const particleSystem = this.world.GetParticleSystemList();
         const contacts = particleSystem.GetContacts();
         const contactCount = particleSystem.GetContactCount();
         const userDataBuffer = particleSystem.GetUserDataBuffer();
         const colorBuffer = particleSystem.GetColorBuffer();
+
         for (let i = 0; i < contactCount; i++) {
             const contact = contacts[i];
             const indexA = contact.GetIndexA();
             const indexB = contact.GetIndexB();
+
             if (userDataBuffer) {
                 const typeA = userDataBuffer[indexA];
                 const typeB = userDataBuffer[indexB];
+
                 if (typeA === ParticleType.WATER && typeB === ParticleType.TOXIC) {
                     userDataBuffer[indexA] = ParticleType.TOXIC;
                     if (colorBuffer) colorBuffer[indexA].Copy(ParticleColors.TOXIC);
@@ -56,7 +173,7 @@ export default class ParticleManager {
     }
 
     /**
-     * Checks for and destroys particles that have fallen off-screen.
+     * Verifica e destrói partículas que saíram da tela, atualizando a contagem de coleta.
      * @private
      */
     _destroyOffScreenParticles() {
@@ -67,7 +184,6 @@ export default class ParticleManager {
             const particleY = particleSystem.GetPositionBuffer()[i].y;
             if (particleY > 6.2) {
                 if (userDataBuffer && userDataBuffer[i] === ParticleType.WATER) {
-                    // Update the count on the main game instance
                     this.game.collectedParticleCount++;
                 }
                 particleSystem.DestroyParticle(i);
@@ -76,7 +192,7 @@ export default class ParticleManager {
     }
 
     /**
-     * Checks the speed of all liquids to determine if they are "rushing".
+     * Verifica a velocidade dos líquidos para os efeitos sonoros.
      * @private
      */
     _checkLiquidSpeeds() {
@@ -87,16 +203,13 @@ export default class ParticleManager {
         const count = particleSystem.GetParticleCount();
         const speedThreshold = 1.20;
         const SCALE = 100;
-
         let states = { water: false, toxic: false };
 
         for (let i = 0; i < count; i++) {
             if (states.water && states.toxic) break;
 
             const particleType = userData[i];
-            
-            if ((particleType === ParticleType.WATER && states.water) ||
-                (particleType === ParticleType.TOXIC && states.toxic)) {
+            if ((particleType === ParticleType.WATER && states.water) || (particleType === ParticleType.TOXIC && states.toxic)) {
                 continue;
             }
 
@@ -115,7 +228,6 @@ export default class ParticleManager {
                         const checkX = gridX + dx;
                         const checkY = gridY + dy;
                         if (checkY >= 0 && checkY < TERRAIN_HEIGHT && checkX >= 0 && checkX < TERRAIN_WIDTH) {
-                            // Use the terrain manager to get the grid
                             if (this.terrainManager.getTerrainGrid()[checkY][checkX] === 1) {
                                 isNearTerrain = true;
                                 break;
@@ -137,3 +249,4 @@ export default class ParticleManager {
         return states;
     }
 }
+

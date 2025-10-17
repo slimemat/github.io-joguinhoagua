@@ -4,7 +4,7 @@
  * @param {TerrainManager} terrainManager - The manager for terrain data and state.
  * @constructor
  */
-function Renderer(world, terrainManager, terrainWidth, terrainHeight, terrainResolution) {
+function Renderer(world, terrainManager, particleColors, terrainWidth, terrainHeight, terrainResolution) {
     var canvas = document.getElementById("gameCanvas");
     var ctx = canvas.getContext("2d");
     const SCALE = canvas.width / 10;
@@ -112,7 +112,37 @@ function Renderer(world, terrainManager, terrainWidth, terrainHeight, terrainRes
             ctx.fillStyle = 'rgba(255, 0, 0, 0.5)'; // Transparent Red
             this.drawPolygon(fixture);
         }
+        else if (userData.type === "treatment_station_body") {
+            this.drawTreatmentStation(fixture);
+        }
     };
+
+    /**
+     * Nova função para desenhar a estação de tratamento como um container que enche.
+     */
+    this.drawTreatmentStation = function(fixture) {
+        const station = fixture.GetUserData().station;
+        const body = fixture.GetBody();
+        const pos = body.GetPosition();
+        const width = station.width * SCALE;
+        const height = station.height * SCALE;
+        const x = (pos.x - station.width / 2) * SCALE;
+        const y = (pos.y - station.height / 2) * SCALE;
+
+        // 1. Desenha o líquido de preenchimento
+        const fillPercent = station.capacity > 0 ? station.processingQueue / station.capacity : 0;
+        const fillHeight = height * fillPercent;
+        
+        // --- ALTERAÇÃO AQUI: Usa o 'particleColors' que foi passado como argumento ---
+        const toxicColor = particleColors.TOXIC;
+        ctx.fillStyle = `rgba(${toxicColor.r}, ${toxicColor.g}, ${toxicColor.b}, 0.8)`;
+        ctx.fillRect(x, y + height - fillHeight, width, fillHeight);
+
+        // 2. Desenha a borda do container por cima
+        ctx.strokeStyle = '#bb1ed7ff';
+        ctx.lineWidth = 5;
+        ctx.strokeRect(x, y, width, height);
+    }
     
     /**
      * A helper function to draw a polygon shape from a fixture.
