@@ -116,9 +116,11 @@ export default class TerrainManager {
         const canvas = document.getElementById('gameCanvas');
 
         const dig = (gridX, gridY) => {
-            const digRadius = 1; 
-            for (let y = -digRadius; y <= digRadius; y++) {
-                for (let x = -digRadius; x <= digRadius; x++) {
+        const digRadius = 2; 
+        for (let y = -digRadius; y <= digRadius; y++) {
+            for (let x = -digRadius; x <= digRadius; x++) {
+                //circular
+                if (Math.sqrt(x*x + y*y) <= digRadius) {
                     const currentY = gridY + y;
                     const currentX = gridX + x;
                     if (currentY >= 0 && currentY < TERRAIN_HEIGHT && currentX >= 0 && currentX < TERRAIN_WIDTH) {
@@ -129,7 +131,8 @@ export default class TerrainManager {
                     }
                 }
             }
-        };
+        }
+    };
 
         const getMouseGridPos = (e) => {
             const rect = canvas.getBoundingClientRect();

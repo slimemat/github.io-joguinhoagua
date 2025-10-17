@@ -40,25 +40,28 @@ function Renderer(world, terrainManager, terrainWidth, terrainHeight, terrainRes
      */
     this.drawDigHighlight = function() {
         const mousePos = terrainManager.getMousePosition();
-        if (mousePos.x === -1) return; // Don't draw if mouse is off-canvas
+        if (mousePos.x === -1) return;
 
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.25)'; // highlight
-        const digRadius = 1; // size of highlight
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.25)';
+        // Make sure this radius matches the one in your dig function
+        const digRadius = 2; 
 
         for (let y = -digRadius; y <= digRadius; y++) {
             for (let x = -digRadius; x <= digRadius; x++) {
-                const checkX = mousePos.x + x;
-                const checkY = mousePos.y + y;
+                //circular
+                if (Math.sqrt(x*x + y*y) <= digRadius) {
+                    const checkX = mousePos.x + x;
+                    const checkY = mousePos.y + y;
 
-                if (checkY >= 0 && checkY < terrainHeight && checkX >= 0 && checkX < terrainWidth) {
-                    // Only draw the highlight if the cell is diggable dirt
-                    if (terrain[checkY][checkX] === 1) {
-                        ctx.fillRect(
-                            checkX * terrainResolution,
-                            checkY * terrainResolution,
-                            terrainResolution,
-                            terrainResolution
-                        );
+                    if (checkY >= 0 && checkY < terrainHeight && checkX >= 0 && checkX < terrainWidth) {
+                        if (terrain[checkY][checkX] === 1) {
+                            ctx.fillRect(
+                                checkX * terrainResolution,
+                                checkY * terrainResolution,
+                                terrainResolution,
+                                terrainResolution
+                            );
+                        }
                     }
                 }
             }

@@ -4,19 +4,15 @@ export default class UIManager {
     constructor() {
         // Find all the UI elements when the manager is created
         this.waterCountEl = document.getElementById('water-count');
-        this.winMessageEl = document.getElementById('win-message');
-        this.nextLevelBtn = document.getElementById('next-level-btn');
+        this.onNextLevelCallback = null;
     }
 
     /**
-     * Sets up the event listener for the "Next Level" button.
-     * It takes a function (a callback) to run when the button is clicked.
-     * @param {Function} onNextLevel - The function to call when the button is clicked.
+     * Stores the function to be called when the "Next Level" button is clicked.
+     * @param {Function} onNextLevel - The function to call.
      */
     setupNextLevelButton(onNextLevel) {
-        if (this.nextLevelBtn) {
-            this.nextLevelBtn.addEventListener('click', onNextLevel);
-        }
+        this.onNextLevelCallback = onNextLevel;
     }
 
     /**
@@ -31,20 +27,42 @@ export default class UIManager {
     }
 
     /**
-     * Makes the win message visible.
+     * Creates and displays a styled "win" panel at the bottom left of the game.
      */
     showWinMessage() {
-        if (this.winMessageEl) {
-            this.winMessageEl.style.display = 'block';
+        // If the panel already exists, do nothing.
+        if (document.getElementById('level-win-panel')) {
+            return;
+        }
+
+        const panel = document.createElement('div');
+        panel.id = 'level-win-panel';
+        panel.innerHTML = `
+            <div class="panel-title">Fase Concluída!</div>
+            <p>Você guiou a água com sucesso!</p>
+            <button id="dynamic-next-level-btn">Próxima Fase</button>
+        `;
+
+        // Append the panel to the main game container to position it correctly.
+        const gameContainer = document.getElementById('game-container');
+        if (gameContainer) {
+            gameContainer.appendChild(panel);
+        }
+
+        // Add the click event listener to the new button.
+        const nextLevelBtn = document.getElementById('dynamic-next-level-btn');
+        if (nextLevelBtn && this.onNextLevelCallback) {
+            nextLevelBtn.addEventListener('click', this.onNextLevelCallback);
         }
     }
 
     /**
-     * Hides the win message.
+     * Finds and removes the win panel from the DOM.
      */
     hideWinMessage() {
-        if (this.winMessageEl) {
-            this.winMessageEl.style.display = 'none';
+        const panel = document.getElementById('level-win-panel');
+        if (panel) {
+            panel.remove();
         }
     }
 }
