@@ -9,6 +9,8 @@ export default class TerrainManager {
         this.world = world;
         this.game = game; // Reference to the main game class
         this.terrain = [];
+        this.mouseGridX = -1;
+        this.mouseGridY = -1;
     }
 
     /**
@@ -16,6 +18,10 @@ export default class TerrainManager {
      */
     getTerrainGrid() {
         return this.terrain;
+    }
+
+    getMousePosition() {
+        return { x: this.mouseGridX, y: this.mouseGridY };
     }
 
     /**
@@ -109,39 +115,60 @@ export default class TerrainManager {
         let isDigging = false;
         const canvas = document.getElementById('gameCanvas');
 
-        const dig = (e) => {
-            const rect = canvas.getBoundingClientRect();
-            const mouseX = e.clientX - rect.left;
-            const mouseY = e.clientY - rect.top;
-            const gridX = Math.floor(mouseX / TERRAIN_RESOLUTION);
-            const gridY = Math.floor(mouseY / TERRAIN_RESOLUTION);
-            const digRadius = 2;
-
+        const dig = (gridX, gridY) => {
+            const digRadius = 1; 
             for (let y = -digRadius; y <= digRadius; y++) {
                 for (let x = -digRadius; x <= digRadius; x++) {
-                    if (Math.sqrt(x*x + y*y) <= digRadius) {
-                        const currentY = gridY + y;
-                        const currentX = gridX + x;
-                        if (currentY >= 0 && currentY < TERRAIN_HEIGHT && currentX >= 0 && currentX < TERRAIN_WIDTH) {
-                            if (this.terrain[currentY][currentX] === 1) {
-                                this.terrain[currentY][currentX] = 0;
-                                this.game.needsRebuild = true;
-                            }
+                    const currentY = gridY + y;
+                    const currentX = gridX + x;
+                    if (currentY >= 0 && currentY < TERRAIN_HEIGHT && currentX >= 0 && currentX < TERRAIN_WIDTH) {
+                        if (this.terrain[currentY][currentX] === 1) {
+                            this.terrain[currentY][currentX] = 0;
+                            this.game.needsRebuild = true;
                         }
                     }
                 }
             }
         };
 
+        const getMouseGridPos = (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+            return {
+                gridX: Math.floor(mouseX / TERRAIN_RESOLUTION),
+                gridY: Math.floor(mouseY / TERRAIN_RESOLUTION)
+            };
+        };
+
         canvas.addEventListener('mousedown', (e) => { 
             isDigging = true; 
-            dig(e); 
+            const { gridX, gridY } = getMouseGridPos(e);
+            dig(gridX, gridY); 
             if (!this.game.firstClick) {
                 this.game.audioManager.unlock();
                 this.game.firstClick = true;
             }
         });
-        canvas.addEventListener('mousemove', (e) => { if (isDigging) { dig(e); } });
-        window.addEventListener('mouseup', () => { isDigging = false; });
+
+        // --- Track mouse position on move ---
+        canvas.addEventListener('mousemove', (e) => { 
+            const { gridX, gridY } = getMouseGridPos(e);
+            this.mouseGridX = gridX;
+            this.mouseGridY = gridY;
+            if (isDigging) { 
+                dig(gridX, gridY); 
+            } 
+        });
+
+        // --- Reset mouse position when it leaves the canvas ---
+        canvas.addEventListener('mouseleave', () => {
+            this.mouseGridX = -1;
+            this.mouseGridY = -1;
+        });
+
+        window.addEventListener('mouseup', () => { 
+            isDigging = false; 
+        });
     }
 }

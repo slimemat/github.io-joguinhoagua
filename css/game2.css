@@ -55,3 +55,6 @@ canvas {
     border-radius: 3px;
 }
 
+#gameCanvas {
+    cursor: crosshair;
+}

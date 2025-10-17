@@ -2,6 +2,7 @@ import AudioManager from './AudioManager.js';
 import TerrainManager, { TERRAIN_WIDTH, TERRAIN_HEIGHT, TERRAIN_RESOLUTION } from './terrainManager.js';
 import LevelBuilder, { ParticleType, ParticleColors } from './levelBuilder.js';
 import ParticleManager from './particleManager.js';
+import UIManager from './uiManager.js'; 
 
 // --- Global Constants ---
 
@@ -10,13 +11,16 @@ class Game {
      * Initializes the game's state properties.
      */
     constructor() {
-        this.firstClick = false;
+
         this.world = null;
         this.renderer = null;
+        
         this.terrainManager = null;
         this.levelBuilder = null;
         this.particleManager = null;
-        this.frameCount = 0;
+        this.uiManager = new UIManager();
+
+        this.firstClick = false;
         this.initialParticleCount = 0;
         this.collectedParticleCount = 0;
         this.currentLevelIndex = 0;
@@ -45,13 +49,14 @@ class Game {
         
         this.renderer = new Renderer(
             this.world, 
-            this.terrainManager.getTerrainGrid(),
+            this.terrainManager,
             TERRAIN_WIDTH,
             TERRAIN_HEIGHT,
             TERRAIN_RESOLUTION
         );
 
-        document.getElementById('next-level-btn').addEventListener('click', () => {
+        //UI Manager
+        this.uiManager.setupNextLevelButton(() => {
             this.currentLevelIndex++;
             if (this.currentLevelIndex >= window.levels.length) {
                 alert("You beat the game! Congratulations!");
@@ -82,9 +87,8 @@ class Game {
             }
         }
 
-        document.getElementById('win-message').style.display = 'none';
+        this.uiManager.hideWinMessage();
         
-        this.frameCount = 0;
         this.initialParticleCount = 0;
         this.collectedParticleCount = 0;
 
@@ -133,16 +137,10 @@ class Game {
 
         const goalAmount = Math.floor(this.initialParticleCount * window.levels[this.currentLevelIndex].waterAmount);
 
-        const waterCountEl = document.getElementById('water-count');
-        if (waterCountEl) {
-            waterCountEl.textContent = `${this.collectedParticleCount} / ${goalAmount}`;
-        }
+        this.uiManager.updateScore(this.collectedParticleCount, goalAmount);
 
         if (this.collectedParticleCount >= goalAmount && this.initialParticleCount > 0) {
-            const winMessageEl = document.getElementById('win-message');
-            if (winMessageEl) {
-                winMessageEl.style.display = 'block';
-            }
+            this.uiManager.showWinMessage();
         }
 
         this.renderer.render();

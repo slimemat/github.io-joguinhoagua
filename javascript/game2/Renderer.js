@@ -1,13 +1,14 @@
 /**
  * Manages all drawing operations on the canvas.
  * @param {box2d.b2World} world - The Box2D world instance.
- * @param {CanvasRenderingContext2D} ctx - The canvas 2D rendering context.
+ * @param {TerrainManager} terrainManager - The manager for terrain data and state.
  * @constructor
  */
-function Renderer(world, terrain, terrainWidth, terrainHeight, terrainResolution) {
+function Renderer(world, terrainManager, terrainWidth, terrainHeight, terrainResolution) {
     var canvas = document.getElementById("gameCanvas");
     var ctx = canvas.getContext("2d");
     const SCALE = canvas.width / 10;
+    const terrain = terrainManager.getTerrainGrid();
 
     const wetnessGrid = [];
     for (let y = 0; y < terrainWidth; y++) {
@@ -23,6 +24,7 @@ function Renderer(world, terrain, terrainWidth, terrainHeight, terrainResolution
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
         this.drawTerrainGrid();
+        this.drawDigHighlight();
 
         for (let body = world.GetBodyList(); body; body = body.GetNext()) {
             for (let f = body.GetFixtureList(); f; f = f.GetNext()) {
@@ -32,6 +34,36 @@ function Renderer(world, terrain, terrainWidth, terrainHeight, terrainResolution
         
         this.drawParticleSystem();
     }
+
+    /**
+     * HIGHLIGHTS the mouse when it is about to dig
+     */
+    this.drawDigHighlight = function() {
+        const mousePos = terrainManager.getMousePosition();
+        if (mousePos.x === -1) return; // Don't draw if mouse is off-canvas
+
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.25)'; // highlight
+        const digRadius = 1; // size of highlight
+
+        for (let y = -digRadius; y <= digRadius; y++) {
+            for (let x = -digRadius; x <= digRadius; x++) {
+                const checkX = mousePos.x + x;
+                const checkY = mousePos.y + y;
+
+                if (checkY >= 0 && checkY < terrainHeight && checkX >= 0 && checkX < terrainWidth) {
+                    // Only draw the highlight if the cell is diggable dirt
+                    if (terrain[checkY][checkX] === 1) {
+                        ctx.fillRect(
+                            checkX * terrainResolution,
+                            checkY * terrainResolution,
+                            terrainResolution,
+                            terrainResolution
+                        );
+                    }
+                }
+            }
+        }
+    };
     
     /**
      * Renders the terrain based on the 2D terrain grid array.
