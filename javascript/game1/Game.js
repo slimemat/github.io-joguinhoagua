@@ -71,7 +71,7 @@ export default class Game {
         this.invincibilityDuration = 5000; // 5s
         this.lastHitTime = 0;
 
-        this.pauseManager = new PauseManager(this);
+        this.pauseManager = new PauseManager(this, this.audio);
         this.effectsManager = new EffectsManager();
         this.phaseCompleted = false;
 
@@ -95,7 +95,7 @@ export default class Game {
         window.addEventListener('resize', this.resize.bind(this));
 
         // Listener para teclas de atalho
-        window.addEventListener('keydown', this.handlePanelKeys.bind(this));
+        window.addEventListener('keydown', this.handleGlobalKeys.bind(this));
     }
 
     /**
@@ -588,7 +588,19 @@ export default class Game {
      * This only runs when the game is paused.
      * @param {KeyboardEvent} event The keyboard event.
      */
-    handlePanelKeys(event) {
+    handleGlobalKeys(event) {
+
+        if (event.key.toLowerCase() === 'p') {
+            event.preventDefault(); // Prevent default browser action
+            this.pauseManager.togglePause();
+        }
+
+        if (event.key === 'Escape') {
+            event.preventDefault();
+            // This will only unpause if already paused
+            this.pauseManager.unpause();
+        }
+
         if (!this.paused) return; // Only work when the game is paused
 
         // Helper to find and click an element if it exists
@@ -659,5 +671,9 @@ export default class Game {
             enemy.endGameBoost(0.5, 3, 100);
         });
         this.milestones.push(200); // pergunta surpresa
+    }
+
+    returnToMap(){
+        window.location = "../../index.html"
     }
 }

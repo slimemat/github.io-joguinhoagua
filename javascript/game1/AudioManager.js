@@ -12,6 +12,8 @@ export default class AudioManager {
 
         this.isMusicPlaying = true;
 
+        this.gameIsPaused = false;
+
         if (this.backgroundMusic) {
             this.backgroundMusic.volume = 0.3;
         }
@@ -75,6 +77,21 @@ export default class AudioManager {
         if (this.celebrationSound) {
             this.celebrationSound.currentTime = 0;
             this.celebrationSound.play();
+        }
+    }
+
+    setPaused(isPaused) {
+        this.gameIsPaused = isPaused;
+        if (isPaused) {
+            // Only pause music if it was playing
+            if (this.isMusicPlaying) {
+                this.backgroundMusic?.pause();
+            }
+        } else {
+            // Only resume music if it's supposed to be playing
+            if (this.isMusicPlaying) {
+                this.backgroundMusic?.play();
+            }
         }
     }
 }

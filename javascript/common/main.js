@@ -3,6 +3,7 @@
 
 import Game from '../game1/Game.js';
 import { setupUIEventListeners } from './ui.js';
+import { initUIPanel } from './ui-panel.js';
 
 // Espera a página carregar completamente antes de iniciar qualquer coisa.
 window.addEventListener('load', () => {
@@ -10,6 +11,8 @@ window.addEventListener('load', () => {
     if (canvas) {
         // 1. Cria a instância principal do jogo, que vai controlar tudo.
         const game = new Game(canvas);
+
+        initUIPanel(game);
         
         // 2. Configura os eventos dos botões da interface (Start, Toggle Music).
         //    Passamos a instância do 'game' para que a UI possa se comunicar com ele.

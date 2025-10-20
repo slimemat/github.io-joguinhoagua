@@ -17,6 +17,33 @@
     <!-- Fundo do Jogo -->
     <div class="background">
 
+        <!-- UI CONTROL PANEL -->
+        <div id="ui-panel">
+            <div class="ui-button-container">
+                <button id="ui-pause-btn">||</button>
+                <span>Pause</span>
+            </div>
+            <div class="ui-button-container">
+                <button id="ui-restart-btn">⟳</button>
+                <span>Restart</span>
+            </div>
+            <div class="ui-button-container">
+                <button id="ui-menu-btn">⌂</button>
+                <span>Menu</span>
+            </div>
+        </div>
+
+        <!-- CONFIRMATION DIALOG (initially hidden) -->
+        <div id="confirm-overlay" class="hidden">
+            <div id="confirm-panel">
+                <p>Are you sure you want to return to the main menu?</p>
+                <div class="confirm-buttons">
+                    <button id="confirm-yes-btn">Yes</button>
+                    <button id="confirm-no-btn">No</button>
+                </div>
+            </div>
+        </div>
+
         <div id="overlay"></div>
 
         <!-- A CAMADA DE NUVENS VAI AQUI, NO FUNDO -->
@@ -29,7 +56,7 @@
         </div>
 
         <!-- Container do Jogo -->
-        <div id="game-container" class="hidden">
+        <div id="game-container">
             <h1 class="pixel-title">CICLO DA ÁGUA</h1>
 
             <div id="score-container">
