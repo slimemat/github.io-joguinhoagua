@@ -16,6 +16,50 @@
     <div id="game-container">
         <canvas id="gameCanvas" width="1000" height="600" style="border:1px solid black;"></canvas>
     </div>
+
+    <div id="ui-panel">
+        <div class="ui-button-container">
+            <button id="pause-btn" title="Pause (P)">❚❚</button>
+            <span>Pausar</span>
+        </div>
+        <div class="ui-button-container">
+            <button id="restart-btn" title="Restart Level">⟲</button>
+            <span>Reiniciar</span>
+        </div>
+        <div class="ui-button-container">
+            <button id="select-level-btn" title="Select Level">☰</button>
+            <span>Fases</span>
+        </div>
+        <div class="ui-button-container">
+            <button id="menu-btn" title="Back to Menu">⌂</button>
+            <span>Menu</span>
+        </div>
+    </div>
+
+    <div id="pause-overlay" class="hidden">
+        <div class="pause-icon">❚❚</div>
+        <div class="pause-title">PAUSADO</div>
+        <div class="pause-subtitle">Pressione 'P' ou 'ESC' para continuar</div>
+    </div>
+
+    <div id="level-select-overlay" class="hidden">
+        <div id="level-select-panel">
+            <h2>Selecionar Fase</h2>
+            <div id="level-buttons-container">
+                </div>
+            <button id="close-level-select-btn">Fechar</button>
+        </div>
+    </div>
+
+    <div id="confirm-overlay" class="hidden">
+        <div id="confirm-panel">
+            <p id="confirm-message">Tem certeza?</p>
+            <div class="confirm-buttons">
+                <button id="confirm-yes-btn">Sim</button>
+                <button id="confirm-no-btn">Não</button>
+            </div>
+        </div>
+    </div>
     
     <div class="instructions">
         <p><strong>Objetivo:</strong> Cave um caminho para levar a água até o cano!</p>

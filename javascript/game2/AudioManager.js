@@ -79,4 +79,13 @@ export default class AudioManager {
             this.isToxicRushing = false;
         }
     }
+
+    /**
+     * Stops all currently playing game sounds.
+     */
+    stopAllSounds() {
+        this.stopSizzle();
+        this.stopRushingWater();
+        this.stopToxicRush();
+    }
 }
