@@ -84,4 +84,52 @@ export default class UIManager {
             panel.remove();
         }
     }
+
+    /**
+     * Creates and displays a styled "Final" panel.
+     * @param {Function} onRestart - Callback function for the "Jogar Novamente" button.
+     * @param {Function} onGoToMap - Callback function for the "Ir ao mapa" button.
+     */
+    showFinalMessage(onRestart, onGoToMap) {
+        if (document.getElementById('level-final-panel')) {
+            return;
+        }
+
+        const panel = document.createElement('div');
+        panel.id = 'level-final-panel';
+        panel.innerHTML = `
+            <div class="panel-title">Parabéns!</div>
+            <p>Você concluiu tratamento das águas!</p>
+            <button id="dynamic-restart-btn">Jogar Novamente</button>
+            <button id="dynamic-map-btn">Voltar ao Mapa</button>
+        `;
+
+        const gameContainer = document.getElementById('game-container');
+        if (gameContainer) {
+            gameContainer.appendChild(panel);
+        }
+
+        const restartBtn = document.getElementById('dynamic-restart-btn');
+        if (restartBtn && onRestart) {
+            restartBtn.addEventListener('click', () => {
+                this.hideFinalMessage();
+                onRestart();
+            });
+        }
+
+        const mapBtn = document.getElementById('dynamic-map-btn');
+        if (mapBtn && onGoToMap) {
+            mapBtn.addEventListener('click', onGoToMap);
+        }
+    }
+    
+    /**
+     * Finds and removes the final panel from the DOM.
+     */
+    hideFinalMessage() {
+        const panel = document.getElementById('level-final-panel');
+        if (panel) {
+            panel.remove();
+        }
+    }
 }

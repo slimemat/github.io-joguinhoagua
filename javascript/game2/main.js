@@ -28,6 +28,9 @@ class Game {
         this.isRebuilding = false;
         this.audioManager = new AudioManager();
         this.sizzleCooldown = 0;
+        
+        // ADDED: Flag to prevent the win panel from showing multiple times
+        this.levelWon = false;
     }
 
     /**
@@ -42,7 +45,6 @@ class Game {
         this.world = new box2d.b2World(gravity);
         this.world.CreateParticleSystem(new box2d.b2ParticleSystemDef());
 
-        //modular managers
         this.terrainManager = new TerrainManager(this.world, this);
         this.levelBuilder = new LevelBuilder(this.world, this);
         this.particleManager = new ParticleManager(this.world, this, this.terrainManager);
@@ -56,14 +58,23 @@ class Game {
             TERRAIN_RESOLUTION
         );
 
-        //UI Manager
+        // This logic remains the same. It triggers when a win panel button is clicked.
         this.uiManager.setupNextLevelButton(() => {
             this.currentLevelIndex++;
             if (this.currentLevelIndex >= window.levels.length) {
-                alert("You beat the game! Congratulations!");
-                this.currentLevelIndex = 0;
+                this.uiManager.hideWinMessage(); 
+                this.uiManager.showFinalMessage(
+                    () => {
+                        this.currentLevelIndex = 0;
+                        this.loadLevel(this.currentLevelIndex);
+                    },
+                    () => {
+                        window.location.href = '../../map/index.html';
+                    }
+                );
+            } else {
+                this.loadLevel(this.currentLevelIndex);
             }
-            this.loadLevel(this.currentLevelIndex);
         });
         
         this.terrainManager.setupInput(); 
@@ -77,6 +88,9 @@ class Game {
      * @param {number} levelIndex - The index of the level to load.
      */
     loadLevel(levelIndex) {
+        // ADDED: Resets the win flag for the new level
+        this.levelWon = false; 
+
         for (let body = this.world.GetBodyList(); body; body = body.GetNext()) {
             this.world.DestroyBody(body);
         }
@@ -107,7 +121,6 @@ class Game {
         if (this.needsRebuild && !this.isRebuilding) {
             this.terrainManager.rebuildBodies();
         }
-
         this.world.Step(1 / 60, 10, 10);
         
         const particleStates = this.particleManager.update();
@@ -122,14 +135,12 @@ class Game {
             }
         }
 
-        // water sound
         if (particleStates.liquidStates.water) {
             this.audioManager.startRushingWater();
         } else {
             this.audioManager.stopRushingWater();
         }
 
-        // toxic sound
         if (particleStates.liquidStates.toxic) {
             this.audioManager.startToxicRush();
         } else {
@@ -137,11 +148,27 @@ class Game {
         }
 
         const goalAmount = Math.floor(this.initialParticleCount * window.levels[this.currentLevelIndex].waterAmount);
-
         this.uiManager.updateScore(this.collectedParticleCount, goalAmount);
+        
+        // MODIFIED: This is the new win logic
+        if (!this.levelWon && this.collectedParticleCount >= goalAmount && this.initialParticleCount > 0) {
+            this.levelWon = true; 
+            
+            const isLastLevel = this.currentLevelIndex === window.levels.length - 1;
 
-        if (this.collectedParticleCount >= goalAmount && this.initialParticleCount > 0) {
-            this.uiManager.showWinMessage();
+            if (isLastLevel) {
+                this.uiManager.showFinalMessage(
+                    () => {
+                        this.currentLevelIndex = 0;
+                        this.loadLevel(this.currentLevelIndex);
+                    },
+                    () => {
+                        window.location.href = '../../map/index.html';
+                    }
+                );
+            } else {
+                this.uiManager.showWinMessage();
+            }
         }
 
         this.renderer.render();

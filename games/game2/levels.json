@@ -54,7 +54,7 @@
   },
     {
     "id": 2,
-    "waterAmount": 0.25,
+    "waterAmount": 0.15,
     "pipePosition": { "x": 7.5, "y": 5.5 },
     "treatmentStations": [{ "x": 9, "y": 3, "width": 1, "height": 1.5 }],
     "waterShapes": [
@@ -127,14 +127,17 @@
   },
   {
     "id": 3,
-    "waterAmount": 0.2,
-    "pipePosition": { "x": 7.5, "y": 5.5 }, 
-    "treatmentStations": [{ "x": 1, "y": 3.5, "width": 0.8, "height": 1.5, "capacity": 150 }],
+    "waterAmount": 1.3,
+    "pipePosition": { "x": 7.5, "y": 6.5 }, 
+    "treatmentStations": [
+      { "x": 5, "y": 5, "width": 1.5, "height": 0.3, "capacity": 50 },
+      { "x": 5, "y": 4, "width": 1.5, "height": 0.3, "capacity": 50 }
+    ],
     "waterShapes": [
       {
         "type": "box",
-        "halfWidth": 2.4, "halfHeight": 2.0,
-        "x": 4.4, "y": 4,
+        "halfWidth": 1.5, "halfHeight": 1.0,
+        "x": 8.2, "y": 1.5,
         "canGoThroughDirt": false
       }
     ],
@@ -142,30 +145,45 @@
       {
         "type": "toxic_liquid",
         "shape": {
-          "type": "box", "halfWidth": 4, "halfHeight": 2,
-          "x": 5, "y": 1.8
+          "type": "box", "halfWidth": 1.5, "halfHeight": 1.0,
+          "x": 1.8, "y": 1.5
         },
         "canGoThroughDirt": false
       },
       {
         "type": "block",
-        "x": 1, "y": 2.5,
-        "halfWidth": 1.8, "halfHeight": 0.1
+        "x": 5, "y": 3.5,
+        "halfWidth": 0.3, "halfHeight": 2.5
       },
       {
         "type": "block",
-        "x": 3.1, "y": 5.1,
-        "halfWidth": 0.3, "halfHeight": 0.3
+        "x": 2.5, "y": 3,
+        "halfWidth": 0.1, "halfHeight": 0.3
       },
       {
         "type": "block",
-        "x": 1.4, "y": 5.1,
-        "halfWidth": 0.55, "halfHeight": 0.3
+        "x": 7.5, "y": 3,
+        "halfWidth": 0.1, "halfHeight": 0.3
       },
       {
         "type": "block",
-        "x": 1.62, "y": 3.8,
-        "halfWidth": 0.2, "halfHeight": 0.2
+        "x": 7.5, "y": 3,
+        "halfWidth": 0.5, "halfHeight": 0.1
+      },
+      {
+        "type": "block",
+        "x": 8.8, "y": 4.2,
+        "halfWidth": 0.5, "halfHeight": 0.1
+      },
+      {
+        "type": "block",
+        "x": 2.5, "y": 3,
+        "halfWidth": 0.5, "halfHeight": 0.1
+      },
+      {
+        "type": "block",
+        "x": 1.2, "y": 4.2,
+        "halfWidth": 0.5, "halfHeight": 0.1
       }
     ],
     "terrain": [
@@ -174,10 +192,10 @@
       "                     ",
       "                     ",
       "xxxxxxxxxxxxxxxxxxxxx",
-      "xxx xxxxxxxxxxxxxxxxx",
       "xxxxxxxxxxxxxxxxxxxxx",
-      "x   x   x   x xxxxxxx",
-      "x xx  xxx xx  xxxxxxx",
+      "xxxxxxxxxxxxxxxxxxxxx",
+      "xxxxxxxxxxxxxxxxxxxxx",
+      "xxxxxxxxxxxxxxxxxxxxx",
       "xxxxxxxxxxxxxxxxxxxxx"
     ]
   }
