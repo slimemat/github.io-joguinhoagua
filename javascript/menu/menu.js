@@ -1,3 +1,5 @@
+import { optionsModal } from './OptionsModal.js';
+
 document.addEventListener('DOMContentLoaded', () => {
     // Log to confirm the script starts after the page loads
     console.log("DEBUG: DOM fully loaded. Initializing interactive menu script.");
@@ -15,15 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeCreditsButton = document.getElementById('close-credits');
     const creditsContent = document.querySelector('.credits-content');
     const creditsScroller = document.querySelector('.credits-scroller');
-
-
-    // Log to check if our key elements were found in the HTML
-    console.log("DEBUG: Body element found:", body);
-    console.log("DEBUG: Clouds element found:", clouds);
-    console.log("DEBUG: Cursor Follower element found:", cursorFollower);
-    console.log("DEBUG: Menu buttons found:", menuButtons);
-    console.log("DEBUG: Menu container found:", menuContainer);
-    console.log("DEBUG: Credits button found:", creditsButton);
+    const optionsButton = document.getElementById('options-button');
 
     // --- 1. Cursor Follower & Custom Cursor Logic ---
     // Define the URLs for your cursor images using relative paths from the index.html file
@@ -72,7 +66,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        // NEW: Add hover effect for the close credits button
+        // Add hover effect for the close credits button
         if(closeCreditsButton) {
              closeCreditsButton.addEventListener('mouseenter', () => {
                 cursorFollower.src = cursorInnerURL;
@@ -127,16 +121,16 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- 3. Page Fade-Out Transition (for navigation buttons) ---
     menuButtons.forEach(button => {
         // We only want this for buttons that actually go somewhere
-        if (button.id !== 'credits-button') {
+        if (button.id !== 'credits-button' && button.id !== 'options-button') {
             button.addEventListener('click', (e) => {
                 e.preventDefault();
                 console.log("DEBUG: Menu button clicked:", e.target.textContent);
                 
                 const destination = button.href;
+                if (!destination || destination.endsWith('#')) return;
+
                 console.log(`DEBUG: Fading out to navigate to: ${destination}`);
-
                 body.classList.add('fade-out');
-
                 setTimeout(() => {
                     window.location.href = destination;
                 }, 500);
@@ -144,10 +138,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- 4. NEW: Credits Overlay Logic ---
+    // --- 4. Credits Overlay Logic ---
     let creditsSkipped = false;
 
-    // NEW: Function to skip the animation and enable scrolling
+    //Function to skip the animation and enable scrolling
     function skipCreditsAnimation() {
         if (!creditsSkipped) {
             console.log("DEBUG: Skipping credits animation.");
@@ -173,7 +167,7 @@ document.addEventListener('DOMContentLoaded', () => {
             menuContainer.style.opacity = '0'; 
             creditsOverlay.classList.remove('hidden');
 
-            // NEW: Automatically enable scrolling when the animation finishes naturally
+            // Automatically enable scrolling when the animation finishes naturally
             creditsScroller.addEventListener('animationend', skipCreditsAnimation, { once: true });
         });
 
@@ -187,7 +181,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 400); 
         });
 
-        // NEW: Add event listeners to skip the animation
+        // Add event listeners to skip the animation
         creditsOverlay.addEventListener('click', (e) => {
             // Only skip if the user clicks the general overlay, not the close button
             if (e.target !== closeCreditsButton) {
@@ -205,6 +199,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     } else {
         console.error("DEBUG ERROR: One or more credits elements not found.");
+    }
+
+    if (optionsButton) {
+        optionsButton.addEventListener('click', (e) => {
+            e.preventDefault(); // Impede que o link (href="#") mude a URL
+            console.log("DEBUG: Options button clicked.");
+            
+            // Apenas chama o método 'show' do componente importado
+            optionsModal.show();
+        });
     }
 
 });

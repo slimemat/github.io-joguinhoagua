@@ -7,6 +7,7 @@
 
     <!-- Main stylesheet for layout and effects -->
     <link rel="stylesheet" href="css/index_menu.css">
+    <link rel="stylesheet" href="css/options-modal.css">
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -29,81 +30,94 @@
             
             <nav class="menu-options">
                 <a href="./map/index.html" class="menu-button">Jogar</a>
-                <a href="#" class="menu-button">Opções</a>
-                <!-- UPDATED: Added an ID to the credits button -->
+                <a href="options.html" id="options-button" class="menu-button">Opções</a>
                 <a href="#" id="credits-button" class="menu-button">Créditos</a>
                 <a href="#" class="menu-button">Extras</a>
             </nav>
         </div>
     </div>
 
-    <!-- NEW: Credits Overlay Structure -->
     <div id="credits-overlay" class="hidden">
         <div class="credits-content">
             <div class="credits-scroller">
-                <h2>Créditos</h2>
+            <h2>Créditos</h2>
 
-                <h3>Pesquisadora e Redatora Técnica</h3>
-                <p>Laura Sampaio Sacramento</p>
+            <div class="credit">
+                <h3>Laura Sampaio Sacramento</h3>
+                <p>Pesquisadora e Redatora Técnica</p>
+            </div>
 
-                <h3>Tech Lead, Developer & Pixel Artist</h3>
-                <p>Matheus Bueno Garrido</p>
+            <div class="credit">
+                <h3>Matheus Bueno Garrido</h3>
+                <p>Tech Lead, Developer & Pixel Artist</p>
+            </div>
 
-                <h3>Game Developer (Jogo da Memória)</h3>
-                <p>Matheus Santos Ferreira</p>
+            <div class="credit">
+                <h3>Matheus Santos Ferreira</h3>
+                <p>Game Developer (Jogo da Memória)</p>
+            </div>
 
-                <h3>Game Developer (Protótipos e Design de Fases)</h3>
-                <p>Pedro Henrique Salina</p>
+            <div class="credit">
+                <h3>Pedro Henrique Salina</h3>
+                <p>Game Developer & Pixel Artist (Protótipos e Design de Fases)</p>
+            </div>
 
+            <div class="credit">
                 <h3>Música & Efeitos Sonoros</h3>
-                <p>Recursos obtidos em <strong>MyInstants</strong> e <strong>Pexels Music Library</strong>.</p>
+                <p>Recursos obtidos em <strong>MyInstants</strong> e <strong>Pexels Music Library</strong></p>
+            </div>
 
-                <h3>Agradecimentos</h3>
-                <h4>Professora Orientadora</h4>
-                <p>Prof.ª Dr.ª Samaris Ramiro Pereira</p>
+            <h2>Agradecimentos</h2>
+            <div class="credit">
+                <h4>Prof.ª Dr.ª Samaris Ramiro Pereira</h4>
+                <p>Professora Orientadora</p>
+            </div>
 
-                <h3 class="references-title">Referências Bibliográficas</h3>
-                <div class="references-text">
-    <pre>
-    AQUINO, J. C. F.; CAETANO, L. M. D.
-    Integração tecnológica na educação infantil: perspectivas e desafios da prática docente. Educação, Ciência e Cultura, Canoas, v. 28, n. 2, 2023.
-    DOI: 10.18316/recc.v28i2.10183.
-    Disponível em: https://doi.org/10.18316/recc.v28i2.10183
+            <h3 class="references-title">Referências Bibliográficas</h3>
+            <div class="references-text">
+            <pre>
+AQUINO, J. C. F.; CAETANO, L. M. D.
+Integração tecnológica na educação infantil: perspectivas e desafios da prática docente. Educação, Ciência e Cultura, Canoas, v. 28, n. 2, 2023.
+DOI: 10.18316/recc.v28i2.10183.
+Disponível em: https://doi.org/10.18316/recc.v28i2.10183
 
-    BIAGIOTTI, Luiz Claudio Medeiros.
-    Aplicação do Microlearning na Gestão do Conhecimento das Forças Armadas. Revista Inteligência Empresarial, vol. 50, p. 1-5, jan./fev. 2025.
-    Disponível em: https://inteligenciaempresarial.emnuvens.com.br/rie/article/view/151
+BIAGIOTTI, Luiz Claudio Medeiros.
+Aplicação do Microlearning na Gestão do Conhecimento das Forças Armadas. Revista Inteligência Empresarial, vol. 50, p. 1-5, jan./fev. 2025.
+Disponível em: https://inteligenciaempresarial.emnuvens.com.br/rie/article/view/151
 
-    HORNINK, G. G.; HENRIQUE, A.; HORNINK, E. N.
-    H2O: O ciclo da VIDA. Alfenas: [s. n.], 2016. 85 p.
-    Disponível em: https://educapes.capes.gov.br/bitstream/capes/206074/2/H2O_ebook.pdf
+HORNINK, G. G.; HENRIQUE, A.; HORNINK, E. N.
+H2O: O ciclo da VIDA. Alfenas: [s. n.], 2016. 85 p.
+Disponível em: https://educapes.capes.gov.br/bitstream/capes/206074/2/H2O_ebook.pdf
 
-    SANCHEZ, L. V.; HENRIQUEZ, A.
-    Efeitos de um jogo eletrônico nas habilidades iniciais de alfabetização. Psicologia Escolar e Educacional, v. 25, e225567, 2021.
-    DOI: http://dx.doi.org/10.1590/2175-35392021225567
+SANCHEZ, L. V.; HENRIQUEZ, A.
+Efeitos de um jogo eletrônico nas habilidades iniciais de alfabetização. Psicologia Escolar e Educacional, v. 25, e225567, 2021.
+DOI: http://dx.doi.org/10.1590/2175-35392021225567
 
-    SILVA, D. C. P. O.; ALBUQUERQUE, G. A. C. S.; SANTOS, M. M.
-    Gamificação na educação infantil. Revista Ibero-Americana de Humanidades, Ciências e Educação, v. 8, n. 7, p. 1041–1046, 2022.
-    DOI: 10.51891/rease.v8i7.6391.
-    Disponível em: https://periodicorease.pro.br/rease/article/view/6391
+SILVA, D. C. P. O.; ALBUQUERQUE, G. A. C. S.; SANTOS, M. M.
+Gamificação na educação infantil. Revista Ibero-Americana de Humanidades, Ciências e Educação, v. 8, n. 7, p. 1041–1046, 2022.
+DOI: 10.51891/rease.v8i7.6391.
+Disponível em: https://periodicorease.pro.br/rease/article/view/6391
 
-    TERRA, J. C.
-    Como a ludicidade pode transformar o aprendizado na educação infantil. 2021.
-    Disponível em: https://blog.estudesemfronteiras.com/como-a-ludicidade-pode-transformar-o-aprendizado-na-educacao-infantil/
+TERRA, J. C.
+Como a ludicidade pode transformar o aprendizado na educação infantil. 2021.
+Disponível em: https://blog.estudesemfronteiras.com/como-a-ludicidade-pode-transformar-o-aprendizado-na-educacao-infantil/
 
-    KILLIAN, Jeff.
-    LiquidFun Pure JavaScript – Box2D physics engine ported to JavaScript. GitHub, 2024.
-    Disponível em: https://github.com/jeffkillian/liquidfun-pure-javascript
-    </pre>
-                </div>
+KILLIAN, Jeff.
+LiquidFun Pure JavaScript – Box2D physics engine ported to JavaScript. GitHub, 2024.
+Disponível em: https://github.com/jeffkillian/liquidfun-pure-javascript
+            </pre>
+            </div>
             </div>
         </div>
         <button id="close-credits">Fechar</button>
-    </div>
+        </div>
+
+
+
 
 
     <!-- Link to the external JavaScript file -->
-    <script src="javascript/menu/menu.js"></script>
+    <script type="module" src="javascript/menu/menu.js"></script>
 </body>
 </html>
 

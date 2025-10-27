@@ -1,6 +1,8 @@
 // js/game1/AudioManager.js
 // Centraliza o controle de todos os áudios do jogo 1.
 
+import { globalOptions } from '../menu/OptionsManager.js';
+
 export default class AudioManager {
     constructor() {
         this.isUnlocked = false;
@@ -11,18 +13,39 @@ export default class AudioManager {
         this.celebrationSound = document.getElementById("celebration-sound");
 
         this.isMusicPlaying = true;
-
         this.gameIsPaused = false;
 
+        this.updateMusicVolume();
+        window.addEventListener('globalOptionsUpdated', () => this.handleGlobalUpdate());
+    }
+
+    handleGlobalUpdate() {
+        this.updateMusicVolume();
+
+        const isGlobalyEnabled = globalOptions.isMusicEnabled();
+        const isCurrentlyPlaying = this.isMusicPlaying;
+
+        if (!isGlobalyEnabled && isCurrentlyPlaying) {
+             this.pauseMusic();
+        } else if (isGlobalyEnabled && !isCurrentlyPlaying && !this.gameIsPaused) {
+            this.playMusic();
+        }
+
+        this.updateButtonText();
+    }
+
+    updateMusicVolume() {
         if (this.backgroundMusic) {
-            this.backgroundMusic.volume = 0.3;
+            this.backgroundMusic.volume = globalOptions.getMusicVolume(); 
         }
     }
 
     playMusic() {
-        this.backgroundMusic?.play();
-        this.isMusicPlaying = true;
-        this.updateButtonText();
+        if (globalOptions.isMusicEnabled() && !this.gameIsPaused) {
+            this.backgroundMusic?.play();
+            this.isMusicPlaying = true;
+            this.updateButtonText();
+        }
     }
 
     pauseMusic() {
@@ -38,10 +61,14 @@ export default class AudioManager {
     }
 
     toggleMusic() {
-        if (this.isMusicPlaying) {
-            this.pauseMusic();
-        } else {
-            this.playMusic();
+        const isCurrentlyEnabled = globalOptions.isMusicEnabled();
+        globalOptions.toggleMusicEnabled(!isCurrentlyEnabled);
+        this.updateButtonText();
+    }
+
+    applySfxVolume(audioElement) {
+        if (audioElement) {
+            audioElement.volume = globalOptions.getSfxVolume();
         }
     }
     
@@ -54,6 +81,7 @@ export default class AudioManager {
 
     playCollectSound() {
         if (this.collectSound) {
+            this.applySfxVolume(this.collectSound);
             this.collectSound.currentTime = 0;
             this.collectSound.play();
         }
@@ -61,6 +89,7 @@ export default class AudioManager {
 
     playCorrectSound() {
         if (this.correctSound) {
+            this.applySfxVolume(this.correctSound);
             this.correctSound.currentTime = 0;
             this.correctSound.play();
         }
@@ -68,6 +97,7 @@ export default class AudioManager {
 
     playWrongSound() {
         if (this.wrongSound) {
+            this.applySfxVolume(this.playWrongSound);
             this.wrongSound.currentTime = 0;
             this.wrongSound.play();
         }
@@ -75,6 +105,7 @@ export default class AudioManager {
 
     playCelebration() {
         if (this.celebrationSound) {
+            this.applySfxVolume(this.playCelebration);
             this.celebrationSound.currentTime = 0;
             this.celebrationSound.play();
         }
@@ -83,13 +114,12 @@ export default class AudioManager {
     setPaused(isPaused) {
         this.gameIsPaused = isPaused;
         if (isPaused) {
-            // Only pause music if it was playing
             if (this.isMusicPlaying) {
                 this.backgroundMusic?.pause();
             }
-        } else {
-            // Only resume music if it's supposed to be playing
-            if (this.isMusicPlaying) {
+        } 
+        else {
+            if (globalOptions.isMusicEnabled() && this.isMusicPlaying) {
                 this.backgroundMusic?.play();
             }
         }

@@ -308,3 +308,12 @@ body.credits-active #cursor-follower {
     display: none;
 }
 
+.credit {
+  margin-bottom: 25px;
+}
+
+.credit p {
+  margin: 5px 0 0;
+  font-size: 1rem;
+  opacity: 0.85;
+}
