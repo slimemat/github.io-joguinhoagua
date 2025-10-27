@@ -19,4 +19,23 @@ export default class PauseManager {
             this.togglePause();
         }
     }
+
+    /**
+     * Pausa silenciosa: para o jogo, NÃO para a música, NÃO mostra overlay.
+     * Usado ao abrir modais (Opções, Menu).
+     */
+    silentPause() {
+        this.game.paused = true;
+    }
+
+    /**
+     * Unpause silencioso: continua o jogo, NÃO mexe na música, NÃO mexe no overlay.
+     * Usado ao fechar o modal de Opções.
+     */
+    silentUnpause() {
+        if (!this.game.paused) return; // Já está rodando
+        
+        this.game.paused = false;
+        this.game.resetHintTimer();
+    }
 }

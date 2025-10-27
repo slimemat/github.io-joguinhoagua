@@ -156,3 +156,16 @@ input[type="range"]::-webkit-slider-thumb {
     display: flex;
     justify-content: flex-end;
 }
+
+.menu-button {
+    font-family: 'Press Start 2P', cursive;
+    text-decoration: none;
+    color: #fff;
+    background-color: #3b82f6;
+    padding: 15px 30px;
+    border-radius: 10px;
+    font-size: 1.2rem;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    transition: all 0.2s ease-in-out;
+    border-bottom: 4px solid #1d4ed8;
+}

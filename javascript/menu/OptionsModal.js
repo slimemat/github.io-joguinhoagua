@@ -136,12 +136,12 @@ class OptionsModal {
 
     // 4. Métodos públicos para mostrar/esconder
     show() {
-        this.initializeControls(); // Sincroniza os sliders antes de mostrar
+        this.initializeControls();
         this.modalElement.classList.remove('hidden');
-        document.body.classList.add('modal-active'); // Desativa o cursor customizado
+        document.body.classList.add('modal-active');
         
-        // Encontra o menu principal ou o contêiner do jogo e o esconde
-        this.menuContainer = document.querySelector('.menu-container');
+        //Procura APENAS o container do menu principal pelo ID
+        this.menuContainer = document.getElementById('main-menu-container'); 
         if (this.menuContainer) {
             this.menuContainer.style.opacity = '0';
         }
@@ -151,7 +151,7 @@ class OptionsModal {
         this.modalElement.classList.add('hidden');
         document.body.classList.remove('modal-active'); // Reativa o cursor customizado
         
-        // Mostra o menu principal ou o contêiner do jogo de volta
+        //Restaura APENAS o container do menu principal pelo ID
         if (this.menuContainer) {
             this.menuContainer.style.opacity = '1';
         }

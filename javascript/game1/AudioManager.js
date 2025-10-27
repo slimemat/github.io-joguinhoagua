@@ -31,7 +31,6 @@ export default class AudioManager {
             this.playMusic();
         }
 
-        this.updateButtonText();
     }
 
     updateMusicVolume() {
@@ -44,14 +43,12 @@ export default class AudioManager {
         if (globalOptions.isMusicEnabled() && !this.gameIsPaused) {
             this.backgroundMusic?.play();
             this.isMusicPlaying = true;
-            this.updateButtonText();
         }
     }
 
     pauseMusic() {
         this.backgroundMusic?.pause();
         this.isMusicPlaying = false;
-        this.updateButtonText();
     }
 
     unlockAudioContext() {
@@ -60,22 +57,9 @@ export default class AudioManager {
         this.playMusic();
     }
 
-    toggleMusic() {
-        const isCurrentlyEnabled = globalOptions.isMusicEnabled();
-        globalOptions.toggleMusicEnabled(!isCurrentlyEnabled);
-        this.updateButtonText();
-    }
-
     applySfxVolume(audioElement) {
         if (audioElement) {
             audioElement.volume = globalOptions.getSfxVolume();
-        }
-    }
-    
-    updateButtonText() {
-        const button = document.getElementById("toggle-music");
-        if (button) {
-            button.innerText = this.isMusicPlaying ? "Pausar Música" : "Reproduzir Música";
         }
     }
 

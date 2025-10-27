@@ -4,14 +4,9 @@
 export function setupUIEventListeners(game) {
     // ID do botão corrigido para 'start-button'
     const startButton = document.getElementById("start-button");
-    const musicButton = document.getElementById("toggle-music");
 
     startButton?.addEventListener('click', () => {
         game.start();
-    });
-
-    musicButton?.addEventListener('click', () => {
-        game.audio.toggleMusic();
     });
 }
 

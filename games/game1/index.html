@@ -6,6 +6,7 @@
     <title>CICLO DA ÁGUA - Fase 1</title>
     <!-- O caminho para o CSS agora é relativo à pasta 'games' -->
     <link rel="stylesheet" href="../../css/game1.css">
+    <link rel="stylesheet" href="../../css/options-modal.css">
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -26,6 +27,10 @@
             <div class="ui-button-container">
                 <button id="ui-restart-btn">⟳</button>
                 <span>Restart</span>
+            </div>
+            <div class="ui-button-container">
+                <button id="ui-options-btn">⚙</button>
+                <span>Opções</span>
             </div>
             <div class="ui-button-container">
                 <button id="ui-menu-btn">⌂</button>
@@ -80,8 +85,6 @@
         <audio id="wrong-sound" src="../../assets/wrong.mp3"></audio>
         <audio id="celebration-sound" src="../../assets/celebration.mp3"></audio>
 
-        <!-- O 'onclick' foi removido. A lógica agora está no 'ui.js' -->
-        <button id="toggle-music">Pausar Música</button>
 
         <!-- Barra de Progresso -->
         <div id="progress-bar-container">
