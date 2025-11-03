@@ -148,9 +148,10 @@ class Game {
      */
     fullPause() {
         if (this.isPaused) return; 
+        this.audioManager.unlock();
         this.isPaused = true;
         this.uiManager.togglePauseOverlay(true);
-        this.audioManager.stopAllSounds();
+        this.audioManager.setPaused(true);
     }
 
     /**
@@ -170,8 +171,10 @@ class Game {
      */
     fullUnpause() {
         if (!this.isPaused) return; 
+        this.audioManager.unlock();
         this.isPaused = false;
         this.uiManager.togglePauseOverlay(false);
+        this.audioManager.setPaused(false);
     }
 
     /**

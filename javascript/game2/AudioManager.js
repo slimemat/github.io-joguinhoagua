@@ -6,6 +6,7 @@ import { globalOptions } from '../../javascript/menu/OptionsManager.js';
 export default class AudioManager {
     constructor() {
         this.isUnlocked = false;
+        this.backgroundMusic = document.getElementById("background-music");
         this.sizzleSound = document.getElementById("sizzle-sound");
         this.rushingWaterSound = document.getElementById("rushing-water-sound");
         this.toxicRushSound = document.getElementById("rushing-toxic-sound");
@@ -13,6 +14,7 @@ export default class AudioManager {
         this.isSizzling = false;
         this.isRushing = false;
         this.isToxicRushing = false;
+        this.gameIsPaused = false;
 
         this.handleGlobalUpdate();
 
@@ -20,9 +22,41 @@ export default class AudioManager {
     }
 
     handleGlobalUpdate() {
+        this.applyMusicVolume();
         this.applySfxVolume(this.sizzleSound);
         this.applySfxVolume(this.rushingWaterSound);
         this.applySfxVolume(this.toxicRushSound);
+
+        if (globalOptions.isMusicEnabled()) {
+            this.playMusic();
+        } else {
+            this.pauseMusic();
+        }
+    }
+
+    /**
+     * Helper para aplicar o volume de MÚSICA.
+     */
+    applyMusicVolume() {
+        if (this.backgroundMusic) {
+            this.backgroundMusic.volume = globalOptions.getMusicVolume();
+        }
+    }
+
+    /**
+     * Tenta tocar a música de fundo (se permitido).
+     */
+    playMusic() {
+        if (this.isUnlocked && globalOptions.isMusicEnabled() && !this.gameIsPaused) {
+            this.backgroundMusic?.play();
+        }
+    }
+
+    /**
+     * Pausa a música de fundo incondicionalmente.
+     */
+    pauseMusic() {
+        this.backgroundMusic?.pause();
     }
 
     /**
@@ -38,6 +72,7 @@ export default class AudioManager {
     unlock() {
         if (this.isUnlocked) return;
         this.isUnlocked = true;
+        this.playMusic();
     }
 
     startSizzle() {
@@ -98,8 +133,21 @@ export default class AudioManager {
      * Stops all currently playing game sounds.
      */
     stopAllSounds() {
+        this.pauseMusic();
         this.stopSizzle();
         this.stopRushingWater();
         this.stopToxicRush();
+    }
+
+    /**
+     * método para ser chamado pelo 'fullPause' e 'fullUnpause' do Game.
+     */
+    setPaused(isPaused) {
+        this.gameIsPaused = isPaused;
+        if (isPaused) {
+            this.stopAllSounds();
+        } else {
+            this.playMusic(); 
+        }
     }
 }
