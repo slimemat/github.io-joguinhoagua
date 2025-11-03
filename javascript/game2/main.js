@@ -3,6 +3,7 @@ import TerrainManager, { TERRAIN_WIDTH, TERRAIN_HEIGHT, TERRAIN_RESOLUTION } fro
 import LevelBuilder, { ParticleType, ParticleColors } from './levelBuilder.js';
 import ParticleManager from './particleManager.js';
 import UIManager from './uiManager.js'; 
+import { optionsModal } from '../../javascript/menu/OptionsModal.js';
 
 // --- Global Constants ---
 
@@ -58,7 +59,16 @@ class Game {
             TERRAIN_RESOLUTION
         );
 
-        // This logic remains the same. It triggers when a win panel button is clicked.
+        const originalModalHide = optionsModal.hide.bind(optionsModal);
+        optionsModal.hide = () => {
+            originalModalHide();
+
+            // Só despausa se o jogo estiver pausado E o modal de confirmação não estiver aberto
+            if (this.isPaused && this.uiManager.confirmOverlay.classList.contains('hidden')) {
+                this.silentUnpause();
+            }
+        };
+
         this.uiManager.setupNextLevelButton(() => {
             this.currentLevelIndex++;
             if (this.currentLevelIndex >= window.levels.length) {
@@ -92,10 +102,8 @@ class Game {
                 });
             },
             onMenu: () => {
-                // UPDATED: Use the new confirmation dialog
-                const wasPaused = this.isPaused;
-                if (!wasPaused) {
-                    this.togglePause(); // Pause the game to show the dialog
+                if (!this.isPaused) {
+                    this.silentPause();
                 }
 
                 this.uiManager.showConfirm(
@@ -104,12 +112,17 @@ class Game {
                         window.location.href = '../../index.html';
                     },
                     () => { // onCancel:
-                        if (!wasPaused) {
-                           this.togglePause();
-                        }
+                        this.fullPause();
                     }
                 );
+            },
+            onOptions: () => {
+                if (!this.isPaused) {
+                    this.silentPause();
+                }
+                optionsModal.show();
             }
+
         });
 
         // NEW: Keyboard listener for pausing
@@ -131,15 +144,50 @@ class Game {
     }
 
     /**
-     * Toggles the paused state of the game.
+     * Ativa o pause completo: para o jogo, para o som, mostra o overlay.
+     */
+    fullPause() {
+        if (this.isPaused) return; 
+        this.isPaused = true;
+        this.uiManager.togglePauseOverlay(true);
+        this.audioManager.stopAllSounds();
+    }
+
+    /**
+     * Toggles the *full* paused state of the game.
      */
     togglePause() {
-        this.isPaused = !this.isPaused;
-        this.uiManager.togglePauseOverlay(this.isPaused);
-
         if (this.isPaused) {
-            this.audioManager.stopAllSounds();
+            this.fullUnpause();
+        } else {
+            this.fullPause();
         }
+    }
+
+    /**
+     * Desativa o pause completo: continua o jogo, esconde o overlay.
+     * (O gameLoop reiniciará os sons automaticamente)
+     */
+    fullUnpause() {
+        if (!this.isPaused) return; 
+        this.isPaused = false;
+        this.uiManager.togglePauseOverlay(false);
+    }
+
+    /**
+     * Pausa silenciosa: para o jogo, NÃO para o som, NÃO mostra overlay.
+     * Usado ao abrir modais (Opções, Menu).
+     */
+    silentPause() {
+        this.isPaused = true;
+    }
+
+    /**
+     * Unpause silencioso: continua o jogo.
+     * Usado ao fechar o modal de Opções.
+     */
+    silentUnpause() {
+        this.isPaused = false;
     }
 
     /**

@@ -6,6 +6,7 @@ export default class UIManager {
         this.pauseBtn = document.getElementById('pause-btn');
         this.restartBtn = document.getElementById('restart-btn');
         this.selectLevelBtn = document.getElementById('select-level-btn');
+        this.optionsBtn = document.getElementById('ui-options-btn');
         this.menuBtn = document.getElementById('menu-btn');
 
         this.pauseOverlay = document.getElementById('pause-overlay');
@@ -164,6 +165,7 @@ export default class UIManager {
         this.restartBtn.addEventListener('click', callbacks.onRestart);
         this.selectLevelBtn.addEventListener('click', callbacks.onSelectLevel);
         this.menuBtn.addEventListener('click', callbacks.onMenu);
+        this.optionsBtn.addEventListener('click', callbacks.onOptions)
     }
     
     /**

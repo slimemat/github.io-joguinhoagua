@@ -481,3 +481,199 @@ transform: scale(1.05);
     background-color: #718096; /* Gray for the cancel action */
     color: white;
 }
+
+/* ================================= */
+/* ====== ESTILOS MODAL OPÇÕES ====== */
+/* ================================= */
+
+/* --- 1. Dependências (do index_menu.css) --- */
+
+/* O contêiner de fundo para o modal */
+.menu-container {
+    position: relative;
+    z-index: 2;
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 40px 60px;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    user-select: none;
+}
+
+/* O botão 'Fechar' dentro do modal */
+.menu-button {
+    font-family: 'Press Start 2P', cursive;
+    text-decoration: none;
+    color: #fff;
+    background-color: #3b82f6;
+    padding: 15px 30px;
+    border-radius: 10px;
+    font-size: 1.2rem;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    transition: all 0.2s ease-in-out;
+    border-bottom: 4px solid #1d4ed8;
+    cursor: none;
+}
+
+.menu-button:hover {
+    background-color: #2563eb;
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+}
+
+/* --- 2. Estilos Específicos do Modal (do options-modal.css) --- */
+
+/* O Fundo (Overlay) do Modal */
+#options-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8); 
+    z-index: 9999; /* Acima de tudo */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 1;
+    transition: opacity 0.4s ease-in-out;
+    backdrop-filter: blur(5px); /* Efeito de blur para o Jogo 2 */
+}
+
+/* O .hidden do modal usa opacidade para a transição */
+#options-modal-overlay.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Classe de cursor (para o <body>) */
+/* (Nota: O Jogo 2 não usa cursor customizado, então isso não terá efeito) */
+body.modal-active {
+    cursor: default; 
+}
+
+/* Garante o cursor de ponteiro correto dentro do modal */
+#options-modal-overlay input, 
+#options-modal-overlay .menu-button {
+    cursor: pointer;
+}
+#options-modal-overlay .toggle-switch .slider {
+    cursor: pointer;
+}
+
+/* Layout interno */
+#options-menu-content {
+    width: 100%;
+    max-width: 400px;
+    text-align: left;
+    padding: 0; 
+}
+
+#options-menu-content h2 {
+    font-family: 'Press Start 2P', cursive;
+    font-size: clamp(1.2rem, 3vw, 2rem);
+    margin-bottom: 30px;
+    color: #FFD700; 
+    text-shadow: 3px 3px 0px rgba(0,0,0,0.5);
+    text-align: center;
+}
+
+/* Estilos dos Controles (Sliders) */
+.control-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 25px;
+}
+.control-group label {
+    font-size: 1rem;
+    font-family: 'Press Start 2P', cursive;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-left: 5px;
+    color: #fff;
+}
+.control-group span {
+    font-family: 'Poppins', sans-serif;
+    font-weight: bold;
+    color: #FFD700;
+}
+input[type="range"] {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 12px;
+    background: #3b82f6;
+    margin: 10px 0;
+    padding: 0;
+}
+input[type="range"]::-webkit-slider-runnable-track {
+    width: 100%;
+    height: 8px;
+    background: #1d4ed8;
+    border: 2px solid #000;
+    border-radius: 2px;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4);
+}
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    height: 20px;
+    width: 16px;
+    margin-top: -6px;
+    background: #FFD700;
+    border: 3px solid #000;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+}
+
+/* Estilos dos Controles (Toggle Switch) */
+.toggle-group {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+.toggle-group label {
+    font-size: 1rem;
+    font-family: 'Press Start 2P', cursive;
+    color: #fff;
+    padding-left: 0;
+}
+.toggle-switch input[type="checkbox"] { display: none; }
+.toggle-switch {
+    display: inline-block;
+    position: relative;
+    width: 60px;
+    height: 30px;
+}
+.toggle-switch .slider {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: #d32f2f;
+    border: 3px solid #000;
+    border-radius: 5px;
+    transition: 0.4s;
+    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
+}
+.toggle-switch .slider:before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    border: 2px solid #000;
+    border-radius: 4px;
+    transition: 0.4s;
+}
+.toggle-switch input:checked + .slider { background-color: #3b82f6; }
+.toggle-switch input:checked + .slider:before { transform: translateX(26px); }
+
+.button-container {
+    margin-top: 40px;
+    display: flex;
+    justify-content: flex-end; /* Alinha o botão 'Fechar' à direita */
+}

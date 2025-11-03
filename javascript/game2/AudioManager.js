@@ -1,5 +1,7 @@
 // js/game2/AudioManager.js
-// Centraliza o controle de todos os áudios do jogo 2.
+// Centraliza o controle de todos os áudios do jogo 2
+// 
+import { globalOptions } from '../../javascript/menu/OptionsManager.js';
 
 export default class AudioManager {
     constructor() {
@@ -12,14 +14,23 @@ export default class AudioManager {
         this.isRushing = false;
         this.isToxicRushing = false;
 
-        if (this.sizzleSound) {
-            this.sizzleSound.volume = 0.7;
-        }
-        if (this.rushingWaterSound) {
-            this.rushingWaterSound.volume = 0.4;
-        }
-        if (this.toxicRushSound) {
-            this.toxicRushSound.volume = 0.5;
+        this.handleGlobalUpdate();
+
+        window.addEventListener('globalOptionsUpdated', () => this.handleGlobalUpdate());
+    }
+
+    handleGlobalUpdate() {
+        this.applySfxVolume(this.sizzleSound);
+        this.applySfxVolume(this.rushingWaterSound);
+        this.applySfxVolume(this.toxicRushSound);
+    }
+
+    /**
+     * Helper para aplicar o volume de SFX a um elemento.
+     */
+    applySfxVolume(element) {
+        if (element) {
+            element.volume = globalOptions.getSfxVolume();
         }
     }
 
@@ -30,7 +41,8 @@ export default class AudioManager {
     }
 
     startSizzle() {
-        if (!this.isUnlocked) return;
+        if (!this.isUnlocked || globalOptions.getSfxVolume() === 0) return;
+        
         if (this.sizzleSound && !this.isSizzling) {
             this.sizzleSound.currentTime = 0;
             this.sizzleSound.play();
@@ -47,7 +59,8 @@ export default class AudioManager {
     }
 
     startRushingWater() {
-        if (!this.isUnlocked) return;
+        if (!this.isUnlocked || globalOptions.getSfxVolume() === 0) return;
+        
         if (this.rushingWaterSound && !this.isRushing) {
             this.rushingWaterSound.currentTime = 0;
             this.rushingWaterSound.play();
@@ -64,7 +77,8 @@ export default class AudioManager {
     }
 
     startToxicRush() {
-        if (!this.isUnlocked) return;
+        if (!this.isUnlocked || globalOptions.getSfxVolume() === 0) return;
+        
         if (this.toxicRushSound && !this.isToxicRushing) {
             this.toxicRushSound.play();
             this.isToxicRushing = true;
