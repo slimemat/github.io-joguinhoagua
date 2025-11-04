@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editor de Perguntas - Jogo 1</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Press+Start+2P&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="../css/editorgame1.css">
+</head>
+<body>
+
+    <div class="menu-container editor-container">
+        
+        <h1 class="pixel-title">Editor de Perguntas (Jogo 1)</h1>
+        
+        <div class="toolbar">
+            <button id="btn-import" class="menu-button import">Importar Perguntas</button>
+            <input type="file" id="import-file-input" accept=".json" style="display: none;">
+            
+            <button id="btn-export" class="menu-button export">Exportar Perguntas</button>
+            
+            <a href="../index.html" class="menu-button back">Voltar ao Menu</a>
+        </div>
+
+        <div class="editor-layout">
+            
+            <div class="form-panel">
+                <form id="question-form">
+                    <h2 id="form-title">Adicionar Nova Pergunta</h2>
+                    <div class="control-group">
+                        <label for="form-info">Info (Texto de Contexto):</label>
+                        <textarea id="form-info" rows="3" placeholder="Ex: A água pode existir em três estados..."></textarea>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="form-question-text">Texto da Pergunta:</label>
+                        <textarea id="form-question-text" rows="3" placeholder="Ex: O estado sólido da água é chamado de gelo?"></textarea>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="form-image">Sprite da Pergunta (Opcional):</label>
+                        <select id="form-image">
+                            </select>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="form-question-type">Tipo de Pergunta:</label>
+                        <select id="form-question-type">
+                            <option value="tf">Verdadeiro / Falso</option>
+                            <option value="mc">Múltipla Escolha</option>
+                        </select>
+                    </div>
+
+                    <div id="answer-options-tf" class="answer-options">
+                        <div class="control-group">
+                            <label for="form-answer-tf">Resposta Correta:</label>
+                            <select id="form-answer-tf">
+                                <option value="verdadeiro">Verdadeiro</option>
+                                <option value="falso">Falso</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div id="answer-options-mc" class="answer-options" style="display: none;">
+                        <div class="control-group">
+                            <label for="form-option-1">Opção 1:</label>
+                            <input type="text" id="form-option-1" placeholder="Ex: Gelo (sólido)">
+                        </div>
+                        <div class="control-group">
+                            <label for="form-option-2">Opção 2:</label>
+                            <input type="text" id="form-option-2" placeholder="Ex: Vapor (gasoso)">
+                        </div>
+                        <div class="control-group">
+                            <label for="form-answer-mc">Resposta Correta:</label>
+                            <select id="form-answer-mc">
+                                <option value="1">Opção 1</option>
+                                <option value="2">Opção 2</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <hr>
+                    <div class="control-group">
+                        <label for="form-feedback-correct-title">Título Feedback (Correto):</label>
+                        <input type="text" id="form-feedback-correct-title" placeholder="Ex: Parabéns!">
+                    </div>
+                    <div class="control-group">
+                        <label for="form-feedback-correct-text">Texto Feedback (Correto):</label>
+                        <textarea id="form-feedback-correct-text" rows="2"></textarea>
+                    </div>
+                    <div class="control-group">
+                        <label for="form-feedback-incorrect-title">Título Feedback (Incorreto):</label>
+                        <input type="text" id="form-feedback-incorrect-title" placeholder="Ex: Ops!">
+                    </div>
+                    <div class="control-group">
+                        <label for="form-feedback-incorrect-text">Texto Feedback (Incorreto):</label>
+                        <textarea id="form-feedback-incorrect-text" rows="2"></textarea>
+                    </div>
+                    
+                    <div class="toggle-group">
+                        <label for="form-offers-reward">Oferece Recompensa?</label>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="form-offers-reward">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="form-buttons">
+                        <button type="submit" id="btn-save" class="menu-button">Salvar Pergunta</button>
+                        <button type="button" id="btn-cancel" class="menu-button cancel">Cancelar</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="list-panel">
+                <h2>Perguntas Atuais</h2>
+                <p>Arraste para reordenar as perguntas.</p>
+                <ul id="question-list">
+                    </ul>
+            </div>
+
+        </div> </div> <script type="module" src="../javascript/game1/custom/editor.js"></script>
+</body>
+</html>

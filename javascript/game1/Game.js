@@ -130,23 +130,55 @@ export default class Game {
      * Loads questions.json.
      */
     async loadQuestions() {
-        if (this.questions.length === 0) {
-            const res = await fetch('./questions.json');
-            const data = await res.json();
-            this.questions = data["pt-br"];
+        if (this.questions.length > 0) return; // Já carregado
 
-            this.questions.forEach(q => {
-                q.infoShown = false;           
-                q.answeredCorrectly = false;
-            });
+        let questionData = null;
+        
+        // A CHAVE DEVE SER EXATAMENTE A MESMA USADA NO QuestionStore.js
+        // (Lembre-se que você mudou para 'game1/custom', mas a chave é a mesma)
+        const localStorageKey = 'game1_customQuestions';
 
-            this.firstQuestions = this.questions.slice(0, 4);
-            this.remainingQuestions = this.questions.slice(4);
-
-            this.firstQuestions.forEach(q => q.infoShown = false);
-            this.remainingQuestions.forEach(q => q.infoShown = false);
-
+        // 1. Tenta carregar do localStorage PRIMEIRO
+        try {
+            const savedData = localStorage.getItem(localStorageKey);
+            if (savedData) {
+                console.log("Carregando perguntas personalizadas do localStorage.");
+                questionData = JSON.parse(savedData);
+            }
+        } catch (e) {
+            console.error("Falha ao carregar perguntas personalizadas, usando padrão.", e);
+            questionData = null; // Garante o fallback
         }
+
+        // 2. Se NADA foi carregado (localStorage vazio ou com erro), usa o fetch padrão
+        if (!questionData || questionData.length === 0) {
+            try {
+                console.log("Carregando perguntas padrão do 'questions.json'.");
+                // Esta é a sua lógica de fetch original
+                const res = await fetch('./questions.json');
+                const data = await res.json();
+                questionData = data["pt-br"];
+            } catch (e) {
+                console.error("Falha fatal ao carregar perguntas padrão.", e);
+                return; // Não pode continuar sem perguntas
+            }
+        }
+
+        // 3. Processa as perguntas (seja qual for a origem)
+        this.questions = questionData;
+
+        // Seu processamento original
+        this.questions.forEach(q => {
+            q.infoShown = false;           
+            q.answeredCorrectly = false;
+        });
+
+        // Sua lógica original de dividir as perguntas
+        this.firstQuestions = this.questions.slice(0, 4);
+        this.remainingQuestions = this.questions.slice(4);
+
+        this.firstQuestions.forEach(q => q.infoShown = false);
+        this.remainingQuestions.forEach(q => q.infoShown = false);
     }
 
     /**

@@ -1,0 +1,360 @@
+/* ========================================= */
+/* ====== 1. GLOBAIS E FUNDO (BODY) ======== */
+/* ========================================= */
+
+body {
+    /* Fundo gradiente (inspirado no game2.css) */
+    background: linear-gradient(135deg, #2A3F54 0%, #1a2a3a 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start; /* Alinha no topo */
+    min-height: 100vh;
+    margin: 0;
+    padding: 40px 0; /* Espaço no topo/baixo */
+    font-family: 'Poppins', sans-serif;
+    color: #fff;
+}
+
+/* ========================================= */
+/* ====== 2. LAYOUT PRINCIPAL ============== */
+/* ========================================= */
+
+/* Container principal (estilo do options-modal.css) */
+.menu-container.editor-container {
+    width: 90%;
+    max-width: 1400px; /* Mais largo para o editor */
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 30px 40px;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    user-select: none;
+    max-height: 90vh; /* Altura máxima */
+    display: flex;
+    flex-direction: column; /* Organiza verticalmente */
+}
+
+/* Título (estilo do options-modal.css) */
+.pixel-title {
+    font-family: 'Press Start 2P', cursive;
+    font-size: clamp(1.2rem, 3vw, 2rem);
+    margin: 0 0 30px 0;
+    color: #FFD700; 
+    text-shadow: 3px 3px 0px rgba(0,0,0,0.5);
+    text-align: center;
+}
+
+/* Layout de 2 colunas */
+.editor-layout {
+    display: grid;
+    grid-template-columns: 2fr 1fr; /* Formulário 66%, Lista 33% */
+    gap: 30px;
+    /* Permite que os painéis rolem independentemente */
+    overflow: hidden; 
+    flex: 1; /* Ocupa o espaço restante */
+}
+
+.form-panel, .list-panel {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    padding: 25px;
+    overflow-y: auto; /* Permite rolagem se o conteúdo for grande */
+}
+
+.list-panel h2, .form-panel h2 {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 1.2rem;
+    color: #fff;
+    text-shadow: 2px 2px 0px rgba(0,0,0,0.5);
+    margin-top: 0;
+    padding-bottom: 15px;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.list-panel p {
+    font-size: 0.9rem;
+    opacity: 0.7;
+    text-align: center;
+}
+
+/* ========================================= */
+/* ====== 3. BARRA DE FERRAMENTAS (TOPO) === */
+/* ========================================= */
+
+.toolbar {
+    display: flex;
+    flex-wrap: wrap; /* Permite quebrar linha em telas menores */
+    gap: 15px;
+    margin-bottom: 30px;
+    padding-bottom: 30px;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Botão base (estilo do options-modal.css) */
+.menu-button {
+    font-family: 'Press Start 2P', cursive;
+    text-decoration: none;
+    color: #fff;
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    transition: all 0.2s ease-in-out;
+    border: none;
+    cursor: pointer; /* Cursor de ponteiro normal */
+}
+
+.menu-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+}
+
+/* Variações de cor (inspirado no game2.css) */
+.menu-button.import {
+    background-color: #00c853; /* Verde */
+    border-bottom: 4px solid #009624;
+}
+.menu-button.export {
+    background-color: #3b82f6; /* Azul (Padrão) */
+    border-bottom: 4px solid #1d4ed8;
+}
+.menu-button.back {
+    background-color: #4F5D75; /* Cinza azulado */
+    border-bottom: 4px solid #2F3A4F;
+    margin-left: auto; /* Empurra para a direita */
+}
+.menu-button.cancel {
+    background-color: #718096; /* Cinza */
+    border-bottom: 4px solid #4a5568;
+}
+.menu-button#btn-save {
+     background-color: #00c853; /* Verde */
+    border-bottom: 4px solid #009624;
+}
+
+
+/* ========================================= */
+/* ====== 4. FORMULÁRIO (ESQUERDA) ========= */
+/* ========================================= */
+
+#question-form hr {
+    border: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    margin: 30px 0;
+}
+
+/* Grupos de controle (estilo do options-modal.css) */
+.control-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.control-group label {
+    font-size: 0.9rem;
+    font-family: 'Press Start 2P', cursive;
+    color: #fff;
+    opacity: 0.9;
+}
+
+/* Estilizando Inputs, Textareas e Selects */
+input[type="text"],
+textarea,
+select {
+    font-family: 'Poppins', sans-serif;
+    font-size: 1rem;
+    color: #fff;
+    background: rgba(0, 0, 0, 0.3);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 5px;
+    padding: 10px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+input[type="text"]:focus,
+textarea:focus,
+select:focus {
+    outline: none;
+    border-color: #FFD700;
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+}
+
+textarea {
+    resize: vertical;
+    min-height: 60px;
+}
+
+select {
+    cursor: pointer;
+}
+
+select option {
+    color: #fff;
+}
+
+/* Toggle Switch (copiado do options-modal.css) */
+.toggle-group {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 25px;
+    margin-bottom: 25px;
+}
+.toggle-group label {
+    font-size: 1rem;
+    font-family: 'Press Start 2P', cursive;
+    color: #fff;
+}
+.toggle-switch input[type="checkbox"] { display: none; }
+.toggle-switch {
+    display: inline-block;
+    position: relative;
+    width: 60px;
+    height: 30px;
+}
+.toggle-switch .slider {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: #d32f2f;
+    border: 3px solid #000;
+    border-radius: 5px;
+    transition: 0.4s;
+    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
+    cursor: pointer;
+}
+.toggle-switch .slider:before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    border: 2px solid #000;
+    border-radius: 4px;
+    transition: 0.4s;
+}
+.toggle-switch input:checked + .slider { background-color: #3b82f6; }
+.toggle-switch input:checked + .slider:before { transform: translateX(26px); }
+
+.form-buttons {
+    display: flex;
+    gap: 15px;
+    margin-top: 30px;
+}
+
+
+/* ========================================= */
+/* ====== 5. LISTA DE PERGUNTAS (DIREITA) === */
+/* ========================================= */
+
+#question-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+#question-list li {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 15px 20px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: grab;
+    transition: background-color 0.2s;
+}
+
+#question-list li:hover {
+    background: rgba(0, 0, 0, 0.5);
+}
+
+#question-list li .question-text {
+    font-weight: 600;
+    flex: 1;
+    /* Limita o texto para não quebrar o layout */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-right: 15px;
+}
+
+#question-list li .question-controls {
+    display: flex;
+    gap: 10px;
+}
+
+#question-list li .question-controls button {
+    font-family: 'Poppins', sans-serif;
+    font-weight: bold;
+    font-size: 0.8rem;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.btn-edit {
+    background: #3b82f6;
+    color: white;
+}
+.btn-delete {
+    background: #e53e3e;
+    color: white;
+}
+
+/* ========================================= */
+/* ====== 6. RESPONSIVIDADE ============== */
+/* ========================================= */
+
+@media (max-width: 1024px) {
+    .editor-layout {
+        /* Empilha as colunas */
+        grid-template-columns: 1fr;
+        max-height: none;
+    }
+    
+    .list-panel {
+        /* A lista de perguntas agora tem uma altura máxima
+           para não ficar gigante */
+        max-height: 400px;
+    }
+
+    .menu-button.back {
+        margin-left: 0;
+    }
+}
+
+@media (max-width: 600px) {
+    body {
+        padding: 10px 0;
+    }
+    
+    .menu-container.editor-container {
+        width: 95%;
+        padding: 20px 15px;
+    }
+    
+    .editor-layout {
+        gap: 15px;
+    }
+    
+    .form-panel, .list-panel {
+        padding: 15px;
+    }
+    
+    .toolbar {
+        gap: 10px;
+        margin-bottom: 20px;
+        padding-bottom: 20px;
+    }
+
+    .menu-button {
+        font-size: 0.8rem;
+        padding: 10px 15px;
+    }
+}
