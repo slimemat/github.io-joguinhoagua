@@ -169,3 +169,72 @@ input[type="range"]::-webkit-slider-thumb {
     transition: all 0.2s ease-in-out;
     border-bottom: 4px solid #1d4ed8;
 }
+
+/* ========================================= */
+/* ====== ESTILOS DAS ABAS DO MODAL ======== */
+/* ========================================= */
+
+/* A barra de abas */
+.modal-tabs {
+    display: flex;
+    list-style: none;
+    padding: 0;
+    margin: 0 0 20px 0;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.modal-tab {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 0.9rem;
+    color: #aaa;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 8px 8px 0 0;
+    border: 2px solid transparent;
+    border-bottom: none;
+    position: relative;
+    top: 2px; /* Alinha com a borda inferior */
+    transition: all 0.2s ease;
+}
+
+.modal-tab:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* A aba ativa */
+.modal-tab.active {
+    color: #FFD700;
+    background: rgba(0, 0, 0, 0.3);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Container do conteúdo das abas */
+.modal-tab-content {
+    margin-bottom: 30px;
+}
+
+/* Painel de aba (oculto por padrão) */
+.tab-panel {
+    display: none;
+}
+
+/* Painel de aba ativo (visível) */
+.tab-panel.active {
+    display: block;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Botão fechar (agora em um rodapé) */
+.modal-footer-buttons {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    justify-content: flex-end; /* Alinha o "Fechar" à direita */
+}

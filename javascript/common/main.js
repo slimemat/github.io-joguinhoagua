@@ -1,23 +1,37 @@
-// javascript/main.js
-// Este é o ponto de entrada. Ele inicializa o jogo e a interface.
+// EM /javascript/common/main.js
 
 import Game from '../game1/Game.js';
 import { setupUIEventListeners } from './ui.js';
 import { initUIPanel } from './ui-panel.js';
+import { optionsModal } from '../../javascript/menu/OptionsModal.js'; 
 
-// Espera a página carregar completamente antes de iniciar qualquer coisa.
+// --- EVENTO 1: LOAD (Para o Jogo) ---
 window.addEventListener('load', () => {
     const canvas = document.getElementById('gameCanvas');
     if (canvas) {
-        // 1. Cria a instância principal do jogo, que vai controlar tudo.
         const game = new Game(canvas);
-
         initUIPanel(game);
-        
-        // 2. Configura os eventos dos botões da interface (Start, Toggle Music).
-        //    Passamos a instância do 'game' para que a UI possa se comunicar com ele.
         setupUIEventListeners(game);
     } else {
         console.error("Elemento canvas do jogo não encontrado!");
     }
+});
+
+
+// --- EVENTO 2: DOMCONTENTLOADED (Para registrar a aba) ---
+document.addEventListener('DOMContentLoaded', () => {
+    
+    // 1. Define o HTML que irá dentro da nova aba
+    const editorTabHTML = `
+        <h2 style="font-family: 'Press Start 2P', cursive; font-size: 1.2rem; color: #fff;">Editor de Perguntas</h2>
+        <p style="color: #fff;">
+            Acesse o editor para criar, excluir ou modificar os conjuntos de perguntas para este jogo.
+        </p>
+        <a href="../../custom/editorgame1.html" class="menu-button game1-editor-btn" style="background-color: #00c853; border-bottom: 4px solid #009624;">
+            Abrir Editor
+        </a>
+    `;
+    
+    // 2. Registra a nova aba no modal
+    optionsModal.addTab('editor', 'Editor (Jogo 1)', editorTabHTML);
 });

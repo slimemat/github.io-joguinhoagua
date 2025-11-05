@@ -922,4 +922,13 @@ body, html {
     color: white;
 }
 
-
+.menu-container {
+    position: relative;
+    z-index: 2;
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 40px 60px;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    user-select: none;
+}

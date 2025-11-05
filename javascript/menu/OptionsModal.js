@@ -14,55 +14,60 @@ class OptionsModal {
 
     // 1. Cria o HTML do modal e o injeta no <body>
     createModal() {
-        // O HTML é armazenado como uma string de template
         const modalHTML = `
             <div id="options-modal-overlay" class="modal-overlay hidden">
-                <!-- Reutiliza o estilo .menu-container do seu CSS principal -->
                 <div class="menu-container">
-                    <div id="options-menu-content">
-                        <h2>Controles de Áudio</h2>
-                        
-                        <div class="control-group">
-                            <label for="modal-music-volume">
-                                <span>Volume da Música:</span>
-                                <span id="modal-music-volume-value">30%</span>
-                            </label>
-                            <input type="range" id="modal-music-volume" min="0" max="1" step="0.05">
+                    
+                    <ul class="modal-tabs">
+                        <li class="modal-tab active" data-tab="audio">Áudio</li>
+                        </ul>
+
+                    <div class="modal-tab-content">
+                    
+                        <div id="tab-audio" class="tab-panel active">
+                            <h2>Controles de Áudio</h2>
+                            
+                            <div class="control-group">
+                                <label for="modal-music-volume">
+                                    <span>Volume da Música:</span>
+                                    <span id="modal-music-volume-value">30%</span>
+                                </label>
+                                <input type="range" id="modal-music-volume" min="0" max="1" step="0.05">
+                            </div>
+                            
+                            <div class="control-group">
+                                <label for="modal-sfx-volume">
+                                    <span>Volume Efeitos:</span>
+                                    <span id="modal-sfx-volume-value">80%</span>
+                                </label>
+                                <input type="range" id="modal-sfx-volume" min="0" max="1" step="0.05">
+                            </div>
+
+                            <hr style="border-top: 1px solid rgba(255, 255, 255, 0.1); margin: 30px 0;">
+
+                            <div class="toggle-group">
+                                <label for="modal-music-toggle">Música de Fundo</label>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="modal-music-toggle">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
                         </div>
                         
-                        <div class="control-group">
-                            <label for="modal-sfx-volume">
-                                <span>Volume Efeitos:</span>
-                                <span id="modal-sfx-volume-value">80%</span>
-                            </label>
-                            <input type="range" id="modal-sfx-volume" min="0" max="1" step="0.05">
-                        </div>
-
-                        <hr style="border-top: 1px solid rgba(255, 255, 255, 0.1); margin: 30px 0;">
-
-                        <div class="toggle-group">
-                            <label for="modal-music-toggle">Música de Fundo</label>
-                            <label class="toggle-switch">
-                                <input type="checkbox" id="modal-music-toggle">
-                                <span class="slider"></span>
-                            </label>
-                        </div>
-
-                        <!-- Reutiliza o estilo .menu-button -->
-                       <div class="button-container">
-                            <a href="#" class="menu-button" id="modal-close-options-button">Fechar</a>
-                        </div>
-
+                        </div> <div class="button-container modal-footer-buttons">
+                        <a href="#" class="menu-button" id="modal-close-options-button">Fechar</a>
                     </div>
+
                 </div>
             </div>
         `;
         
-        // Injeta o HTML no final do <body>
         document.body.insertAdjacentHTML('beforeend', modalHTML);
-
-        // Armazena a referência ao elemento do modal
         this.modalElement = document.getElementById('options-modal-overlay');
+        
+        // Armazena referências para os containers de abas
+        this.tabList = this.modalElement.querySelector('.modal-tabs');
+        this.tabContent = this.modalElement.querySelector('.modal-tab-content');
     }
 
     // 2. Conecta os eventos internos (sliders, toggle, fechar)
@@ -107,6 +112,57 @@ class OptionsModal {
                 musicSlider.value = savedVolume; 
                 musicVolumeValue.textContent = `${Math.round(savedVolume * 100)}%`;
             }
+        });
+
+        // =======================================================
+        // ADICIONADO: Listener para a aba "Áudio" padrão
+        // =======================================================
+        const audioTab = this.modalElement.querySelector('.modal-tab[data-tab="audio"]');
+        if (audioTab) {
+            audioTab.addEventListener('click', () => {
+                // Desativa todas as abas e painéis
+                this.modalElement.querySelectorAll('.modal-tab').forEach(t => t.classList.remove('active'));
+                this.modalElement.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+
+                // Ativa a aba de áudio
+                audioTab.classList.add('active');
+                this.modalElement.querySelector('#tab-audio').classList.add('active');
+            });
+        }
+    }
+
+    /**
+     * Registra uma nova aba no modal de opções.
+     * @param {string} id - Um ID único para a aba (ex: 'editor')
+     * @param {string} title - O texto que aparecerá na aba (ex: 'Editor (Jg 1)')
+     * @param {string} contentHTML - O HTML que deve aparecer no painel da aba
+     */
+    addTab(id, title, contentHTML) {
+        if (!this.tabList || !this.tabContent) return;
+
+        // 1. Cria a Aba (botão)
+        const tab = document.createElement('li');
+        tab.className = 'modal-tab';
+        tab.dataset.tab = id;
+        tab.textContent = title;
+        this.tabList.appendChild(tab);
+
+        // 2. Cria o Painel de Conteúdo
+        const panel = document.createElement('div');
+        panel.className = 'tab-panel';
+        panel.id = `tab-${id}`;
+        panel.innerHTML = contentHTML;
+        this.tabContent.appendChild(panel);
+
+        // 3. Adiciona o evento de clique na Aba
+        tab.addEventListener('click', () => {
+            // Desativa todas as abas e painéis
+            this.modalElement.querySelectorAll('.modal-tab').forEach(t => t.classList.remove('active'));
+            this.modalElement.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+            
+            // Ativa a aba e o painel clicados
+            tab.classList.add('active');
+            panel.classList.add('active');
         });
     }
     
