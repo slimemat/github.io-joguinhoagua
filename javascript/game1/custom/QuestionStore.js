@@ -1,118 +1,215 @@
 // /javascript/game1/custom/QuestionStore.js
-// Gerencia o estado das perguntas (lendo e salvando no localStorage).
+// Gerencia MÚLTIPLOS conjuntos de perguntas e qual está ativo.
 
 class QuestionStore {
     constructor() {
-        // Chave única para o localStorage do Jogo 1
-        this.localStorageKey = 'game1_customQuestions';
+        // Chave do "Gerenciador"
+        this.managerKey = 'game1_question_manager';
         
-        // Array que armazena as perguntas em memória
+        // Objeto que armazena o gerenciador (em memória)
+        this.manager = {
+            activeSetKey: 'default',
+            sets: [
+                { key: 'default', name: 'Padrão (do questions.json)', builtIn: true }
+            ]
+        };
+        
+        // Array que armazena as perguntas do set ATIVO
         this.questions = [];
     }
 
+    // Prefixo para as chaves de dados
+    _getSetDataKey(key) {
+        return `game1_questions_${key}`;
+    }
+
     /**
-     * Carrega as perguntas do localStorage para a memória (this.questions).
+     * Carrega o "Manager" (lista de sets) do localStorage.
      */
-    load() {
+    loadManager() {
         try {
-            const savedData = localStorage.getItem(this.localStorageKey);
-            if (savedData) {
-                this.questions = JSON.parse(savedData);
-                console.log('Perguntas carregadas do localStorage:', this.questions);
+            const savedManager = localStorage.getItem(this.managerKey);
+            if (savedManager) {
+                this.manager = JSON.parse(savedManager);
             } else {
-                // Se não houver nada salvo, começa com um array vazio
-                this.questions = [];
-                console.log('Nenhuma pergunta personalizada encontrada. Começando do zero.');
+                // Se não houver manager, salva o padrão
+                this.saveManager();
             }
         } catch (e) {
-            console.error('Erro ao carregar perguntas do localStorage:', e);
+            console.error('Erro ao carregar o gerenciador de sets:', e);
+            // Redefine para o padrão em caso de erro
+            this.saveManager();
+        }
+    }
+
+    /**
+     * Salva o objeto "Manager" no localStorage.
+     */
+    saveManager() {
+        try {
+            localStorage.setItem(this.managerKey, JSON.stringify(this.manager));
+        } catch (e) {
+            console.error('Erro ao salvar o gerenciador de sets:', e);
+        }
+    }
+
+    /**
+     * Carrega as perguntas do SET ATIVO (definido no manager).
+     */
+    loadQuestions() {
+        const key = this.manager.activeSetKey;
+
+        // O set 'default' é virtual, não tem dados no localStorage
+        if (key === 'default') {
+            this.questions = [];
+            console.log("Carregando set 'Padrão' (somente leitura).");
+            return;
+        }
+
+        try {
+            const dataKey = this._getSetDataKey(key);
+            const savedData = localStorage.getItem(dataKey);
+            if (savedData) {
+                this.questions = JSON.parse(savedData);
+                console.log(`Perguntas carregadas do set: ${key}`);
+            } else {
+                this.questions = [];
+            }
+        } catch (e) {
+            console.error(`Erro ao carregar perguntas do set ${key}:`, e);
             this.questions = [];
         }
     }
 
     /**
-     * Salva o array 'this.questions' (da memória) no localStorage.
+     * Salva as perguntas no SET ATIVO.
      */
-    save() {
+    saveQuestions() {
+        const key = this.manager.activeSetKey;
+
+        // NUNCA salvar no set 'default'
+        if (key === 'default') {
+            console.warn("Não é possível salvar no set 'Padrão'.");
+            return;
+        }
+        
+        const dataKey = this._getSetDataKey(key);
         try {
-            localStorage.setItem(this.localStorageKey, JSON.stringify(this.questions));
-            console.log('Perguntas salvas no localStorage.');
+            localStorage.setItem(dataKey, JSON.stringify(this.questions));
+            console.log(`Perguntas salvas no set: ${key}`);
         } catch (e) {
-            console.error('Erro ao salvar perguntas no localStorage:', e);
+            console.error(`Erro ao salvar perguntas no set ${key}:`, e);
+        }
+    }
+    
+    // --- Funções de Gerenciamento de Set ---
+
+    getManager() {
+        return this.manager;
+    }
+
+    /**
+     * Cria um novo conjunto de perguntas.
+     * @param {string} name - O nome do novo conjunto.
+     * @returns {string} A chave do novo conjunto.
+     */
+    createNewSet(name) {
+        if (!name) name = "Novo Conjunto";
+        
+        const newKey = `set_${new Date().getTime()}`;
+        this.manager.sets.push({
+            key: newKey,
+            name: name,
+            builtIn: false
+        });
+        
+        // Salva o novo conjunto VAZIO no localStorage
+        localStorage.setItem(this._getSetDataKey(newKey), JSON.stringify([]));
+        
+        // Torna o novo conjunto ativo
+        this.manager.activeSetKey = newKey;
+        this.saveManager();
+        
+        return newKey;
+    }
+
+    /**
+     * Renomeia o conjunto ativo.
+     * @param {string} newName - O novo nome.
+     */
+    renameActiveSet(newName) {
+        if (this.manager.activeSetKey === 'default' || !newName) return;
+        
+        const set = this.manager.sets.find(s => s.key === this.manager.activeSetKey);
+        if (set) {
+            set.name = newName;
+            this.saveManager();
         }
     }
 
     /**
-     * Retorna todas as perguntas.
-     * @returns {Array}
+     * Deleta o conjunto ativo.
      */
+    deleteActiveSet() {
+        const keyToDelete = this.manager.activeSetKey;
+        if (keyToDelete === 'default') return;
+
+        // Remove o set da lista
+        this.manager.sets = this.manager.sets.filter(s => s.key !== keyToDelete);
+        
+        // Remove os dados do set
+        localStorage.removeItem(this._getSetDataKey(keyToDelete));
+        
+        // Volta para o 'default'
+        this.manager.activeSetKey = 'default';
+        this.saveManager();
+    }
+
+    /**
+     * Muda o conjunto ativo.
+     * @param {string} newKey - A chave do conjunto para ativar.
+     */
+    switchActiveSet(newKey) {
+        if (this.manager.sets.find(s => s.key === newKey)) {
+            this.manager.activeSetKey = newKey;
+            this.saveManager();
+        }
+    }
+    
+    // --- Funções de CRUD (Modificadas) ---
+    // Elas agora usam saveQuestions() que salva no set ATIVO.
+
     getQuestions() {
         return this.questions;
     }
 
-    /**
-     * Adiciona uma nova pergunta ao array e salva.
-     * @param {Object} question - O objeto da nova pergunta.
-     */
     add(question) {
-        // Simula um ID único (em um app real, seria um UUID)
         question.id = new Date().getTime(); 
         this.questions.push(question);
-        this.save();
+        this.saveQuestions(); // <- Mudou de save() para saveQuestions()
     }
 
-    /**
-     * Atualiza uma pergunta existente pelo ID e salva.
-     * @param {number} id - O ID da pergunta a ser atualizada.
-     * @param {Object} updatedQuestionData - Os novos dados da pergunta.
-     */
     update(id, updatedQuestionData) {
         const index = this.questions.findIndex(q => q.id === id);
         if (index !== -1) {
-            // Mantém o ID original e mescla os dados atualizados
             this.questions[index] = { ...this.questions[index], ...updatedQuestionData, id: id };
-            this.save();
-        } else {
-            console.warn(`Pergunta com ID ${id} não encontrada para atualização.`);
+            this.saveQuestions(); // <- Mudou de save() para saveQuestions()
         }
     }
 
-    /**
-     * Deleta uma pergunta pelo ID e salva.
-     * @param {number} id - O ID da pergunta a ser deletada.
-     */
     delete(id) {
         this.questions = this.questions.filter(q => q.id !== id);
-        this.save();
+        this.saveQuestions(); // <- Mudou de save() para saveQuestions()
     }
 
-    /**
-     * Retorna uma pergunta específica pelo ID.
-     * @param {number} id - O ID da pergunta.
-     * @returns {Object | undefined}
-     */
     getById(id) {
         return this.questions.find(q => q.id === id);
     }
     
-    /**
-     * Atualiza a ordem das perguntas (usado pelo drag-and-drop) e salva.
-     * @param {Array} newOrderedQuestions - O array de perguntas na nova ordem.
-     */
     reorder(newOrderedQuestions) {
         this.questions = newOrderedQuestions;
-        this.save();
-    }
-
-    /**
-     * Substitui TODAS as perguntas atuais pelas novas (usado na importação).
-     * @param {Array} newQuestions - O novo array de perguntas.
-     */
-    overwrite(newQuestions) {
-        this.questions = newQuestions;
-        this.save(); // Salva a lista importada no localStorage
+        this.saveQuestions(); // <- Mudou de save() para saveQuestions()
     }
 }
 
-// Exporta uma instância única (Singleton)
 export const store = new QuestionStore();

@@ -127,53 +127,74 @@ export default class Game {
     }
 
     /**
-     * Loads questions.json.
+     * (NOVA VERSÃO)
+     * Carrega as perguntas com base no conjunto ATIVO definido no editor.
      */
     async loadQuestions() {
         if (this.questions.length > 0) return; // Já carregado
 
         let questionData = null;
-        
-        // A CHAVE DEVE SER EXATAMENTE A MESMA USADA NO QuestionStore.js
-        // (Lembre-se que você mudou para 'game1/custom', mas a chave é a mesma)
-        const localStorageKey = 'game1_customQuestions';
+        const managerKey = 'game1_question_manager';
+        let activeKey = 'default'; // Padrão
 
-        // 1. Tenta carregar do localStorage PRIMEIRO
+        // 1. Tenta carregar o "Manager" para descobrir qual set está ativo
         try {
-            const savedData = localStorage.getItem(localStorageKey);
-            if (savedData) {
-                console.log("Carregando perguntas personalizadas do localStorage.");
-                questionData = JSON.parse(savedData);
+            const savedManager = localStorage.getItem(managerKey);
+            if (savedManager) {
+                const manager = JSON.parse(savedManager);
+                activeKey = manager.activeSetKey || 'default';
             }
         } catch (e) {
-            console.error("Falha ao carregar perguntas personalizadas, usando padrão.", e);
-            questionData = null; // Garante o fallback
+            console.warn("Não foi possível ler o gerenciador de sets. Usando 'default'.");
+            activeKey = 'default';
         }
 
-        // 2. Se NADA foi carregado (localStorage vazio ou com erro), usa o fetch padrão
-        if (!questionData || questionData.length === 0) {
+        console.log(`Carregando conjunto de perguntas: ${activeKey}`);
+
+        // 2. Decide de onde carregar as perguntas
+        if (activeKey === 'default') {
+            // Se for 'default', carrega do arquivo questions.json
             try {
-                console.log("Carregando perguntas padrão do 'questions.json'.");
-                // Esta é a sua lógica de fetch original
-                const res = await fetch('./questions.json');
+                const res = await fetch('./questions.json'); //
                 const data = await res.json();
-                questionData = data["pt-br"];
+                questionData = data["pt-br"]; //
             } catch (e) {
-                console.error("Falha fatal ao carregar perguntas padrão.", e);
-                return; // Não pode continuar sem perguntas
+                console.error("Falha fatal ao carregar 'questions.json' padrão.", e);
+                return;
+            }
+        } else {
+            // Se for um set customizado, carrega do localStorage
+            try {
+                const dataKey = `game1_questions_${activeKey}`;
+                const savedData = localStorage.getItem(dataKey);
+                if (savedData) {
+                    questionData = JSON.parse(savedData);
+                } else {
+                    // Fallback se a chave do set não existir
+                    console.error(`Set "${activeKey}" não encontrado no localStorage. Voltando para 'default'.`);
+                    // Chama a si mesmo novamente, mas força o 'default' (é uma gambiarra, mas funciona)
+                    localStorage.removeItem(managerKey); // limpa o manager quebrado
+                    return this.loadQuestions(); // tenta de novo
+                }
+            } catch (e) {
+                console.error(`Falha ao carregar set "${activeKey}".`, e);
+                return;
             }
         }
 
         // 3. Processa as perguntas (seja qual for a origem)
         this.questions = questionData;
+        if (!this.questions || this.questions.length === 0) {
+             console.error("Nenhuma pergunta carregada.");
+             this.questions = [];
+        }
 
-        // Seu processamento original
         this.questions.forEach(q => {
             q.infoShown = false;           
             q.answeredCorrectly = false;
         });
 
-        // Sua lógica original de dividir as perguntas
+        
         this.firstQuestions = this.questions.slice(0, 4);
         this.remainingQuestions = this.questions.slice(4);
 

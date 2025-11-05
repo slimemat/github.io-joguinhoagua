@@ -51,11 +51,18 @@ class EditorUI {
         this.formFeedbackIncorrectTitle = document.getElementById('form-feedback-incorrect-title');
         this.formFeedbackIncorrectText = document.getElementById('form-feedback-incorrect-text');
         this.formOffersReward = document.getElementById('form-offers-reward');
+
+        this.setSelector = document.getElementById('set-selector');
+        this.btnNewSet = document.getElementById('btn-new-set');
+        this.btnRenameSet = document.getElementById('btn-rename-set');
+        this.btnDeleteSet = document.getElementById('btn-delete-set');
+        this.formLockedWarning = document.getElementById('form-locked-warning');
     }
 
     initialize() {
         this.populateSpriteDropdown();
         this.bindEvents();
+        this.bindSetManagerEvents();
     }
 
     populateSpriteDropdown() {
@@ -94,6 +101,16 @@ class EditorUI {
         this.importFileInput.addEventListener('change', (e) => this.handleFileImport(e));
     }
 
+    /**
+     * Liga os eventos aos botões do gerenciador de sets.
+     */
+    bindSetManagerEvents() {
+        this.setSelector.addEventListener('change', (e) => this.handleSetChange(e.target.value));
+        this.btnNewSet.addEventListener('click', () => this.handleNewSet());
+        this.btnRenameSet.addEventListener('click', () => this.handleRenameSet());
+        this.btnDeleteSet.addEventListener('click', () => this.handleDeleteSet());
+    }
+
     toggleAnswerPanels(type) {
         if (type === 'tf') {
             this.tfOptions.style.display = 'block';
@@ -107,19 +124,33 @@ class EditorUI {
     renderQuestionList() {
         const questions = store.getQuestions();
         this.questionList.innerHTML = '';
-        if (questions.length === 0) {
+        
+        // Verifica se o set atual é o 'default' (somente leitura)
+        const isReadOnly = store.getManager().activeSetKey === 'default';
+
+        if (isReadOnly) {
+            this.questionList.innerHTML = '<li class="empty-list-item">Este é o conjunto "Padrão". Ele não pode ser editado. Crie um novo conjunto para adicionar perguntas.</li>';
+        } else if (questions.length === 0) {
             this.questionList.innerHTML = '<li class="empty-list-item">Nenhuma pergunta criada. Comece usando o formulário ao lado.</li>';
-            return;
         }
+        
+        // Habilita/desabilita o formulário
+        this.toggleFormAccess(isReadOnly);
+        
         questions.forEach(question => {
             const li = document.createElement('li');
             li.dataset.id = question.id; 
+            
+            // Não mostra botões de "Editar/Excluir" se for 'default'
+            // (Embora não deva haver perguntas 'default' listadas aqui, é uma segurança)
             li.innerHTML = `
                 <span class="question-text">${question.question.text}</span>
+                ${!isReadOnly ? `
                 <div class="question-controls">
                     <button class="btn-edit">Editar</button>
                     <button class="btn-delete">Excluir</button>
                 </div>
+                ` : ''}
             `;
             this.questionList.appendChild(li);
         });
@@ -256,6 +287,106 @@ class EditorUI {
 
         // Limpa o valor do input para permitir importar o mesmo arquivo novamente
         event.target.value = null;
+    }
+
+    /**
+     * Habilita ou desabilita todos os campos do formulário.
+     * @param {boolean} isDisabled - True para desabilitar, false para habilitar.
+     */
+    toggleFormAccess(isDisabled) {
+        const formElements = this.form.elements;
+        for (let i = 0; i < formElements.length; i++) {
+            formElements[i].disabled = isDisabled;
+        }
+        
+        // Também controla os botões de renomear/excluir set
+        this.btnRenameSet.style.display = isDisabled ? 'none' : 'block';
+        this.btnDeleteSet.style.display = isDisabled ? 'none' : 'block';
+
+        if (this.formLockedWarning) {
+            if (isDisabled) {
+                this.formLockedWarning.classList.remove('hidden');
+            } else {
+                this.formLockedWarning.classList.add('hidden');
+            }
+        }
+    }
+
+    /**
+     * Popula o dropdown <select> com a lista de sets do store.
+     */
+    populateSetSelector() {
+        this.setSelector.innerHTML = '';
+        const manager = store.getManager();
+        
+        manager.sets.forEach(set => {
+            const option = document.createElement('option');
+            option.value = set.key;
+            option.textContent = set.name;
+            if (set.builtIn) {
+                option.textContent += " (Padrão)";
+            }
+            this.setSelector.appendChild(option);
+        });
+        
+        // Define o valor selecionado
+        this.setSelector.value = manager.activeSetKey;
+    }
+
+    /**
+     * Recarrega a aplicação inteira (store e UI)
+     */
+    reloadEditorState() {
+        store.loadQuestions();
+        this.populateSetSelector();
+        this.renderQuestionList();
+        this.clearForm();
+    }
+
+    /**
+     * Chamado quando o usuário troca o set no dropdown.
+     */
+    handleSetChange(newKey) {
+        store.switchActiveSet(newKey);
+        this.reloadEditorState();
+    }
+
+    /**
+     * Chamado quando o usuário clica em "Novo Set".
+     */
+    handleNewSet() {
+        const name = prompt("Digite o nome para o novo conjunto de perguntas:", "Minhas Perguntas");
+        if (name) {
+            store.createNewSet(name);
+            this.reloadEditorState();
+        }
+    }
+    
+    /**
+     * Chamado quando o usuário clica em "Renomear".
+     */
+    handleRenameSet() {
+        const currentSet = store.getManager().sets.find(s => s.key === store.getManager().activeSetKey);
+        if (!currentSet) return;
+        
+        const newName = prompt("Digite o novo nome para este conjunto:", currentSet.name);
+        if (newName && newName !== currentSet.name) {
+            store.renameActiveSet(newName);
+            this.populateSetSelector(); // Apenas atualiza o seletor
+        }
+    }
+
+    /**
+     * Chamado quando o usuário clica em "Excluir".
+     */
+    handleDeleteSet() {
+        const currentSet = store.getManager().sets.find(s => s.key === store.getManager().activeSetKey);
+        if (!currentSet) return;
+
+        if (confirm(`Tem certeza que deseja excluir o conjunto "${currentSet.name}"?\n\nEsta ação não pode ser desfeita.`)) {
+            store.deleteActiveSet();
+            this.reloadEditorState();
+        }
     }
 }
 

@@ -26,9 +26,29 @@
             <a href="../index.html" class="menu-button back">Voltar ao Menu</a>
         </div>
 
+        <div class="set-manager">
+            <div class="control-group">
+                <label for="set-selector">Conjunto de Perguntas Ativo:</label>
+                <div class="set-controls">
+                    <select id="set-selector">
+                        </select>
+                    <button id="btn-new-set" class="menu-button new-set">+</button>
+                    <button id="btn-rename-set" class="menu-button rename-set">Renomear</button>
+                    <button id="btn-delete-set" class="menu-button cancel">Excluir</button>
+                </div>
+            </div>
+        </div>
+
         <div class="editor-layout">
             
             <div class="form-panel">
+
+                <div id="form-locked-warning" class="hidden">
+                    <div class="lock-icon">🔒</div>
+                    <h3>Modo Somente Leitura</h3>
+                    <p>O conjunto "Padrão" não pode ser editado. Crie um novo conjunto ou selecione outro para adicionar perguntas.</p>
+                </div>
+
                 <form id="question-form">
                     <h2 id="form-title">Adicionar Nova Pergunta</h2>
                     <div class="control-group">
