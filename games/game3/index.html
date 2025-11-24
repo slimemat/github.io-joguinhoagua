@@ -1,23 +1,131 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-
-    <link rel="stylesheet" href="fonte.css">
-    <link rel="stylesheet" href="style.css">
-
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Jogo da Memória - Ciclo da Água</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css" />
     <script defer src="game.js"></script>
-
-    <title>Memory Game</title>
+    
 </head>
 <body>
-     <div class="grid">
-       
 
-     </div>   
+    <div class="game-container">
+        
+        <div class="sidebar left-sidebar" id="sidebar-perguntas">
+        </div>
 
+        <main class="main-game">
+            <h1 class="title">Jogo da Memória - Ciclo da Água</h1>
+            
+            <!--<button id="winBtn-debug" style="width: 100%; padding: 2px; background: #ffc107; 
+            color: #333; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;">[DEBUG: VENCER O JOGO]</button>-->
+
+            <div class="stats-container">
+                <div class="stat-group current-stats">
+                    <div class="stat">
+                        <strong>Tempo:</strong> <span id="timer">00:00</span>
+                    </div>
+                    <div class="stat">
+                        <strong>Revelações:</strong> <span id="flip-counter">0</span>
+                    </div>
+                </div>
+                
+                <div class="stat-group button-group">
+    
+                    <button id="mapBtn" class="icon-btn" title="Voltar ao Mapa">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+                    </button>
+                    
+                    <button id="restartBtn" class="icon-btn" title="Reiniciar">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"></path><path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path><path d="M3 22v-6h6"></path><path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path></svg>
+                    </button>
+                
+                    <div class="volume-area">
+                        <div id="volumeIconContainer" class="icon-btn">
+                        </div>
+                        
+                        <div class="volume-control">
+                            <input type="range" id="volumeSlider" min="0" max="1" step="0.05" value="0.5">
+                        </div>
+                    </div>
+                
+                </div>
+
+                <div class="stat-group best-stats">
+                    <div class="stat best-stat">
+                        <strong>Melhor Tempo:</strong> <span id="best-time">--</span>
+                    </div>
+                    <div class="stat best-stat">
+                        <strong>Melhores Revelações:</strong> <span id="best-flips">--</span>
+                    </div>
+                </div>
+            </div>
+            <div class="grid"></div>
+            
+        </main>
+
+        <div class="sidebar right-sidebar" id="sidebar-respostas">
+        </div>
+
+    </div>
+
+    <div class="modal-overlay" id="win-modal">
+        <div class="modal-content">
+            <h2>Parabéns!</h2>
+            <p>Você completou o jogo!</p>
+            
+            <div class="modal-stats">
+                <div class="modal-stat-item">
+                    <strong>Seu Tempo:</strong>
+                    <span id="modal-time">00:00</span>
+                </div>
+                <div class="modal-stat-item">
+                    <strong>Suas Revelações:</strong>
+                    <span id="modal-flips">0</span>
+                </div>
+                <div class="modal-stat-item best">
+                    <strong>Melhor Recorde:</strong>
+                    <span id="modal-best-record">--</span>
+                </div>
+            </div>
+            
+            <div class="modal-buttons">
+                <button id="modal-restart-btn">Reiniciar Jogo</button>
+                <button id="modal-map-btn">Voltar ao Mapa</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="confirm-modal-overlay" id="confirm-restart-modal">
+        <div class="confirm-modal-content">
+            <h3>Reiniciar Jogo</h3>
+            <p>Tem certeza que deseja <b>reiniciar o jogo?</b> Todo o seu <b>progresso atual</b> será perdido.</p>
+            <div class="confirm-buttons">
+                <button id="restart-cancel-btn">Não, Continuar</button>
+                <button id="restart-confirm-btn">Sim, Reiniciar</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="confirm-modal-overlay" id="confirm-map-modal">
+        <div class="confirm-modal-content">
+            <h3>Voltar ao Mapa</h3>
+            <p>Tem certeza que deseja <b>voltar ao mapa?</b> Seu <b>progresso atual</b> nesta fase será perdido.</p>
+            <div class="confirm-buttons">
+                <button id="map-cancel-btn">Não, Continuar</button>
+                <button id="map-confirm-btn">Sim, Voltar ao Mapa</button>
+            </div>
+        </div>
+    </div>
+
+
+    <audio id="bg-music" src="../../assets/musica-de-fundo.mp3" loop autoplay></audio>
+    <audio id="xp-sound" src="../../assets/xp.mp3"></audio>
+    <audio id="correct-sound" src="../../assets/correct.mp3"></audio>
+    <audio id="wrong-sound" src="../../assets/wrong.mp3"></audio>
+    <audio id="celebration-sound" src="../../assets/celebration.mp3"></audio>
 
 </body>
 </html>
