@@ -581,20 +581,6 @@ body {
 
 /* RESPONSIVIDADE (MEDIA QUERIES) */
 
-/* Cartões pequenos (Oculta imagem) */
-@container card (max-width: 130px) {
-    .face.front img {
-        display: none; 
-    }
-    .face.front {
-        justify-content: center; 
-        padding: 4px; 
-    }
-    .face.front p {
-        font-size: clamp(0.9rem, 8.5cqw, 1.2rem); 
-    }
-}
-
 /* Telas médias (Layout em Coluna e Sidebars em linha) */
 @media (max-width: 1200px) { 
     .game-container {
@@ -684,6 +670,23 @@ body {
     }
     .best-stat {
         min-width: 100px;
+    }
+    
+    /*CELULAR (500px e abaixo) */
+    
+    .face.front img {
+        display: none; 
+    }
+    
+    .face.front {
+        justify-content: center; 
+        padding: 4px;
+    }
+    
+    .face.front p {
+         font-size: clamp(0.8rem, 10cqw, 1.2rem); 
+        line-height: 1.15;
+        padding: 0;
     }
 }
 
