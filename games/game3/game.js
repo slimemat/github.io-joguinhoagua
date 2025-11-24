@@ -545,7 +545,7 @@ function closeConfirmModals() {
 function goToMap() {
     stopTimer();
     if(bgMusic) bgMusic.pause();
-    window.location.href = "../map/index.html";
+    window.location.href = "../../map/index.html";
 }
 
 // AÇÃO: REINICIAR O JOGO
