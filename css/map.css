@@ -125,4 +125,12 @@ html, body {
 /* Initial character position (on level 1) */
 #personagem { top: 74%; left: 14%; }
 
+.disabled{
+  background: #4d4d4db2;
+  border: 5px solid gray;
+  color: darkgray;
+  cursor: no-drop;
+  pointer-events: none;
+}
+
     
